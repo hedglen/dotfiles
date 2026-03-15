@@ -160,4 +160,5 @@
     },
   },
   "workbench.startupEditor": "none",
+  "terminal.integrated.enableMultiLinePasteWarning": "never",
 }

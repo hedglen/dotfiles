@@ -82,18 +82,21 @@ if (-not $ConfigsOnly -and -not $NoApps) {
 }
 
 # =============================================================================
-#   3. Install Oh My Posh
+#   3. Windows tweaks (optional — requires admin, skipped if not elevated)
 # =============================================================================
-if (-not $ConfigsOnly) {
-    Write-Step "Oh My Posh"
-    if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
-        Write-Skip "Already installed ($(oh-my-posh version))"
-    } else {
+if (-not $AppsOnly -and -not $ConfigsOnly) {
+    Write-Step "Windows tweaks"
+    $tweaksScript = Join-Path $DotfilesDir "windows\tweaks.ps1"
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $isAdmin) {
+        Write-Warn "Not running as admin — skipping tweaks. Re-run install.ps1 as admin, or run windows\tweaks.ps1 manually."
+    } elseif (Test-Path $tweaksScript) {
         if ($DryRun) {
-            Write-Skip "Would install Oh My Posh via winget"
+            Write-Skip "Would run: windows\tweaks.ps1"
         } else {
-            winget install JanDeDobbeleer.OhMyPosh -s winget --accept-package-agreements
-            Write-OK "Oh My Posh installed"
+            & $tweaksScript
+            Write-OK "Windows tweaks applied"
         }
     }
 }
@@ -124,6 +127,11 @@ if (-not $AppsOnly) {
             src  = "vscode\settings.json"
             dst  = "$HOME\AppData\Roaming\Code\User\settings.json"
             desc = "VS Code settings"
+        },
+        @{
+            src  = "autohotkey\main.ahk"
+            dst  = "$HOME\dotfiles-ahk\main.ahk"
+            desc = "AutoHotkey script"
         }
     )
 
@@ -174,12 +182,15 @@ if (-not $AppsOnly) {
     if (Get-Command code -ErrorAction SilentlyContinue) {
         $extFile = Join-Path $DotfilesDir "vscode\extensions.txt"
         if (Test-Path $extFile) {
-            Get-Content $extFile | Where-Object { $_ -match '\S' } | ForEach-Object {
+            Get-Content $extFile |
+            Where-Object { $_.Trim() -ne '' -and $_ -notmatch '^\s*#' } |
+            ForEach-Object {
+                $ext = $_.Trim()
                 if ($DryRun) {
-                    Write-Skip "Would install: $_"
+                    Write-Skip "Would install: $ext"
                 } else {
-                    code --install-extension $_ --force 2>&1 | Out-Null
-                    Write-OK $_
+                    code --install-extension $ext --force 2>&1 | Out-Null
+                    Write-OK $ext
                 }
             }
         }
@@ -205,6 +216,35 @@ if (Test-Path "$mpvDir\portable_config") {
 } else {
     Write-Warn "mpv not found at $mpvDir — run install.ps1 from mpv-config repo first"
     Write-Warn "  irm https://raw.githubusercontent.com/hedglen/mpv-config/master/install.ps1 | iex"
+}
+
+# =============================================================================
+#   7. AutoHotkey — register on startup
+# =============================================================================
+if (-not $AppsOnly) {
+    Write-Step "AutoHotkey startup"
+    $ahkSrc = Join-Path $DotfilesDir "autohotkey\main.ahk"
+    $ahkExe = (Get-Command AutoHotkey.exe -ErrorAction SilentlyContinue)?.Source
+    if (-not $ahkExe) {
+        $ahkExe = "${env:ProgramFiles}\AutoHotkey\v2\AutoHotkey64.exe"
+    }
+    if (Test-Path $ahkSrc) {
+        $runKey  = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+        $runVal  = "`"$ahkExe`" `"$ahkSrc`""
+        if ($DryRun) {
+            Write-Skip "Would register AHK in Run: $runVal"
+        } else {
+            Set-ItemProperty -Path $runKey -Name 'AutoHotkey' -Value $runVal -Force
+            # Launch it now too
+            if (Get-Process -Name 'AutoHotkey*' -ErrorAction SilentlyContinue) {
+                Stop-Process -Name 'AutoHotkey*' -Force -ErrorAction SilentlyContinue
+            }
+            Start-Process $ahkExe $ahkSrc
+            Write-OK "AutoHotkey registered for startup and launched"
+        }
+    } else {
+        Write-Warn "autohotkey\main.ahk not found — skipping"
+    }
 }
 
 # =============================================================================
