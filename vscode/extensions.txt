@@ -1,0 +1,9 @@
+anthropic.claude-code
+eamodio.gitlens
+esbenp.prettier-vscode
+github.copilot-chat
+mechatroner.rainbow-csv
+ms-vscode-remote.remote-ssh
+ms-vscode-remote.remote-ssh-edit
+ms-vscode.remote-explorer
+zhuangtongfa.material-theme

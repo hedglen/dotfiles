@@ -1,0 +1,18 @@
+# Backups created by install.ps1
+*.backup
+
+# Secrets — never commit these
+.env
+*.key
+*.pem
+id_rsa
+id_ed25519
+
+# Windows junk
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editor
+.vscode/
+*.swp

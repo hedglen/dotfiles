@@ -1,0 +1,77 @@
+[user]
+    name  = hedglen
+    email = your@email.com
+
+[core]
+    autocrlf    = input
+    editor      = code --wait
+    whitespace  = trailing-space,space-before-tab
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[push]
+    autoSetupRemote = true
+
+[fetch]
+    prune = true
+
+[diff]
+    colorMoved = zebra
+
+[merge]
+    conflictstyle = diff3
+
+[color]
+    ui = auto
+
+[color "branch"]
+    current  = yellow bold
+    local    = green
+    remote   = cyan
+
+[color "diff"]
+    meta       = yellow
+    frag       = magenta bold
+    old        = red bold
+    new        = green bold
+    whitespace = red reverse
+
+[color "status"]
+    added     = green bold
+    changed   = yellow bold
+    untracked = red
+
+[alias]
+    # Shortcuts
+    st     = status
+    co     = checkout
+    br     = branch
+    cp     = cherry-pick
+    rb     = rebase
+
+    # Pretty log
+    lg     = log --oneline --graph --decorate --all
+    ll     = log --oneline --decorate -20
+    last   = log -1 HEAD --stat
+
+    # Undo helpers
+    unstage = reset HEAD --
+    undo    = reset --soft HEAD~1
+    discard = checkout --
+
+    # Utilities
+    aliases  = config --get-regexp alias
+    branches = branch -a
+    remotes  = remote -v
+    tags     = tag -l
+    stashes  = stash list
+
+    # Show files changed in last commit
+    changed  = diff HEAD~1 HEAD --name-only
+
+[safe]
+    directory = P:/config/mpv
