@@ -120,19 +120,18 @@ These apps are **not available in winget** and must be installed manually after 
 ## 🔑 Licenses & Accounts
 
 > ⚠️ **Keys are NOT stored here.** This is a public repo.
-> All license keys and passwords are stored in **Bitwarden** under the vault folder `🖥️ Software Licenses`.
+> All license keys and passwords are stored in **Proton Pass** under the vault folder `Software Licenses`.
 
 | App | Type | Where to Find Key |
 |-----|------|-------------------|
-| **StartAllBack** | Paid license | Bitwarden → Software Licenses |
-| **Internet Download Manager** | Paid license | Bitwarden → Software Licenses |
-| **Adobe Creative Cloud** | Subscription | Bitwarden → Adobe |
+| **StartAllBack** | Paid license | Proton Pass → Software Licenses |
+| **Internet Download Manager** | Paid license | Proton Pass → Software Licenses |
+| **Adobe Creative Cloud** | Subscription | Proton Pass → Adobe |
 | **Corsair iCUE** | Free (account optional) | hedglen@pm.me |
-| **Proton** (VPN/Drive/Pass/Auth) | Subscription | Bitwarden → Proton |
-| **Bitwarden** | Account | Master password — memorize it |
-| **JDownloader 2** | Free (account optional) | Bitwarden → JDownloader |
-| **Battle.net / Blizzard** | Account | Bitwarden → Blizzard |
-| **Steam** | Account | Bitwarden → Steam |
+| **Proton** (VPN/Drive/Pass/Auth) | Subscription | master password — memorize it |
+| **JDownloader 2** | Free (account optional) | Proton Pass → JDownloader |
+| **Battle.net / Blizzard** | Account | Proton Pass → Blizzard |
+| **Steam** | Account | Proton Pass → Steam |
 
 ---
 
