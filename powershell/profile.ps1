@@ -16,7 +16,7 @@ function prompt {
     $time = (Get-Date).ToString("HH:mm")
     $path = $executionContext.SessionState.Path.CurrentLocation
     Write-Host "$tag $time " -NoNewline -ForegroundColor DarkGray
-    Write-Host "PS " -NoNewline -ForegroundColor Cyan
+    Write-Host "PS " -NoNewline -ForegroundColor Magenta
     Write-Host "$path" -NoNewline -ForegroundColor Yellow
     return "`n> "
 }
