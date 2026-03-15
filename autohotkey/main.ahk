@@ -12,11 +12,6 @@
 ;   Remaps
 ; =============================================================================
 
-; CapsLock → Escape  (best remap of all time)
-CapsLock::Escape
-
-; Alt+CapsLock → toggle actual CapsLock
-LAlt & CapsLock:: SetCapsLockState !GetKeyState("CapsLock", "T")
 
 ; =============================================================================
 ;   App Launchers  (Win + key)
