@@ -28,20 +28,19 @@ This will:
 ```
 dotfiles/
 ├── install.ps1                    ← bootstrap script
-│
+├── autohotkey/
+│   └── main.ahk                   ← hotkeys, app launchers, text expanders
 ├── powershell/
-│   └── profile.ps1                ← PS profile: prompt, aliases, helper functions
-│
-├── git/
-│   └── .gitconfig                 ← aliases, colors, sensible defaults
-│
-├── windows-terminal/
-│   └── settings.json              ← Neon Blaze theme, Nerd Font, keybindings
-│
+│   └── profile.ps1                ← prompt, aliases, helper functions
 ├── vscode/
 │   ├── settings.json              ← editor settings, font, theme
 │   └── extensions.txt             ← extension list for auto-install
-│
+├── windows-terminal/
+│   └── settings.json              ← Neon Blaze theme, Nerd Font, keybindings
+├── windows/
+│   └── tweaks.ps1                 ← privacy, power, explorer tweaks
+├── git/
+│   └── .gitconfig                 ← aliases, colors, sensible defaults
 └── apps/
     └── winget-packages.json       ← full app list for winget import
 ```
@@ -69,46 +68,263 @@ dotfiles/
 
 ---
 
+## 💻 PowerShell Profile
+
+### Startup Banner
+
+On every new terminal, a neon purple cheat sheet prints with all available commands.
+
+### Prompt
+
+Format: `[USER/ADMIN] HH:MM PS path>`
+
+| Element | Color |
+|---------|-------|
+| `[USER]` / `[ADMIN]` tag | Neon green |
+| Time | Bright green |
+| `PS` label | Magenta |
+| Current path | Yellow/orange |
+
+### Navigation
+
+| Command | Description |
+|---------|-------------|
+| `c` | `cd C:\` |
+| `d` | `cd D:\` |
+| `home` | `cd ~` |
+| `dots` | `cd ~/dotfiles` |
+| `tools` | `cd C:\Tools` |
+| `psh` | `cd C:\Tools\PowerShell` |
+
+### System Helpers
+
+| Command | Description |
+|---------|-------------|
+| `drives` | All volumes with size and free space |
+| `uptime` | Time since last boot (`Xd Xh Xm`) |
+| `sysinfo` | OS, uptime, RAM, CPU, user, hostname |
+| `users` | Local user accounts |
+| `admins` | Local admin group members |
+| `startup-list` | All startup entries (registry + startup folder) |
+| `startup-find 'pattern'` | Search startup entries by name or path |
+| `tasks-user` | Non-Microsoft scheduled tasks |
+| `pkillf name` | Force-kill all processes matching name |
+| `which name` | Find where a command lives |
+| `touch path` | Create an empty file |
+| `grep pattern` | Pipeline-friendly `Select-String` wrapper |
+| `reload` | Re-source the profile in the current session |
+| `save-dots [message]` | Commit & push all dotfile changes to GitHub |
+
+### Aliases
+
+| Alias | Resolves To |
+|-------|-------------|
+| `ll` / `la` | `Get-ChildItem` |
+| `open` | `Invoke-Item` |
+| `startup-list` | `Get-StartupList` |
+| `startup-find` | `Search-Startup` |
+| `tasks-user` | `Get-UserTasks` |
+| `uptime` | `Get-Uptime` |
+
+### Directory Colors
+
+| Type | Color |
+|------|-------|
+| Directories | Soft cyan |
+| Executables | Warm yellow |
+
+---
+
+## ⌨️ AutoHotkey
+
+Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
+
+### App Launchers (Win + Key)
+
+| Hotkey | Action |
+|--------|--------|
+| `Win+T` | Windows Terminal (PowerShell) — suppressed when mpv is focused |
+| `Win+E` | File Pilot (file manager) |
+| `Win+B` | Brave Browser |
+| `Win+N` | Notion |
+| `Win+O` | Obsidian |
+| `Win+C` | VS Code (dotfiles workspace) |
+
+### Window Management
+
+| Hotkey | Action |
+|--------|--------|
+| `Win+Alt+Left` | Move window to left monitor |
+| `Win+Alt+Right` | Move window to right monitor |
+| `Win+Alt+F` | Toggle true fullscreen (borderless, any window) |
+
+### Clipboard
+
+| Hotkey | Action |
+|--------|--------|
+| `Ctrl+Shift+V` | Paste as plain text (strips formatting) |
+
+### Text Expanders
+
+| Trigger | Expands To |
+|---------|-----------|
+| `@@` | `hedglen@pm.me` |
+| `/shrug` | `¯\_(ツ)_/¯` |
+| `/check` | `✓` |
+| `/arr` | `→` |
+| `/date` | Today's date (`YYYY-MM-DD`) |
+
+---
+
+## 🖥️ Windows Terminal
+
+### Keyboard Bindings
+
+| Hotkey | Action |
+|--------|--------|
+| `Ctrl+T` | New tab |
+| `Ctrl+W` | Close tab |
+| `Ctrl+Tab` | Next tab |
+| `Ctrl+Shift+Tab` | Previous tab |
+| `Alt+Shift+D` | Duplicate pane (auto-split) |
+| `Alt+Shift+Right` | Split pane right |
+| `Alt+Shift+Down` | Split pane down |
+
+### Profiles
+
+| Profile | Status |
+|---------|--------|
+| PowerShell 7 (pwsh) | Default |
+| Windows PowerShell | Available |
+| Command Prompt | Hidden |
+| Azure Cloud Shell | Hidden |
+
+### Color Schemes
+
+**Neon Blaze** (active) — neon green on near-black
+
+| Element | Color |
+|---------|-------|
+| Background | `#0A0A0F` |
+| Foreground | `#39FF14` (neon green) |
+| Blue / Bright Blue | `#BF00FF` / `#D966FF` (purple) |
+| Red | `#FF2D55` |
+| Cyan | `#00FFCC` |
+| Yellow | `#FF6000` |
+| Cursor | `#FF6000` |
+| Selection | `#3D0066` |
+
+**Catppuccin Mocha** — soft pastel dark theme (available, not active)
+
+---
+
+## 🧩 VS Code
+
+### Key Settings
+
+| Setting | Value |
+|---------|-------|
+| Theme | One Dark Pro |
+| Icons | Material Icon Theme |
+| Font | Cascadia Code / Fira Code / Consolas |
+| Font size | 14 |
+| Ligatures | Enabled |
+| Tab size | 4 spaces |
+| Format on save | Enabled |
+| Auto save | On focus change |
+| Minimap | Disabled |
+| Sticky scroll | Enabled |
+| Ruler | 100 chars |
+| Terminal font | CaskaydiaCove Nerd Font |
+| Terminal font size | 13 |
+| Terminal default | PowerShell |
+
+### Extensions
+
+| Category | Extension |
+|----------|-----------|
+| AI | Claude Code, GitHub Copilot, Copilot Chat |
+| Git | GitLens |
+| PowerShell | ms-vscode.powershell |
+| Python | ms-python.python (Pylance) |
+| Lua | sumneko.lua |
+| AutoHotkey | thqby.vscode-autohotkey2-lsp |
+| Data/Config | redhat.vscode-yaml, rainbow-csv |
+| Formatting | Prettier |
+| QoL | Error Lens, Material Icons, Better Comments, Path Intellisense |
+| Remote | Remote SSH, Remote Explorer |
+
+---
+
+## 🔒 Windows Tweaks
+
+Script: `windows/tweaks.ps1` — run during install (admin required).
+
+**Power:**
+- High Performance power plan
+- Fast startup disabled
+- Sleep on AC disabled
+- Hard disk sleep disabled
+
+**Privacy:**
+- Telemetry set to 0, DiagTrack & dmwappushservice disabled
+- Advertising ID, tailored experiences, activity history disabled
+- Location services disabled
+- Camera/mic/location denied by default for Store apps
+
+**Xbox / Game Bar:**
+- Game DVR, Game Bar, background recording disabled
+- Xbox services disabled
+
+**Explorer:**
+- File extensions visible
+- Hidden files visible
+- Opens to This PC (not Quick Access)
+- Recent/frequent items in Quick Access disabled
+
+**Start / Search / Taskbar:**
+- Bing search in Start disabled
+- Cortana disabled
+- News & Interests widget disabled
+- Suggested/promoted apps disabled
+
+---
+
 ## 📦 Apps (via winget)
 
-Key apps tracked in `apps/winget-packages.json`:
+Key apps tracked in `apps/winget-packages.json` (~60 packages total):
 
 | Category | Apps |
 |----------|------|
-| **Dev** | Git, VS Code, PowerShell 7, Python Launcher |
-| **Terminal** | Windows Terminal |
-| **Media** | VLC, MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp |
-| **Utilities** | 7-Zip, NanaZip, Everything, Ditto, TeraCopy, Bulk Rename, dupeGuru, TreeSize, File Pilot |
-| **Productivity** | Notion, Obsidian, LibreOffice, Flow Launcher, Zoom |
-| **Creative** | Adobe Creative Cloud, Adobe Acrobat |
-| **System** | MSI Afterburner, HWiNFO, CrystalDiskInfo, FanControl, AOMEI Partition Assistant |
-| **Gaming** | Steam |
+| **Dev** | Git, VS Code, PowerShell 7, Python Launcher, AutoHotkey |
+| **Terminal** | Windows Terminal, Oh My Posh |
+| **Browsers** | Brave, Floorp, Chrome |
+| **Media** | VLC, MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP |
+| **File Management** | File Pilot, Everything, TeraCopy, NanaZip, 7-Zip, Bulk Rename, TreeSize, Ditto |
+| **Productivity** | Notion, Obsidian, LibreOffice, Flow Launcher, Zoom, LocalSend, EarTrumpet |
+| **Creative** | Adobe Creative Cloud, Adobe Acrobat Reader |
 | **Privacy** | Proton VPN, Proton Drive, Proton Pass, Proton Authenticator, Bitwarden, Signal |
 | **Cloud** | Google Drive, pCloud Drive |
+| **System** | MSI Afterburner, HWiNFO, CrystalDiskInfo, FanControl, AOMEI Partition Assistant |
+| **Entertainment** | Steam, Kodi, Jellyfin Server |
 | **Package Mgmt** | UniGetUI |
-| **Downloads** | IDM, JDownloader 2 (see Manual Installs) |
+| **Other** | StartAllBack, Internet Download Manager, Corsair iCUE 5 |
 
 ---
 
 ## 🔧 Manual Installs
 
-These apps are **not available in winget** and must be installed manually after running `install.ps1`.
-
----
+These apps are **not available in winget** and must be installed manually.
 
 ### 🔵 JDownloader 2
 - **Download:** https://jdownloader.org/download/index
-- **Install:** Run the installer, sign into your My JDownloader account if you use remote access
+- **Install:** Run installer, sign into My JDownloader account
 - **Account:** hedglen@pm.me
-
----
 
 ### 🟢 Macrium Reflect Home
 - **Download:** https://www.macrium.com/reflectfree
 - **Install:** Run installer, select "Home" edition (free)
-- **Note:** Re-register email after install to unlock scheduling features
-
----
+- **Note:** Re-register email after install to unlock scheduling
 
 ### 🟠 Battle.net
 - **Download:** https://us.battle.net/download/getBnetInstaller
@@ -120,63 +336,29 @@ These apps are **not available in winget** and must be installed manually after 
 ## 🔑 Licenses & Accounts
 
 > ⚠️ **Keys are NOT stored here.** This is a public repo.
-> All license keys and passwords are stored in **Proton Pass** under the vault folder `Software Licenses`.
+> All license keys and passwords are stored in **Proton Pass** under `Software Licenses`.
 
-| App | Type | Where to Find Key |
-|-----|------|-------------------|
-| **StartAllBack** | Paid license | Proton Pass → Software Licenses |
-| **Internet Download Manager** | Paid license | Proton Pass → Software Licenses |
-| **Adobe Creative Cloud** | Subscription | Proton Pass → Adobe |
-| **Corsair iCUE** | Free (account optional) | hedglen@pm.me |
-| **Proton** (VPN/Drive/Pass/Auth) | Subscription | master password — memorize it |
-| **JDownloader 2** | Free (account optional) | Proton Pass → JDownloader |
-| **Battle.net / Blizzard** | Account | Proton Pass → Blizzard |
-| **Steam** | Account | Proton Pass → Steam |
-
----
-
-## 💻 PowerShell Profile
-
-Custom functions available after install:
-
-| Command | Description |
-|---------|-------------|
-| `drives` | All drives with size and free space |
-| `uptime` | Time since last boot |
-| `sysinfo` | Quick hardware/OS snapshot |
-| `users` | Local user accounts |
-| `admins` | Local admin group members |
-| `startup-list` | All startup entries |
-| `startup-find 'pattern'` | Search startup entries by name/path |
-| `tasks-user` | Non-Microsoft scheduled tasks |
-| `pkillf name` | Force-kill processes matching name |
-| `touch path` | Create empty file |
-| `grep pattern` | Pipeline-friendly Select-String wrapper |
-| `reload` | Re-source the profile |
-| `dots` | `cd` to `~/dotfiles` |
-| `save-dots` | Commit & push all dotfile changes to GitHub |
-
-**Navigation shortcuts:** `c` (C:\\), `d` (D:\\), `home`, `tools`, `psh`
+| App | Type | Where |
+|-----|------|-------|
+| StartAllBack | Paid license | Proton Pass → Software Licenses |
+| Internet Download Manager | Paid license | Proton Pass → Software Licenses |
+| Adobe Creative Cloud | Subscription | Proton Pass → Adobe |
+| Corsair iCUE | Free (account optional) | hedglen@pm.me |
+| Proton (VPN/Drive/Pass/Auth) | Subscription | master password — memorize it |
+| JDownloader 2 | Free (account optional) | Proton Pass → JDownloader |
+| Battle.net / Blizzard | Account | Proton Pass → Blizzard |
+| Steam | Account | Proton Pass → Steam |
 
 ---
 
-## 🎨 Terminal Theme
+## 🎨 Terminal Theme — Neon Blaze
 
-Windows Terminal is configured with **Neon Blaze** — a custom dark theme with neon accents.
+Requires [CaskaydiaCove Nerd Font](https://www.nerdfonts.com/font-downloads) — download and install it, then it's picked up automatically.
 
-| Element | Color |
-|---------|-------|
-| Startup cheat sheet | Neon purple |
-| Prompt tag `[USER]` | Neon green |
-| `PS` label | Magenta |
-| Current path | Neon orange |
-| Background | Near-black `#0A0A0F` |
-
-Requires [CaskaydiaCove Nerd Font](https://www.nerdfonts.com/font-downloads).
-Download and install it, then it will be picked up automatically by the Terminal config.
+The **Neon Blaze** color scheme is defined in both `windows-terminal/settings.json` and `vscode/settings.json` so the terminal looks identical everywhere.
 
 ---
 
 ## 🖥️ Related
 
-- **[mpv-config](https://github.com/hedglen/mpv-config)** — full mpv media player setup with HDR auto-switching, shaders, Scimitar buttons, favorites, audio normalize, and more
+- **[mpv-config](https://github.com/hedglen/mpv-config)** — full mpv media player setup with HDR auto-switching, FSRCNNX/Anime4K shaders, ultrawide optimization, Corsair Scimitar button mapping, chapter editor, clip export, GIF creation, favorites, audio normalize, and more
