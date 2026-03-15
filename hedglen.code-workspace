@@ -1,0 +1,31 @@
+{
+    "folders": [
+        {
+            "name": "dotfiles",
+            "path": "C:\\Users\\rjh\\dotfiles"
+        },
+        {
+            "name": "mpv-config",
+            "path": "P:\\config\\mpv"
+        }
+    ],
+    "settings": {
+        "workbench.colorTheme": "One Dark Pro",
+        "workbench.iconTheme": "material-icon-theme"
+    },
+    "extensions": {
+        "recommendations": [
+            "anthropic.claude-code",
+            "github.copilot",
+            "github.copilot-chat",
+            "eamodio.gitlens",
+            "ms-vscode.powershell",
+            "ms-python.python",
+            "sumneko.lua",
+            "thqby.vscode-autohotkey2-lsp",
+            "usernamehw.errorlens",
+            "pkief.material-icon-theme",
+            "aaron-bond.better-comments"
+        ]
+    }
+}
