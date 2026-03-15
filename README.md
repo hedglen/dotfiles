@@ -32,6 +32,8 @@ dotfiles/
 │   └── main.ahk                   ← hotkeys, app launchers, text expanders
 ├── powershell/
 │   └── profile.ps1                ← prompt, aliases, helper functions
+├── oh-my-posh/
+│   └── hedglab.omp.json           ← custom OMP theme (purple/pink/cyan)
 ├── vscode/
 │   ├── settings.json              ← editor settings, font, theme
 │   └── extensions.txt             ← extension list for auto-install
@@ -72,7 +74,14 @@ dotfiles/
 
 ### Startup Banner
 
-On every new terminal, a neon purple cheat sheet prints with all available commands.
+On every new terminal:
+- A neon purple cheat sheet lists all available commands
+- A random quote prints in dim grey underneath
+
+### PSReadLine
+
+- Inline suggestions sourced from command history (shown in blue as you type)
+- Press `→` to accept a suggestion
 
 ### Prompt
 
@@ -388,6 +397,25 @@ These apps are **not available in winget** and must be installed manually.
 | JDownloader 2 | Free (account optional) | Proton Pass → JDownloader |
 | Battle.net / Blizzard | Account | Proton Pass → Blizzard |
 | Steam | Account | Proton Pass → Steam |
+
+---
+
+## 🎨 Oh My Posh Theme
+
+Theme: `oh-my-posh/hedglab.omp.json` — a custom powerline prompt with four segments:
+
+| Segment | Background | Shows |
+|---------|-----------|-------|
+| Path | Purple `#6a0dad` | Full folder path |
+| Git | Deep pink `#ff1493` | Branch, status, stash count |
+| Exec time | Cyan `#00ffcc` | How long the last command took |
+| Exit code | Red `#ff5555` | Success or failure of last command |
+
+To activate it, add this to your profile (Oh My Posh is already installed via winget):
+
+```powershell
+oh-my-posh init pwsh --config "$HOME\dotfiles\oh-my-posh\hedglab.omp.json" | Invoke-Expression
+```
 
 ---
 

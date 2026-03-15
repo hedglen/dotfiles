@@ -191,6 +191,13 @@ Set-Alias startup-find Search-Startup
 Set-Alias uptime       Get-Uptime
 
 # =============================================================================
+#   PSReadLine
+# =============================================================================
+
+Set-PSReadLineOption -PredictionSource History
+Set-PSReadLineOption -Colors @{ InlinePrediction = "#5555FF" }
+
+# =============================================================================
 #   Styling
 # =============================================================================
 
@@ -204,3 +211,12 @@ $PSStyle.FileInfo.Executable = "`e[38;5;220m"  # warm yellow
 $esc = [char]27
 [Console]::WriteLine("${esc}[38;5;129m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")
+
+$quotes = @(
+    "You're not debugging. You're time travelling.",
+    "AI writes code. You write the future.",
+    "The bug you ignore today spawns tech debt tomorrow.",
+    "Clarity comes not from code, but from thought before code.",
+    "Refactor until it sings. Then refactor again."
+)
+[Console]::WriteLine("${esc}[38;5;240m  $(Get-Random -InputObject $quotes)${esc}[0m")
