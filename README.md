@@ -256,6 +256,46 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 
 ---
 
+## 🔀 Git
+
+Config: `git/.gitconfig` — symlinked to `~/.gitconfig` on install.
+
+### Shortcuts (aliases)
+
+Instead of typing full git commands, these short versions work:
+
+| Type this | Instead of |
+|-----------|-----------|
+| `git st` | `git status` |
+| `git co` | `git checkout` |
+| `git br` | `git branch` |
+| `git cp` | `git cherry-pick` |
+| `git rb` | `git rebase` |
+| `git lg` | `git log --oneline --graph --decorate --all` (pretty branch tree) |
+| `git ll` | last 20 commits, one line each |
+| `git last` | last commit with which files changed |
+| `git undo` | undo last commit but keep the changes |
+| `git unstage file` | remove a file from staging area |
+| `git discard file` | throw away changes to a file |
+| `git changed` | list files changed in the last commit |
+| `git branches` | list all branches (local + remote) |
+| `git stashes` | list all stashes |
+
+### Sensible Defaults
+
+| Setting | Value | What it means |
+|---------|-------|---------------|
+| `defaultBranch` | `main` | New repos start on `main` not `master` |
+| `autocrlf` | `input` | Don't mangle line endings on Windows |
+| `editor` | `code --wait` | VS Code opens for commit messages |
+| `pull.rebase` | `false` | `git pull` merges, doesn't rebase |
+| `push.autoSetupRemote` | `true` | First push sets upstream automatically |
+| `fetch.prune` | `true` | Auto-delete stale remote branches |
+| `diff.colorMoved` | `zebra` | Moved code shows differently in diffs |
+| `merge.conflictStyle` | `diff3` | Merge conflicts show the original too |
+
+---
+
 ## 🔒 Windows Tweaks
 
 Script: `windows/tweaks.ps1` — run during install (admin required).
