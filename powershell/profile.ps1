@@ -17,7 +17,7 @@ function prompt {
     $path = $executionContext.SessionState.Path.CurrentLocation
     Write-Host "$tag $time " -NoNewline -ForegroundColor DarkGray
     Write-Host "PS " -NoNewline -ForegroundColor Magenta
-    Write-Host "$path" -NoNewline -ForegroundColor Yellow
+    Write-Host "$path" -NoNewline -ForegroundColor Yellow  # maps to brightYellow = #FF8C00
     return "`n> "
 }
 

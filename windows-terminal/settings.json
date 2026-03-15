@@ -94,8 +94,8 @@
             "brightRed": "#FF6080",
             "green": "#39FF14",
             "brightGreen": "#7FFF00",
-            "yellow": "#FF7700",
-            "brightYellow": "#FFAA00",
+            "yellow": "#FF6000",
+            "brightYellow": "#FF8C00",
             "blue": "#BF00FF",
             "brightBlue": "#D966FF",
             "purple": "#FF00CC",
@@ -104,7 +104,7 @@
             "brightCyan": "#40FFE0",
             "white": "#D0D0E0",
             "brightWhite": "#FFFFFF",
-            "cursorColor": "#FF7700",
+            "cursorColor": "#FF6000",
             "selectionBackground": "#3D0066"
         }
     ],
