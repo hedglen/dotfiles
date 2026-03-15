@@ -15,15 +15,18 @@
 ; CapsLock → Escape  (best remap of all time)
 CapsLock::Escape
 
-; Alt+CapsLock → actual CapsLock (in case you need it)
-LAlt & CapsLock::CapsLock
+; Alt+CapsLock → toggle actual CapsLock
+LAlt & CapsLock:: SetCapsLockState !GetKeyState("CapsLock", "T")
 
 ; =============================================================================
 ;   App Launchers  (Win + key)
 ; =============================================================================
 
-; Win+T → Windows Terminal (PowerShell)
+; Win+T → Windows Terminal (PowerShell)  — disabled when mpv is focused
+;   (mpv uses T to save chapters; the T keystroke leaks through AHK otherwise)
+#HotIf !WinActive("ahk_exe mpv.exe")
 #t:: Run "wt.exe"
+#HotIf
 
 ; Win+E → File Pilot  (your file manager)
 #e:: {
