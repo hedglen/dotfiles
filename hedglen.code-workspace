@@ -1,13 +1,17 @@
 {
   "folders": [
     {
+      "name": "hedglen-profile",
+      "path": "../hedglen-profile"
+    },
+    {
       "name": "dotfiles",
-      "path": "C:\\Users\\rjh\\dotfiles",
+      "path": "."
     },
     {
       "name": "mpv-config",
-      "path": "C:\\Users\\rjh\\mpv-config",
-    },
+      "path": "../mpv-config"
+    }
   ],
   "settings": {
     "workbench.colorTheme": "One Dark Pro",
