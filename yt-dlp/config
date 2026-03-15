@@ -1,0 +1,8 @@
+# Audio defaults
+--extract-audio
+--audio-format flac
+--audio-quality 0
+--embed-thumbnail
+--embed-metadata
+--output "D:\Media\Music\%(uploader)s\%(title)s.%(ext)s"
+--sponsorblock-remove all
