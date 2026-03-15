@@ -71,7 +71,9 @@
                                 { "PackageIdentifier" : "Microsoft.VCLibs.14" },
                                 { "PackageIdentifier" : "Microsoft.WindowsAppRuntime.1.8" },
                                 { "PackageIdentifier" : "Microsoft.WindowsTerminal" },
-                                { "PackageIdentifier" : "JanDeDobbeleer.OhMyPosh" }
+                                { "PackageIdentifier" : "JanDeDobbeleer.OhMyPosh" },
+                                { "PackageIdentifier" : "PeterPawlowski.foobar2000" },
+                                { "PackageIdentifier" : "9P4CLT2RJ1RS" }
                         ],
                         "SourceDetails" :
                         {
