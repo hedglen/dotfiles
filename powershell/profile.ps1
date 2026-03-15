@@ -3,11 +3,6 @@
 #   Managed via dotfiles: https://github.com/hedglen/dotfiles
 # =============================================================================
 
-# --- Oh My Posh (Catppuccin Mocha theme) ---
-if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
-    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\catppuccin_mocha.omp.json" | Invoke-Expression
-}
-
 # --- Custom Prompt ---
 function prompt {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).
