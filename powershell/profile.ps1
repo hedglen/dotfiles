@@ -13,8 +13,8 @@ function prompt {
     $tag = if ($isAdmin) { "[ADMIN]" } else { "[USER]" }
     $time = (Get-Date).ToString("HH:mm")
     $path = $executionContext.SessionState.Path.CurrentLocation
-    Write-Host "$tag" -NoNewline -ForegroundColor Green
-    Write-Host " $time " -NoNewline -ForegroundColor BrightGreen
+    Write-Host "$tag" -NoNewline -ForegroundColor Cyan
+    Write-Host " $time " -NoNewline -ForegroundColor White
     Write-Host "PS " -NoNewline -ForegroundColor Magenta
     Write-Host "$path" -NoNewline -ForegroundColor Yellow  # maps to brightYellow = #FF8C00
     return "`n> "

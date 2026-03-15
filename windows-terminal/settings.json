@@ -29,8 +29,8 @@
       "cursorShape": "bar",
       "padding": "8",
       "scrollbarState": "hidden",
-      "useAcrylic": false,
-      "opacity": 95
+      "useAcrylic": true,
+      "opacity": 85
     },
     "list": [
       {
