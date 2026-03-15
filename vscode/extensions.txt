@@ -19,7 +19,6 @@ ms-vscode.powershell
 #   Languages — Python
 # =============================================================================
 ms-python.python
-ms-python.pylance
 
 # =============================================================================
 #   Languages — Lua (mpv scripts)
