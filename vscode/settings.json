@@ -30,8 +30,6 @@
 
     "explorer.confirmDelete": false,
     "explorer.compactFolders": false,
-
-    "workbench.startupEditor": "none",
     "workbench.tree.indent": 16,
 
     "git.autofetch": true,
