@@ -162,6 +162,22 @@ function grep { param([string]$Pattern) $input | Select-String $Pattern }
 # reload — re-source the profile
 function reload { . $PROFILE; Write-Host "Profile reloaded." -ForegroundColor Green }
 
+# save-dots — commit and push all dotfile changes to GitHub
+function save-dots {
+    param([string]$Message = "update configs")
+    Push-Location "$HOME\dotfiles"
+    git add -A
+    $status = git status --porcelain
+    if (-not $status) {
+        Write-Host "Nothing to save — dotfiles already up to date." -ForegroundColor DarkGray
+    } else {
+        git commit -m $Message
+        git push
+        Write-Host "Dotfiles saved to GitHub." -ForegroundColor Green
+    }
+    Pop-Location
+}
+
 # =============================================================================
 #   Aliases
 # =============================================================================
@@ -182,3 +198,4 @@ $PSStyle.FileInfo.Executable = "`e[38;5;220m"  # warm yellow
 # =============================================================================
 
 Write-Host "  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload" -ForegroundColor DarkGray
+Write-Host "  save-dots [message]  — commit & push dotfiles to GitHub" -ForegroundColor DarkGray
