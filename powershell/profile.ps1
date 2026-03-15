@@ -219,4 +219,4 @@ $quotes = @(
     "Clarity comes not from code, but from thought before code.",
     "Refactor until it sings. Then refactor again."
 )
-[Console]::WriteLine("${esc}[38;5;240m  $(Get-Random -InputObject $quotes)${esc}[0m")
+[Console]::WriteLine("${esc}[38;2;255;96;0m  $(Get-Random -InputObject $quotes)${esc}[0m")
