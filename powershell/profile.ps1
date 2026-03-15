@@ -4,13 +4,17 @@
 # =============================================================================
 
 # --- Custom Prompt ---
+$Host.UI.RawUI.BackgroundColor = 'Black'
+$Host.UI.RawUI.ForegroundColor = 'Green'
+Clear-Host
 function prompt {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).
-        IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     $tag = if ($isAdmin) { "[ADMIN]" } else { "[USER]" }
     $time = (Get-Date).ToString("HH:mm")
     $path = $executionContext.SessionState.Path.CurrentLocation
-    Write-Host "$tag $time " -NoNewline -ForegroundColor DarkGray
+    Write-Host "$tag" -NoNewline -ForegroundColor Green
+    Write-Host " $time " -NoNewline -ForegroundColor BrightGreen
     Write-Host "PS " -NoNewline -ForegroundColor Magenta
     Write-Host "$path" -NoNewline -ForegroundColor Yellow  # maps to brightYellow = #FF8C00
     return "`n> "
@@ -20,12 +24,12 @@ function prompt {
 #   Navigation
 # =============================================================================
 
-function c     { Set-Location C:\ }
-function d     { Set-Location D:\ }
+function c { Set-Location C:\ }
+function d { Set-Location D:\ }
 function tools { Set-Location C:\Tools }
-function psh   { Set-Location C:\Tools\PowerShell }
-function home  { Set-Location $HOME }
-function dots  { Set-Location "$HOME\dotfiles" }
+function psh { Set-Location C:\Tools\PowerShell }
+function home { Set-Location $HOME }
+function dots { Set-Location "$HOME\dotfiles" }
 
 # =============================================================================
 #   System / User Helpers
@@ -33,36 +37,36 @@ function dots  { Set-Location "$HOME\dotfiles" }
 
 function users {
     Get-LocalUser |
-        Select-Object Name, Enabled, LastLogon |
-        Format-Table -AutoSize
+    Select-Object Name, Enabled, LastLogon |
+    Format-Table -AutoSize
 }
 
 function admins {
     Get-LocalGroupMember Administrators |
-        Select-Object ObjectClass, Name, PrincipalSource |
-        Format-Table -AutoSize
+    Select-Object ObjectClass, Name, PrincipalSource |
+    Format-Table -AutoSize
 }
 
 # =============================================================================
 #   Startup / Task Inspection
 # =============================================================================
 
-function startup-list {
+function Get-StartupList {
     Get-CimInstance Win32_StartupCommand |
-        Select-Object Name, Command, Location, User |
-        Sort-Object Name |
-        Format-Table -AutoSize
+    Select-Object Name, Command, Location, User |
+    Sort-Object Name |
+    Format-Table -AutoSize
 }
 
-function tasks-user {
+function Get-UserTasks {
     Get-ScheduledTask |
-        Where-Object { $_.TaskPath -notlike '\Microsoft*' } |
-        Select-Object TaskName, TaskPath, State |
-        Sort-Object TaskName |
-        Format-Table -AutoSize
+    Where-Object { $_.TaskPath -notlike '\Microsoft*' } |
+    Select-Object TaskName, TaskPath, State |
+    Sort-Object TaskName |
+    Format-Table -AutoSize
 }
 
-function startup-find {
+function Search-Startup {
     param([Parameter(Mandatory = $true)][string]$Pattern)
     $paths = @(
         'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run',
@@ -76,13 +80,13 @@ function startup-find {
         if (Test-Path $p) {
             Get-ItemProperty $p | ForEach-Object {
                 $_.PSObject.Properties |
-                    Where-Object {
-                        $_.Name -notmatch '^PS' -and (
-                            $_.Name  -match $Pattern -or
-                            ($_.Value -as [string]) -match $Pattern
-                        )
-                    } |
-                    Select-Object @{n='Path';e={$p}}, Name, Value
+                Where-Object {
+                    $_.Name -notmatch '^PS' -and (
+                        $_.Name -match $Pattern -or
+                        ($_.Value -as [string]) -match $Pattern
+                    )
+                } |
+                Select-Object @{n = 'Path'; e = { $p } }, Name, Value
             }
         }
     }
@@ -96,21 +100,21 @@ function startup-find {
 
 function drives {
     Get-Volume |
-        Where-Object DriveLetter |
-        Select-Object `
-            @{n='Drive'; e={"{0}:" -f $_.DriveLetter}},
-            FileSystemLabel,
-            FileSystem,
-            @{n='SizeGB'; e={[math]::Round($_.Size / 1GB, 1)}},
-            @{n='FreeGB'; e={[math]::Round($_.SizeRemaining / 1GB, 1)}} |
-        Sort-Object Drive |
-        Format-Table -AutoSize
+    Where-Object DriveLetter |
+    Select-Object `
+    @{n = 'Drive'; e = { "{0}:" -f $_.DriveLetter } },
+    FileSystemLabel,
+    FileSystem,
+    @{n = 'SizeGB'; e = { [math]::Round($_.Size / 1GB, 1) } },
+    @{n = 'FreeGB'; e = { [math]::Round($_.SizeRemaining / 1GB, 1) } } |
+    Sort-Object Drive |
+    Format-Table -AutoSize
 }
 
-function uptime {
-    $os       = Get-CimInstance Win32_OperatingSystem
+function Get-Uptime {
+    $os = Get-CimInstance Win32_OperatingSystem
     $lastBoot = $os.LastBootUpTime
-    $span     = (Get-Date) - $lastBoot
+    $span = (Get-Date) - $lastBoot
     "{0}d {1}h {2}m" -f $span.Days, $span.Hours, $span.Minutes
 }
 
@@ -132,12 +136,12 @@ function pkillf {
 
 # sysinfo — quick hardware/OS snapshot
 function sysinfo {
-    $os  = Get-CimInstance Win32_OperatingSystem
-    $cs  = Get-CimInstance Win32_ComputerSystem
+    $os = Get-CimInstance Win32_OperatingSystem
+    $cs = Get-CimInstance Win32_ComputerSystem
     $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
     [PSCustomObject]@{
         OS       = $os.Caption
-        Uptime   = uptime
+        Uptime   = Get-Uptime
         RAM_GB   = [math]::Round($cs.TotalPhysicalMemory / 1GB, 1)
         CPU      = $cpu.Name
         User     = "$env:USERDOMAIN\$env:USERNAME"
@@ -165,7 +169,8 @@ function save-dots {
     $status = git status --porcelain
     if (-not $status) {
         Write-Host "Nothing to save — dotfiles already up to date." -ForegroundColor DarkGray
-    } else {
+    }
+    else {
         git commit -m $Message
         git push
         Write-Host "Dotfiles saved to GitHub." -ForegroundColor Green
@@ -177,20 +182,25 @@ function save-dots {
 #   Aliases
 # =============================================================================
 
-Set-Alias ll   Get-ChildItem
-Set-Alias la   Get-ChildItem
-Set-Alias open Invoke-Item
+Set-Alias ll           Get-ChildItem
+Set-Alias la           Get-ChildItem
+Set-Alias open         Invoke-Item
+Set-Alias startup-list Get-StartupList
+Set-Alias tasks-user   Get-UserTasks
+Set-Alias startup-find Search-Startup
+Set-Alias uptime       Get-Uptime
 
 # =============================================================================
 #   Styling
 # =============================================================================
 
-$PSStyle.FileInfo.Directory  = "`e[38;5;81m"   # soft cyan
+$PSStyle.FileInfo.Directory = "`e[38;5;81m"   # soft cyan
 $PSStyle.FileInfo.Executable = "`e[38;5;220m"  # warm yellow
 
 # =============================================================================
 #   Startup Banner
 # =============================================================================
 
-Write-Host "  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload" -ForegroundColor DarkGray
-Write-Host "  save-dots [message]  — commit & push dotfiles to GitHub" -ForegroundColor DarkGray
+$esc = [char]27
+[Console]::WriteLine("${esc}[38;5;129m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
+[Console]::WriteLine("${esc}[38;5;129m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")

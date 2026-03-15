@@ -1,114 +1,114 @@
 {
-    "$help": "https://aka.ms/terminal-documentation",
-    "$schema": "https://aka.ms/terminal-profiles-schema",
-    "copyFormatting": "none",
-    "copyOnSelect": false,
-    "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
-    "initialCols": 120,
-    "initialRows": 30,
-    "tabWidthMode": "titleLength",
+  "$help": "https://aka.ms/terminal-documentation",
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "copyFormatting": "none",
+  "copyOnSelect": false,
+  "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+  "initialCols": 120,
+  "initialRows": 30,
+  "tabWidthMode": "titleLength",
 
-    "actions": [
-        { "id": "Terminal.CopyToClipboard",   "keys": "ctrl+c" },
-        { "id": "Terminal.PasteFromClipboard", "keys": "ctrl+v" },
-        { "id": "Terminal.DuplicatePaneAuto",  "keys": "alt+shift+d" },
-        { "id": "Terminal.NewTab",             "keys": "ctrl+t" },
-        { "id": "Terminal.CloseTab",           "keys": "ctrl+w" },
-        { "id": "Terminal.NextTab",            "keys": "ctrl+tab" },
-        { "id": "Terminal.PrevTab",            "keys": "ctrl+shift+tab" },
-        { "id": "Terminal.SplitRight",         "keys": "alt+shift+right" },
-        { "id": "Terminal.SplitDown",          "keys": "alt+shift+down" }
-    ],
+  "actions": [
+    { "id": "Terminal.CopyToClipboard", "keys": "ctrl+c" },
+    { "id": "Terminal.PasteFromClipboard", "keys": "ctrl+v" },
+    { "id": "Terminal.DuplicatePaneAuto", "keys": "alt+shift+d" },
+    { "id": "Terminal.NewTab", "keys": "ctrl+t" },
+    { "id": "Terminal.CloseTab", "keys": "ctrl+w" },
+    { "id": "Terminal.NextTab", "keys": "ctrl+tab" },
+    { "id": "Terminal.PrevTab", "keys": "ctrl+shift+tab" },
+    { "id": "Terminal.SplitRight", "keys": "alt+shift+right" },
+    { "id": "Terminal.SplitDown", "keys": "alt+shift+down" }
+  ],
 
-    "profiles": {
-        "defaults": {
-            "fontFace": "CaskaydiaCove Nerd Font",
-            "fontSize": 12,
-            "antialiasingMode": "cleartype",
-            "colorScheme": "Neon Blaze",
-            "cursorShape": "bar",
-            "padding": "8",
-            "scrollbarState": "hidden",
-            "useAcrylic": false,
-            "opacity": 95
-        },
-        "list": [
-            {
-                "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
-                "name": "PowerShell",
-                "source": "Windows.Terminal.PowershellCore",
-                "hidden": false
-            },
-            {
-                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-                "name": "Windows PowerShell",
-                "hidden": false
-            },
-            {
-                "commandline": "%SystemRoot%\\System32\\cmd.exe",
-                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-                "name": "Command Prompt",
-                "hidden": true
-            },
-            {
-                "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
-                "name": "Azure Cloud Shell",
-                "source": "Windows.Terminal.Azure",
-                "hidden": true
-            }
-        ]
+  "profiles": {
+    "defaults": {
+      "fontFace": "CaskaydiaCove Nerd Font",
+      "fontSize": 12,
+      "antialiasingMode": "cleartype",
+      "colorScheme": "Neon Blaze",
+      "cursorShape": "bar",
+      "padding": "8",
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 95
     },
+    "list": [
+      {
+        "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+        "name": "PowerShell",
+        "source": "Windows.Terminal.PowershellCore",
+        "hidden": false
+      },
+      {
+        "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+        "name": "Windows PowerShell",
+        "hidden": false
+      },
+      {
+        "commandline": "%SystemRoot%\\System32\\cmd.exe",
+        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+        "name": "Command Prompt",
+        "hidden": true
+      },
+      {
+        "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+        "name": "Azure Cloud Shell",
+        "source": "Windows.Terminal.Azure",
+        "hidden": true
+      }
+    ]
+  },
 
-    "schemes": [
-        {
-            "name": "Catppuccin Mocha",
-            "background": "#1E1E2E",
-            "foreground": "#CDD6F4",
-            "black": "#45475A",
-            "blue": "#89B4FA",
-            "brightBlack": "#585B70",
-            "brightBlue": "#89B4FA",
-            "brightCyan": "#94E2D5",
-            "brightGreen": "#A6E3A1",
-            "brightPurple": "#F5C2E7",
-            "brightRed": "#F38BA8",
-            "brightWhite": "#A6ADC8",
-            "brightYellow": "#F9E2AF",
-            "cyan": "#94E2D5",
-            "green": "#A6E3A1",
-            "purple": "#CBA6F7",
-            "red": "#F38BA8",
-            "white": "#BAC2DE",
-            "yellow": "#F9E2AF",
-            "cursorColor": "#F5E0DC",
-            "selectionBackground": "#585B70"
-        },
-        {
-            "name": "Neon Blaze",
-            "background": "#0A0A0F",
-            "foreground": "#F0F0F0",
-            "black": "#1C1C2E",
-            "brightBlack": "#39FF14",
-            "red": "#FF2D55",
-            "brightRed": "#FF6080",
-            "green": "#39FF14",
-            "brightGreen": "#7FFF00",
-            "yellow": "#FF6000",
-            "brightYellow": "#FF8C00",
-            "blue": "#BF00FF",
-            "brightBlue": "#D966FF",
-            "purple": "#FF00CC",
-            "brightPurple": "#FF66EE",
-            "cyan": "#00FFCC",
-            "brightCyan": "#40FFE0",
-            "white": "#D0D0E0",
-            "brightWhite": "#FFFFFF",
-            "cursorColor": "#FF6000",
-            "selectionBackground": "#3D0066"
-        }
-    ],
+  "schemes": [
+    {
+      "name": "Catppuccin Mocha",
+      "background": "#1E1E2E",
+      "foreground": "#CDD6F4",
+      "black": "#45475A",
+      "blue": "#89B4FA",
+      "brightBlack": "#585B70",
+      "brightBlue": "#89B4FA",
+      "brightCyan": "#94E2D5",
+      "brightGreen": "#A6E3A1",
+      "brightPurple": "#F5C2E7",
+      "brightRed": "#F38BA8",
+      "brightWhite": "#A6ADC8",
+      "brightYellow": "#F9E2AF",
+      "cyan": "#94E2D5",
+      "green": "#A6E3A1",
+      "purple": "#CBA6F7",
+      "red": "#F38BA8",
+      "white": "#BAC2DE",
+      "yellow": "#F9E2AF",
+      "cursorColor": "#F5E0DC",
+      "selectionBackground": "#585B70"
+    },
+    {
+      "name": "Neon Blaze",
+      "background": "#0A0A0F",
+      "foreground": "#39FF14",
+      "black": "#1C1C2E",
+      "brightBlack": "#39FF14",
+      "red": "#FF2D55",
+      "brightRed": "#FF6080",
+      "green": "#39FF14",
+      "brightGreen": "#7FFF00",
+      "yellow": "#FF6000",
+      "brightYellow": "#FF8C00",
+      "blue": "#BF00FF",
+      "brightBlue": "#D966FF",
+      "purple": "#FF00CC",
+      "brightPurple": "#FF66EE",
+      "cyan": "#00FFCC",
+      "brightCyan": "#40FFE0",
+      "white": "#D0D0E0",
+      "brightWhite": "#FFFFFF",
+      "cursorColor": "#FF6000",
+      "selectionBackground": "#3D0066"
+    }
+  ],
 
-    "newTabMenu": [{ "type": "remainingProfiles" }],
-    "themes": []
+  "newTabMenu": [{ "type": "remainingProfiles" }],
+  "themes": []
 }

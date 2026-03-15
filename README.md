@@ -166,8 +166,9 @@ Windows Terminal is configured with **Neon Blaze** — a custom dark theme with 
 
 | Element | Color |
 |---------|-------|
+| Startup cheat sheet | Neon purple |
 | Prompt tag `[USER]` | Neon green |
-| `PS` label | Neon purple |
+| `PS` label | Magenta |
 | Current path | Neon orange |
 | Background | Near-black `#0A0A0F` |
 
