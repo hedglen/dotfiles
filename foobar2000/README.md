@@ -2,6 +2,12 @@
 
 Visually stunning foobar2000 setup with deep colors, vibrant visualizations, and immersive UI inspired by [Astra](https://github.com/Boof2015/astra).
 
+## Current Installation
+
+**Portable installation:** `C:\Users\rjh\foobar2000`
+
+Using Georgia-Reborn theme with enhanced components. See [PORTABLE-SETUP.md](PORTABLE-SETUP.md) for detailed configuration.
+
 ## Features
 
 - **Deep, vibrant color scheme** - Dark theme with neon accents and dynamic colors
