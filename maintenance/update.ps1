@@ -168,9 +168,17 @@ Write-Step "Fonts"
 $fontsDir  = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
 $regPath   = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
 $checkFont = 'CaskaydiaCove Nerd Font Regular (TrueType)'
-$installed = (Get-ItemProperty $regPath -ErrorAction SilentlyContinue).$checkFont
 
-if ($installed -and (Test-Path $installed)) {
+# Check HKCU first, then HKLM (system-wide install), then fallback to file presence
+$installed = (Get-ItemProperty $regPath -ErrorAction SilentlyContinue).$checkFont
+if (-not $installed) {
+    $installed = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts' -ErrorAction SilentlyContinue).$checkFont
+}
+if (-not $installed) {
+    $installed = (Get-ChildItem "$fontsDir\CaskaydiaCove*" -ErrorAction SilentlyContinue | Select-Object -First 1)?.FullName
+}
+
+if ($installed) {
     Write-Skip "CaskaydiaCove Nerd Font already installed"
 } elseif ($DryRun) {
     Write-Skip "Would download and install CaskaydiaCove Nerd Font"

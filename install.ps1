@@ -212,8 +212,14 @@ if (-not $AppsOnly) {
     $checkFont = 'CaskaydiaCove Nerd Font Regular (TrueType)'
 
     $installed = (Get-ItemProperty $regPath -ErrorAction SilentlyContinue).$checkFont
+    if (-not $installed) {
+        $installed = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts' -ErrorAction SilentlyContinue).$checkFont
+    }
+    if (-not $installed) {
+        $installed = (Get-ChildItem "$fontsDir\CaskaydiaCove*" -ErrorAction SilentlyContinue | Select-Object -First 1)?.FullName
+    }
 
-    if ($installed -and (Test-Path $installed)) {
+    if ($installed) {
         Write-Skip "CaskaydiaCove Nerd Font already installed"
     } elseif ($DryRun) {
         Write-Skip "Would download and install CaskaydiaCove Nerd Font"
