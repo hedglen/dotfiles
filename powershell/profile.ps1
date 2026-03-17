@@ -189,6 +189,12 @@ function orgmedx {
     & $py $scr --dest x --apply
 }
 
+function ytdl {
+    $py  = "$HOME\projects\ytdl\.venv\Scripts\python.exe"
+    $scr = "$HOME\projects\ytdl\ytdl.py"
+    & $py $scr @args
+}
+
 # =============================================================================
 #   Aliases
 # =============================================================================
@@ -222,6 +228,7 @@ $PSStyle.FileInfo.Executable = "`e[38;5;220m"  # warm yellow
 $esc = [char]27
 [Console]::WriteLine("${esc}[38;5;129m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  orgmed [--apply] [--dest x|movies|tv|music_videos]  orgmedx  -- organize D:\media\Downloads${esc}[0m")
+[Console]::WriteLine("${esc}[38;5;129m  ytdl <url> [--audio] [--quality 1080|720|480|best]   -- download video/audio${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  sync-dots             — pull latest dotfiles & relink configs${esc}[0m")
 
