@@ -61,7 +61,8 @@
   "terminal.integrated.defaultProfile.windows": "PowerShell",
   "terminal.integrated.cursorStyle": "line",
   "terminal.integrated.smoothScrolling": true,
-  "terminal.integrated.scrollback": 5000,
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.scrollbar.verticalScrollbarSize": 12,
   "terminal.integrated.background": "#0A0A0F",
   "terminal.integrated.foreground": "#39FF14",
   "terminal.integrated.ansiBlack": "#1C1C2E",
@@ -204,5 +205,7 @@
   },
   "workbench.startupEditor": "none",
   "terminal.integrated.enableMultiLinePasteWarning": "never",
-  "chat.tools.terminal.autoApprove": true
+  "chat.tools.terminal.autoApprove": true,
+  "workbench.scrollbar.verticalScrollbarSize": 14,
+  "editor.scrollbar.verticalScrollbarSize": 14
 }
