@@ -271,7 +271,32 @@ if (Test-Path "$mpvDir\portable_config") {
 }
 
 # =============================================================================
-#   9. foobar2000 theme
+#   9. mpv — register as "Open with" for video files
+# =============================================================================
+if (-not $AppsOnly) {
+    Write-Step "mpv Open With registration"
+    $batPath = "$HOME\tools\mpv\mpv-single.bat"
+    if (-not (Test-Path $batPath)) {
+        Write-Warn "mpv-single.bat not found at $batPath — skipping"
+    } elseif ($DryRun) {
+        Write-Skip "Would register mpv-single.bat as Open With handler for video files"
+    } else {
+        $appRegPath = 'HKCU:\Software\Classes\Applications\mpv-single.bat'
+        New-Item -Path "$appRegPath\shell\open\command" -Force | Out-Null
+        Set-ItemProperty -Path "$appRegPath\shell\open\command" -Name '(Default)' `
+            -Value "cmd.exe /c `"`"$batPath`" `"%1`"`"" -Force
+        Set-ItemProperty -Path $appRegPath -Name 'FriendlyAppName' -Value 'mpv (single instance)' -Force
+
+        $exts = @('.mkv','.mp4','.avi','.mov','.wmv','.flv','.webm','.m4v','.ts','.m2ts','.mpg','.mpeg')
+        foreach ($ext in $exts) {
+            New-Item -Path "HKCU:\Software\Classes\$ext\OpenWithList\mpv-single.bat" -Force | Out-Null
+        }
+        Write-OK "mpv-single.bat registered for $($exts.Count) video extensions"
+    }
+}
+
+# =============================================================================
+#   11. foobar2000 theme
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "foobar2000 theme"
@@ -288,7 +313,7 @@ if (-not $AppsOnly) {
 }
 
 # =============================================================================
-#   10. AutoHotkey — register on startup
+#   12. AutoHotkey — register on startup
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "AutoHotkey startup"
