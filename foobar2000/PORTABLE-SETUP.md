@@ -78,11 +78,26 @@ To backup your foobar2000 configuration:
 
 ## Theme Management
 
-Current theme: **Georgia-Reborn**
+Current theme: **Georgia-Reborn** with **Premium Gold Executive** color scheme
+
+### Premium Gold Executive Theme
+
+A rich, dark gold aesthetic with executive feel featuring:
+- Deep charcoal black backgrounds (#0D0D0D, #121212)
+- Luxurious gold accents (#D4AF37, #FFD700)
+- Waveform seekbar with gold gradient
+- Spectrum analyzer with bronze-to-gold gradient
+- Warm, balanced EQ preset
+- Professional typography
+
+**Setup Guide:** See `themes/premium-gold/QUICKSTART.md`
+**Full Documentation:** See `themes/premium-gold/README.md`
+**Color Reference:** See `themes/premium-gold/colors.ini`
 
 Theme files are stored in:
 - `profile\georgia-reborn\` - Theme-specific data
 - `profile\theme.fth` - Active theme configuration
+- `themes\premium-gold\` - Premium Gold theme resources
 
 ## Music Library
 
