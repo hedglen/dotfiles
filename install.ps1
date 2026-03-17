@@ -179,7 +179,9 @@ if (-not $AppsOnly) {
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "VS Code extensions"
-    if (Get-Command code -ErrorAction SilentlyContinue) {
+    $codeCmd = "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd"
+    if (-not (Test-Path $codeCmd)) { $codeCmd = "code" }
+    if (Get-Command $codeCmd -ErrorAction SilentlyContinue) {
         $extFile = Join-Path $DotfilesDir "vscode\extensions.txt"
         if (Test-Path $extFile) {
             Get-Content $extFile |
@@ -189,13 +191,13 @@ if (-not $AppsOnly) {
                 if ($DryRun) {
                     Write-Skip "Would install: $ext"
                 } else {
-                    code --install-extension $ext --force 2>&1 | Out-Null
+                    & $codeCmd --install-extension $ext --force 2>&1 | Out-Null
                     Write-OK $ext
                 }
             }
         }
     } else {
-        Write-Warn "VS Code (code) not on PATH — skipping extensions"
+        Write-Warn "VS Code (code) not on PATH -- skipping extensions"
     }
 }
 

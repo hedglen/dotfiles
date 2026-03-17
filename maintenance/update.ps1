@@ -27,9 +27,9 @@ function Write-Warn { param([string]$Msg) Write-Host "   !!  $Msg" -ForegroundCo
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Magenta
-Write-Host "   dotfiles updater — hedglen" -ForegroundColor Magenta
+Write-Host "   dotfiles updater -- hedglen" -ForegroundColor Magenta
 Write-Host "============================================" -ForegroundColor Magenta
-if ($DryRun) { Write-Host "   DRY RUN — no changes will be made" -ForegroundColor Yellow }
+if ($DryRun) { Write-Host "   DRY RUN -- no changes will be made" -ForegroundColor Yellow }
 Write-Host ""
 
 # =============================================================================
@@ -41,7 +41,7 @@ if (-not $SkipDots) {
 
     $dirty = git status --porcelain
     if ($dirty) {
-        Write-Warn "Uncommitted changes detected — skipping pull to avoid conflicts."
+        Write-Warn "Uncommitted changes detected -- skipping pull to avoid conflicts."
         Write-Warn "Run 'save-dots' first, or stash your changes manually."
     } elseif ($DryRun) {
         Write-Skip "Would run: git pull"
@@ -54,7 +54,7 @@ if (-not $SkipDots) {
 }
 
 # =============================================================================
-#   2. Re-link configs (non-destructive — skips valid existing symlinks)
+#   2. Re-link configs (non-destructive -- skips valid existing symlinks)
 # =============================================================================
 Write-Step "Config symlinks"
 
@@ -122,19 +122,21 @@ foreach ($c in $configs) {
         Write-OK "$($c.desc) (symlinked)"
     } catch {
         Copy-Item $src $dst -Force
-        Write-Warn "$($c.desc) (copied — run as admin for symlinks)"
+        Write-Warn "$($c.desc) (copied -- run as admin for symlinks)"
     }
 }
 
 # =============================================================================
-#   3. VS Code extensions — install only new ones
+#   3. VS Code extensions -- install only new ones
 # =============================================================================
 Write-Step "VS Code extensions"
 
-if (Get-Command code -ErrorAction SilentlyContinue) {
+$codeCmd = "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd"
+if (-not (Test-Path $codeCmd)) { $codeCmd = "code" }
+if (Get-Command $codeCmd -ErrorAction SilentlyContinue) {
     $extFile = Join-Path $DotfilesDir "vscode\extensions.txt"
     if (Test-Path $extFile) {
-        $installed = code --list-extensions 2>$null | ForEach-Object { $_.ToLower() }
+        $installed = & $codeCmd --list-extensions 2>$null | ForEach-Object { $_.ToLower() }
         $wanted = Get-Content $extFile |
             Where-Object { $_.Trim() -ne '' -and $_ -notmatch '^\s*#' } |
             ForEach-Object { $_.Trim() }
@@ -148,18 +150,18 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
                 if ($DryRun) {
                     Write-Skip "Would install: $ext"
                 } else {
-                    code --install-extension $ext --force 2>&1 | Out-Null
+                    & $codeCmd --install-extension $ext --force 2>&1 | Out-Null
                     Write-OK $ext
                 }
             }
         }
     }
 } else {
-    Write-Warn "VS Code (code) not on PATH — skipping"
+    Write-Warn "VS Code (code) not on PATH -- skipping"
 }
 
 # =============================================================================
-#   4. Fonts — install if missing
+#   4. Fonts -- install if missing
 # =============================================================================
 Write-Step "Fonts"
 
