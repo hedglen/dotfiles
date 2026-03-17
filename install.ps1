@@ -129,9 +129,9 @@ if (-not $AppsOnly) {
             desc = "VS Code settings"
         },
         @{
-            src  = "autohotkey\main.ahk"
-            dst  = "$HOME\dotfiles-ahk\main.ahk"
-            desc = "AutoHotkey script"
+            src  = "yt-dlp\config"
+            dst  = "$env:APPDATA\yt-dlp\config"
+            desc = "yt-dlp config"
         }
     )
 
@@ -200,7 +200,49 @@ if (-not $AppsOnly) {
 }
 
 # =============================================================================
-#   6. mpv config
+#   6. Fonts
+# =============================================================================
+if (-not $AppsOnly) {
+    Write-Step "Fonts"
+
+    $fontsDir  = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
+    $regPath   = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+    $checkFont = 'CaskaydiaCove Nerd Font Regular (TrueType)'
+
+    $installed = (Get-ItemProperty $regPath -ErrorAction SilentlyContinue).$checkFont
+
+    if ($installed -and (Test-Path $installed)) {
+        Write-Skip "CaskaydiaCove Nerd Font already installed"
+    } elseif ($DryRun) {
+        Write-Skip "Would download and install CaskaydiaCove Nerd Font"
+    } else {
+        $tmpZip    = "$env:TEMP\CascadiaCode.zip"
+        $tmpExtract = "$env:TEMP\CascadiaCode-nf"
+        $fontUrl   = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
+
+        Write-Host "   Downloading CaskaydiaCove Nerd Font..." -ForegroundColor DarkGray
+        Invoke-WebRequest -Uri $fontUrl -OutFile $tmpZip -UseBasicParsing
+
+        Expand-Archive -Path $tmpZip -DestinationPath $tmpExtract -Force
+
+        if (-not (Test-Path $fontsDir)) { New-Item -ItemType Directory -Path $fontsDir -Force | Out-Null }
+
+        $count = 0
+        Get-ChildItem $tmpExtract -Filter "*.ttf" | ForEach-Object {
+            $dst = Join-Path $fontsDir $_.Name
+            Copy-Item $_.FullName $dst -Force
+            $fontName = [System.IO.Path]::GetFileNameWithoutExtension($_.Name) + " (TrueType)"
+            Set-ItemProperty -Path $regPath -Name $fontName -Value $dst -Force
+            $count++
+        }
+
+        Remove-Item $tmpZip, $tmpExtract -Recurse -Force -ErrorAction SilentlyContinue
+        Write-OK "Installed $count font files to $fontsDir"
+    }
+}
+
+# =============================================================================
+#   8. mpv config
 # =============================================================================
 Write-Step "mpv config"
 $mpvDir = "C:\mpv"
@@ -219,7 +261,24 @@ if (Test-Path "$mpvDir\portable_config") {
 }
 
 # =============================================================================
-#   7. AutoHotkey — register on startup
+#   9. foobar2000 theme
+# =============================================================================
+if (-not $AppsOnly) {
+    Write-Step "foobar2000 theme"
+    $fb2kScript = Join-Path $DotfilesDir "foobar2000\install-theme.ps1"
+    if (Test-Path $fb2kScript) {
+        if ($DryRun) {
+            Write-Skip "Would run: foobar2000\install-theme.ps1"
+        } else {
+            & $fb2kScript
+        }
+    } else {
+        Write-Warn "foobar2000\install-theme.ps1 not found — skipping"
+    }
+}
+
+# =============================================================================
+#   10. AutoHotkey — register on startup
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "AutoHotkey startup"

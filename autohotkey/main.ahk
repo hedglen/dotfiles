@@ -6,141 +6,116 @@
 ;   main.ahk — hedglen
 ;   AutoHotkey v2 master script
 ;   Tracked in dotfiles: https://github.com/hedglen/dotfiles
+;
+;   Loaded on startup via registry Run key (set by install.ps1).
+;   To reload: right-click the AHK tray icon → Reload Script
 ; =============================================================================
-
-; =============================================================================
-;   Remaps
-; =============================================================================
-
 
 ; =============================================================================
 ;   App Launchers  (Win + key)
 ; =============================================================================
 
-; Win+T → Windows Terminal (PowerShell)  — disabled when mpv is focused
-;   (mpv uses T to save chapters; the T keystroke leaks through AHK otherwise)
-#HotIf !WinActive("ahk_exe mpv.exe")
-#t:: Run "wt.exe"
-#HotIf
+; Win+T → Windows Terminal
+#t:: Run "wt"
 
-; Win+E → File Pilot  (your file manager)
+; Win+E → File Pilot (falls back to Explorer)
 #e:: {
-    if WinExist("ahk_exe FilePilot.exe")
-        WinActivate
+    if FileExist(A_ProgramFiles "\File Pilot\FilePilot.exe")
+        Run A_ProgramFiles "\File Pilot\FilePilot.exe"
     else
-        Run "FilePilot.exe"
+        Run "explorer.exe"
 }
 
-; Win+B → Brave Browser
-#b:: {
-    if WinExist("ahk_exe brave.exe")
-        WinActivate
-    else
-        Run "brave.exe"
-}
+; Win+B → Brave
+#b:: Run "brave.exe"
 
 ; Win+N → Notion
-#n:: {
-    if WinExist("ahk_exe Notion.exe")
-        WinActivate
-    else
-        Run "Notion.exe"
-}
+#n:: Run "notion.exe"
 
 ; Win+O → Obsidian
-#o:: {
-    if WinExist("ahk_exe Obsidian.exe")
-        WinActivate
-    else
-        Run "Obsidian.exe"
-}
+#o:: Run "obsidian.exe"
 
-; Win+C → VS Code workspace
-#c:: Run 'code "' A_MyDocuments '\..\dotfiles\hedglen.code-workspace"'
-
-; =============================================================================
-;   Text Expanders
-;   Type the trigger and it expands automatically.
-;   Add a space/enter after the trigger to fire.
-; =============================================================================
-
-; @@ → your email address
-:*:@@::hedglen@pm.me
-
-; /shrug
-:*:/shrug::¯\_(ツ)_/¯
-
-; /check → checkmark
-:*:/check::✓
-
-; /arrow → right arrow
-:*:/arr::→
-
-; Date stamp  (type /date)
-:*:/date:: {
-    SendInput FormatTime(, "yyyy-MM-dd")
-}
+; Win+C → VS Code
+#c:: Run "code"
 
 ; =============================================================================
 ;   Window Management
 ; =============================================================================
 
-; Win+Alt+Left  → move window to left monitor
+; Win+Alt+Left → Move window to left monitor
 #!Left:: {
-    win := WinExist("A")
-    WinGetPos &x, &y, &w, &h, win
-    mon := GetMonitorForWindow(win)
-    if (mon > 1) {
-        MonitorGet mon - 1, &mL, &mT, &mR, &mB
-        WinMove mL + 50, mT + 50, w, h, win
-    }
-}
-
-; Win+Alt+Right → move window to right monitor
-#!Right:: {
-    win := WinExist("A")
-    WinGetPos &x, &y, &w, &h, win
-    mon := GetMonitorForWindow(win)
-    if (mon < MonitorGetCount()) {
-        MonitorGet mon + 1, &mL, &mT, &mR, &mB
-        WinMove mL + 50, mT + 50, w, h, win
-    }
-}
-
-; Win+Alt+F → true fullscreen toggle (borderless, any window)
-#!f:: {
-    win := WinExist("A")
-    WinGetPos &x, &y, &w, &h, win
-    MonitorGetWorkArea , &mL, &mT, &mR, &mB
-    if (w = mR - mL and h = mB - mT)
-        WinRestore win
+    WinGetPos &x, &y, &w, &h, "A"
+    monitors := []
+    MonitorGetCount(&count)
+    loop count
+        monitors.Push(A_Index)
+    MonitorGet(MonitorGetPrimary(), &ml, &mt, &mr, &mb)
+    if (x >= ml)
+        WinMove mr - w, y,,,, "A"
     else
-        WinMove mL, mT, mR - mL, mB - mT, win
+        WinMove ml, y,,,, "A"
+}
+
+; Win+Alt+Right → Move window to right monitor
+#!Right:: {
+    WinGetPos &x, &y, &w, &h, "A"
+    MonitorGet(MonitorGetPrimary(), &ml, &mt, &mr, &mb)
+    if (x < mr - w)
+        WinMove mr, y,,,, "A"
+    else
+        WinMove ml, y,,,, "A"
+}
+
+; Win+Alt+F → Toggle maximise
+#!f:: {
+    if WinGetMinMax("A") = 1
+        WinRestore "A"
+    else
+        WinMaximize "A"
 }
 
 ; =============================================================================
 ;   Clipboard
 ; =============================================================================
 
-; Ctrl+Shift+V → paste as plain text (strip formatting)
+; Ctrl+Shift+V → Paste as plain text (strips formatting)
 ^+v:: {
-    clip := A_Clipboard
-    A_Clipboard := clip
+    txt := A_Clipboard
+    A_Clipboard := ""
+    A_Clipboard := txt
+    ClipWait 1
     Send "^v"
+}
+
+; =============================================================================
+;   Text Expanders
+;   Syntax: :*:trigger::replacement
+; =============================================================================
+
+:*:@@::your@email.com
+:*:/shrug::¯\_(ツ)_/¯
+:*:/check::✓
+:*:/arr::→
+:*:/date:: {
+    SendInput FormatTime(, "yyyy-MM-dd")
+}
+
+; =============================================================================
+;   Remaps
+; =============================================================================
+
+; CapsLock → Ctrl (tap CapsLock alone to toggle CapsLock)
+*CapsLock:: {
+    Send "{Blind}{Ctrl Down}"
+    KeyWait "CapsLock"
+    if (A_TimeSinceThisHotkey < 200 && !A_PriorKey ~= "^Ctrl")
+        SetCapsLockState !GetKeyState("CapsLock", "T")
+    Send "{Blind}{Ctrl Up}"
 }
 
 ; =============================================================================
 ;   Helpers
 ; =============================================================================
 
-GetMonitorForWindow(hwnd) {
-    WinGetPos &x, &y, &w, &h, hwnd
-    cx := x + w // 2
-    cy := y + h // 2
-    loop MonitorGetCount() {
-        MonitorGet A_Index, &mL, &mT, &mR, &mB
-        if (cx >= mL and cx < mR and cy >= mT and cy < mB)
-            return A_Index
-    }
-    return 1
-}
+; Win+Alt+R → Reload this script
+#!r:: Reload

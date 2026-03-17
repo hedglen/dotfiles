@@ -3,21 +3,11 @@
 #   Managed via dotfiles: https://github.com/hedglen/dotfiles
 # =============================================================================
 
-# --- Custom Prompt ---
+# --- Prompt (Oh My Posh) ---
 $Host.UI.RawUI.BackgroundColor = 'Black'
-$Host.UI.RawUI.ForegroundColor = 'Green'
 Clear-Host
-function prompt {
-    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).
-    IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    $tag = if ($isAdmin) { "[ADMIN]" } else { "[USER]" }
-    $time = (Get-Date).ToString("HH:mm")
-    $path = $executionContext.SessionState.Path.CurrentLocation
-    Write-Host "$tag" -NoNewline -ForegroundColor Cyan
-    Write-Host " $time " -NoNewline -ForegroundColor White
-    Write-Host "PS " -NoNewline -ForegroundColor Magenta
-    Write-Host "$path" -NoNewline -ForegroundColor Yellow  # maps to brightYellow = #FF8C00
-    return "`n> "
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    oh-my-posh init pwsh --config "$HOME\dotfiles\oh-my-posh\hedglab.omp.json" | Invoke-Expression
 }
 
 # =============================================================================
@@ -26,7 +16,7 @@ function prompt {
 
 function c { Set-Location C:\ }
 function d { Set-Location D:\ }
-function tools { Set-Location C:\Tools }
+function tools { Set-Location "$HOME\tools" }
 function psh { Set-Location C:\Tools\PowerShell }
 function home { Set-Location $HOME }
 function dots { Set-Location "$HOME\dotfiles" }
@@ -165,17 +155,22 @@ function reload { . $PROFILE; Write-Host "Profile reloaded." -ForegroundColor Gr
 function save-dots {
     param([string]$Message = "update configs")
     Push-Location "$HOME\dotfiles"
-    git add -A
     $status = git status --porcelain
     if (-not $status) {
         Write-Host "Nothing to save — dotfiles already up to date." -ForegroundColor DarkGray
     }
     else {
+        git add -A
         git commit -m $Message
         git push
         Write-Host "Dotfiles saved to GitHub." -ForegroundColor Green
     }
     Pop-Location
+}
+
+# sync-dots — pull latest dotfiles from GitHub and re-apply configs (no app upgrades)
+function sync-dots {
+    & "$HOME\dotfiles\maintenance\update.ps1" -SkipApps
 }
 
 # =============================================================================
@@ -211,6 +206,7 @@ $PSStyle.FileInfo.Executable = "`e[38;5;220m"  # warm yellow
 $esc = [char]27
 [Console]::WriteLine("${esc}[38;5;129m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")
+[Console]::WriteLine("${esc}[38;5;129m  sync-dots             — pull latest dotfiles & relink configs${esc}[0m")
 
 $quotes = @(
     "You're not debugging. You're time travelling.",

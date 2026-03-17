@@ -2,7 +2,7 @@
   // =============================================================================
   //   Theme & Appearance
   // =============================================================================
-  "workbench.colorTheme": "One Dark Pro",
+  "workbench.colorTheme": "SynthWave '84",
   "workbench.iconTheme": "material-icon-theme",
   "workbench.tree.indent": 16,
   "workbench.editor.enablePreview": false,
@@ -164,6 +164,11 @@
   "python.languageServer": "Pylance",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
+
+  // =============================================================================
+  //   Language — AutoHotkey
+  // =============================================================================
+  "AutoHotkey2.InterpreterPath": "C:\\Users\\rjh\\AppData\\Local\\Microsoft\\WindowsApps\\AutoHotkeyV2.exe",
 
   // =============================================================================
   //   Language — Lua

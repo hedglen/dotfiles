@@ -7,6 +7,8 @@ anthropic.claude-code
 #   Git
 # =============================================================================
 eamodio.gitlens
+mhutchie.git-graph
+github.vscode-pull-request-github
 
 # =============================================================================
 #   Languages — PowerShell
@@ -40,9 +42,25 @@ mechatroner.rainbow-csv
 esbenp.prettier-vscode
 
 # =============================================================================
+#   Theme
+# =============================================================================
+RobbOwen.synthwave-vscode
+
+# =============================================================================
 #   QoL
 # =============================================================================
 usernamehw.errorlens
 pkief.material-icon-theme
+vscode-icons-team.vscode-icons
 aaron-bond.better-comments
 christian-kohler.path-intellisense
+gruntfuggly.todo-tree
+alefragnani.bookmarks
+sleistner.vscode-fileutils
+
+# =============================================================================
+#   Utilities
+# =============================================================================
+yzhang.markdown-all-in-one
+ms-vscode.hexeditor
+humao.rest-client

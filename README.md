@@ -17,9 +17,12 @@ irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 This will:
 1. Clone this repo to `~/dotfiles`
 2. Install all apps via winget
-3. Symlink all configs to their correct locations
-4. Install all VS Code extensions
-5. Clone the mpv config
+3. Apply Windows tweaks (requires admin)
+4. Symlink all configs to their correct locations
+5. Install all VS Code extensions
+6. Install CaskaydiaCove Nerd Font
+7. Clone the mpv config
+8. Register AutoHotkey on startup
 
 ---
 
@@ -66,6 +69,31 @@ dotfiles/
 
 # Preview what would happen without doing anything
 .\install.ps1 -DryRun
+```
+
+---
+
+## 🔄 Keeping Up to Date
+
+After initial setup, two commands handle ongoing maintenance:
+
+| Command | What it does |
+|---------|-------------|
+| `save-dots` | Commit & push your local changes to GitHub |
+| `sync-dots` | Pull latest from GitHub, relink any new configs, install new extensions/fonts |
+
+For a full system update (apps + dotfiles):
+
+```powershell
+.\maintenance\update.ps1
+```
+
+Options:
+
+```powershell
+.\maintenance\update.ps1 -SkipApps   # pull + relink only, no winget upgrade
+.\maintenance\update.ps1 -SkipDots   # winget upgrade only, skip git pull
+.\maintenance\update.ps1 -DryRun     # preview without making changes
 ```
 
 ---
@@ -421,7 +449,7 @@ oh-my-posh init pwsh --config "$HOME\dotfiles\oh-my-posh\hedglab.omp.json" | Inv
 
 ## 🎨 Terminal Theme — Neon Blaze
 
-Requires [CaskaydiaCove Nerd Font](https://www.nerdfonts.com/font-downloads) — download and install it, then it's picked up automatically.
+CaskaydiaCove Nerd Font is installed automatically by `install.ps1` (step 6). No manual download needed.
 
 The **Neon Blaze** color scheme is defined in both `windows-terminal/settings.json` and `vscode/settings.json` so the terminal looks identical everywhere.
 

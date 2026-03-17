@@ -1,20 +1,44 @@
 {
   "folders": [
     {
-      "name": "hedglen-profile",
-      "path": "../hedglen-profile"
-    },
-    {
       "name": "dotfiles",
-      "path": "."
+      "path": ".",
     },
     {
       "name": "mpv-config",
-      "path": "../mpv-config"
-    }
+      "path": "../mpv-config",
+    },
+    {
+      "name": "foobar2000",
+      "path": "../foobar2000",
+    },
+    {
+      "name": "hedglen-profile",
+      "path": "../hedglen-profile",
+    },
+    {
+      "name": "scripts",
+      "path": "../scripts",
+    },
+    {
+      "name": "notes",
+      "path": "../notes",
+    },
+    {
+      "name": "docs",
+      "path": "../docs",
+    },
+    {
+      "name": "projects",
+      "path": "../projects",
+    },
+    {
+      "name": "tools",
+      "path": "../tools",
+    },
   ],
   "settings": {
-    "workbench.colorTheme": "One Dark Pro",
+    "workbench.colorTheme": "SynthWave '84",
     "workbench.iconTheme": "material-icon-theme",
     "chat.tools.terminal.autoApprove": {
       "git add": true,
@@ -24,16 +48,25 @@
   "extensions": {
     "recommendations": [
       "anthropic.claude-code",
-      "github.copilot",
-      "github.copilot-chat",
-      "eamodio.gitlens",
       "ms-vscode.powershell",
       "ms-python.python",
       "sumneko.lua",
       "thqby.vscode-autohotkey2-lsp",
+      "eamodio.gitlens",
+      "mhutchie.git-graph",
+      "github.vscode-pull-request-github",
       "usernamehw.errorlens",
       "pkief.material-icon-theme",
+      "vscode-icons-team.vscode-icons",
       "aaron-bond.better-comments",
+      "gruntfuggly.todo-tree",
+      "alefragnani.bookmarks",
+      "ms-vscode.hexeditor",
+      "humao.rest-client",
+      "ms-vscode.vscode-serial-monitor",
+      "sleistner.vscode-fileutils",
+      "yzhang.markdown-all-in-one",
+      "redhat.vscode-yaml",
     ],
   },
 }
