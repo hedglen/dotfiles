@@ -245,7 +245,7 @@ if (-not $AppsOnly) {
 #   8. mpv config
 # =============================================================================
 Write-Step "mpv config"
-$mpvDir = "C:\mpv"
+$mpvDir = "$HOME\tools\mpv"
 if (Test-Path "$mpvDir\portable_config") {
     Write-Skip "Already installed at $mpvDir\portable_config"
 } elseif (Test-Path $mpvDir) {
@@ -256,8 +256,9 @@ if (Test-Path "$mpvDir\portable_config") {
         Write-OK "mpv config cloned"
     }
 } else {
-    Write-Warn "mpv not found at $mpvDir — run install.ps1 from mpv-config repo first"
-    Write-Warn "  irm https://raw.githubusercontent.com/hedglen/mpv-config/master/install.ps1 | iex"
+    Write-Warn "mpv not found at $mpvDir"
+    Write-Warn "  Download shinchiro build and extract to $mpvDir, then re-run install.ps1"
+    Write-Warn "  Or run: irm https://raw.githubusercontent.com/hedglen/mpv-config/master/install.ps1 | iex"
 }
 
 # =============================================================================
