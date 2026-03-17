@@ -216,7 +216,8 @@ if (-not $AppsOnly) {
         $installed = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts' -ErrorAction SilentlyContinue).$checkFont
     }
     if (-not $installed) {
-        $installed = (Get-ChildItem "$fontsDir\CaskaydiaCove*" -ErrorAction SilentlyContinue | Select-Object -First 1)?.FullName
+        $fontFile = Get-ChildItem "$fontsDir\CaskaydiaCove*" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($fontFile) { $installed = $fontFile.FullName }
     }
 
     if ($installed) {
