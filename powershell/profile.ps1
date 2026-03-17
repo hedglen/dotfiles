@@ -194,6 +194,7 @@ function ytdl {
     $scr = "$HOME\projects\ytdl\ytdl.py"
     & $py $scr @args
 }
+Set-Alias dl ytdl
 
 # =============================================================================
 #   Aliases
