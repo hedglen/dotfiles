@@ -195,6 +195,7 @@ function ytdl {
     & $py $scr @args
 }
 Set-Alias dl ytdl
+function dll { yt-dlp --list-extractors @args }
 
 # =============================================================================
 #   Aliases
