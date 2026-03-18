@@ -197,6 +197,8 @@ function ytdl {
 Set-Alias dl ytdl
 function dll { yt-dlp --list-extractors @args }
 
+function scimitar { & "$HOME\dotfiles\corsair\scimitar.ps1" @args }
+
 # =============================================================================
 #   Aliases
 # =============================================================================
