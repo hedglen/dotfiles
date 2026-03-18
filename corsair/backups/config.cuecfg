@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<map name="AssignmentPanels">
+		<value name="InfoPopupVisible">false</value>
+	</map>
+	<map name="Backup">
+		<value name="Version">5.42.70</value>
+	</map>
+	<map name="CommonSettings">
+		<value name="IntegrationsClientsAccessExplicitDecisionPerformed">StreamDeck.exe</value>
+	</map>
+	<map name="DataCollectionSettings">
+		<value name="configuration_loaded_date">2026-03-14T16:53:29.287</value>
+		<map name="hwProfilesHashes">
+			<map name="{bbf26bdc-410a-4370-b4ce-a9deed6be7c4}">
+				<value name="{2b220000-0010-0000-0000-000000000000}">2a81144327cbda46cd1918697078ba49</value>
+				<value name="{2b220000-0020-0000-0000-000000000000}">99e26bb1ca7fae3ff9a10e5b32ca9196</value>
+				<value name="{2b220000-0030-0000-0000-000000000000}">5fd5ab47c14c8fbe75123087a1a230f6</value>
+			</map>
+		</map>
+		<value name="iCueSettingsEventHash">c31891f73b3198ab495935c6248229ce</value>
+		<value name="iCueSettingsEventSent">false</value>
+		<value name="inited">true</value>
+		<value name="initialProfilesSent">true</value>
+		<value name="muralsStatisticsEventHash">1c0dde805641dad572b8bf5cfb6fdc31</value>
+		<value name="session_ended">false</value>
+	</map>
+	<map name="Devices">
+		<map name="SCIMITAR RGB ELITE WIRELESS V2">
+			<map name="{bbf26bdc-410a-4370-b4ce-a9deed6be7c4}">
+				<value name="ActiveHardwareProfileIndex">0</value>
+				<value name="AngleSnappingAngle">0</value>
+				<value name="AngleSnappingEnabled">false</value>
+				<value name="BodyColor">25</value>
+				<value name="BrightnessLevel">50</value>
+				<value name="DontShowAgainElgatoScimitarMouseInfoPopup">true</value>
+				<value name="ElgatoStreamDeckAvailable">false</value>
+				<value name="FirstDetected">2026-02-23T11:20:53.341Z</value>
+				<value name="Layout">1</value>
+				<binary name="LedChannelCounts">%00%01%00%00%00%00%00%00%0BQList%3Cint%3E%00%00%00%00%00</binary>
+				<binary name="LedChannelExtensionsTypes">%00%01%00%00%00%00%00%001QList%3CQList%3Ccue%3A%3Adev%3A%3Amanifest%3A%3ALedChannelType%3E%3E%00%00%00%00%01%00%00%00%00</binary>
+				<binary name="LedChannelSynchronizations">%00%01%00%00%00%00%00%00%0CQList%3Cbool%3E%00%00%00%00%00</binary>
+				<binary name="LedChannelTypeCombinations">%00%01%00%00%00%00%00%001QList%3CQList%3Ccue%3A%3Adev%3A%3Amanifest%3A%3ALedChannelType%3E%3E%00%00%00%00%00</binary>
+				<binary name="LedChannelTypes">%00%01%00%00%00%00%00%00%2AQList%3Ccue%3A%3Adev%3A%3Amanifest%3A%3ALedChannelType%3E%00%00%00%00%01%00%00%00%0CNotConnected</binary>
+				<value name="LiftHeightLevel">Low</value>
+				<value name="LightingMode">Software</value>
+				<value name="MotionSensePowerSavingEnabled">false</value>
+				<value name="PowerSaveModeEnabled">false</value>
+				<value name="SleepModeEnabled">true</value>
+				<value name="SleepModeWaitDelaySec">900</value>
+				<value name="UniqueDeviceId">{f100549d-f7b9-4f04-880d-846248320de7}</value>
+				<value name="UniqueDongleId">{bf2ed9fc-3423-4b18-b766-9c3e67c373c6}</value>
+			</map>
+		</map>
+		<binary name="UniqueDeviceIds">%00%01%00%00%00%00%00%003QHash%3CQUuid%2Ccue_settings%3A%3Atypes%3A%3AUniqueDeviceData%3E%00%00%00%00%01%BB%F2k%DCA%0ACp%B4%CE%A9%DE%EDk%E7%C4%00%00%1B%1C%00%00%2B%22%00%00%00%20%000%00C%000%006%003%004%000%00B%002%005%000%009%009%008%006%00D%00%00%00%04%9B%16-%9A</binary>
+	</map>
+	<map name="HWPInfoPopup">
+		<value name="InfoPopupVisible">false</value>
+	</map>
+	<value name="Language">en</value>
+	<value name="LastDataCollectionConsentAppVersion">5.41.42</value>
+	<value name="LastLoadedAppVersion">5.42.70</value>
+	<map name="LightingLibraryStorage">
+		<value name="version">401</value>
+	</map>
+	<map name="Privacy">
+		<value name="DataCollectionConsent">true</value>
+		<value name="DataCollectionConsentTimestamp">23 Feb 2026 06:20:50 -0500</value>
+	</map>
+	<map name="Storage Locations">
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-dpi-dpi.cuelibrary">true</value>
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-dpi-hwdpi.cuelibrary">true</value>
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-eq_presets-limitedequalizerpresets.cuelibrary">true</value>
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-eq_presets-unlimitedequalizerpresets.cuelibrary">true</value>
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-eq_presets-unlimitedv2equalizerpresets.cuelibrary">true</value>
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-eq_presets-unlimitedv3equalizerpresets.cuelibrary">true</value>
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-quicklightingzones-quickLightingZones">true</value>
+		<value name="C:-Users-rjh-AppData-Roaming-Corsair-CUE5-sensors-UserProps">true</value>
+	</map>
+	<map name="SwUpdate">
+		<value name="LastCheckDate">2026-03-24</value>
+	</map>
+	<map name="TutorialStates">
+		<value name="MouseKeyAssignments">Skipped</value>
+		<value name="MouseLightings">Skipped</value>
+	</map>
+	<map name="Update">
+		<value name="PrevUpdateTime">2026-03-11T12:57:57.874Z</value>
+		<value name="UpdateCount">2</value>
+		<value name="UpdateEndTime">2026-03-11T12:57:57.900Z</value>
+	</map>
+	<value name="defaultProfile">{6cd71b5b-3931-40b3-b349-10604b36d69e}</value>
+</config>
