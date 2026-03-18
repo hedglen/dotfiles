@@ -71,26 +71,42 @@
   },
   "extensions": {
     "recommendations": [
+      // AI
       "anthropic.claude-code",
+      "github.copilot-chat",
+      // Languages
       "ms-vscode.powershell",
       "ms-python.python",
       "sumneko.lua",
       "thqby.vscode-autohotkey2-lsp",
+      "dbaeumer.vscode-eslint",
+      "tamasfe.even-better-toml",
+      // Git
       "eamodio.gitlens",
       "mhutchie.git-graph",
       "github.vscode-pull-request-github",
+      // Editor UX
       "usernamehw.errorlens",
-      "pkief.material-icon-theme",
-      "vscode-icons-team.vscode-icons",
+      "christian-kohler.path-intellisense",
+      "oderwat.indent-rainbow",
       "aaron-bond.better-comments",
       "gruntfuggly.todo-tree",
       "alefragnani.bookmarks",
-      "ms-vscode.hexeditor",
-      "humao.rest-client",
-      "ms-vscode.vscode-serial-monitor",
       "sleistner.vscode-fileutils",
+      // Theme & Icons
+      "pkief.material-icon-theme",
+      "robbowen.synthwave-vscode",
+      // Formatters & Linters
+      "esbenp.prettier-vscode",
+      "streetsidesoftware.code-spell-checker",
+      "davidanson.vscode-markdownlint",
+      // File Viewers
+      "ms-vscode.hexeditor",
+      "tomoki1207.pdf",
+      // Markup & Data
       "yzhang.markdown-all-in-one",
       "redhat.vscode-yaml",
+      "humao.rest-client",
     ],
   },
 }
