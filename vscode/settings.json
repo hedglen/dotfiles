@@ -99,7 +99,7 @@
     "terminal.ansiBrightGreen": "#7FFF00",
     "terminal.ansiBrightRed": "#FF6080",
     "terminal.ansiBrightYellow": "#FF8C00",
-    "terminal.ansiBrightWhite": "#FFFFFF"
+    "terminal.ansiBrightWhite": "#FFFFFF",
   },
 
   // =============================================================================
@@ -112,7 +112,7 @@
     "**/node_modules": true,
     "**/.git": true,
     "**/dist": true,
-    "**/__pycache__": true
+    "**/__pycache__": true,
   },
 
   // =============================================================================
@@ -140,7 +140,7 @@
   //   Extensions — Copilot
   // =============================================================================
   "github.copilot.enable": {
-    "*": true
+    "*": true,
   },
 
   // =============================================================================
@@ -149,7 +149,7 @@
   "[powershell]": {
     "editor.defaultFormatter": "ms-vscode.powershell",
     "editor.tabSize": 4,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
   },
   "powershell.integratedConsole.showOnStartup": false,
   "powershell.scriptAnalysis.enable": true,
@@ -160,7 +160,7 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.python",
     "editor.tabSize": 4,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
   },
   "python.languageServer": "Pylance",
   "python.analysis.typeCheckingMode": "basic",
@@ -176,7 +176,7 @@
   // =============================================================================
   "[lua]": {
     "editor.tabSize": 4,
-    "editor.defaultFormatter": "sumneko.lua"
+    "editor.defaultFormatter": "sumneko.lua",
   },
   "Lua.diagnostics.globals": ["mp", "mp_event_loop"],
   "Lua.workspace.library": [],
@@ -185,13 +185,13 @@
   //   Language — JSON / YAML
   // =============================================================================
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
 
   // =============================================================================
@@ -200,12 +200,13 @@
   "[markdown]": {
     "editor.wordWrap": "on",
     "editor.quickSuggestions": {
-      "other": false
-    }
+      "other": false,
+    },
   },
   "workbench.startupEditor": "none",
   "terminal.integrated.enableMultiLinePasteWarning": "never",
   "chat.tools.terminal.autoApprove": true,
   "workbench.scrollbar.verticalScrollbarSize": 14,
-  "editor.scrollbar.verticalScrollbarSize": 14
+  "editor.scrollbar.verticalScrollbarSize": 14,
+  "cSpell.userWords": ["autohotkey", "hedglen"],
 }
