@@ -4,7 +4,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& ''./corsair/scimitar.ps1'' status\")"
     ]
   }
 }
