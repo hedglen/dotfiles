@@ -387,6 +387,17 @@ Key apps tracked in `apps/winget-packages.json` (~60 packages total):
 | **Package Mgmt** | UniGetUI |
 | **Other** | StartAllBack, Internet Download Manager, Corsair iCUE 5 |
 
+### CLI Tools (winget)
+
+These are the everyday CLI search/navigation tools:
+
+```powershell
+winget install -e --id BurntSushi.ripgrep.MSVC
+winget install -e --id junegunn.fzf
+winget install -e --id sharkdp.fd
+winget install -e --id sharkdp.bat
+```
+
 ---
 
 ## 🔧 Manual Installs
