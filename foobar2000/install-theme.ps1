@@ -16,7 +16,7 @@ if ($DryRun) { Write-Host "   DRY RUN - No changes will be made" -ForegroundColo
 Write-Host ""
 
 # Paths
-$foobar2000Path = "$env:USERPROFILE\foobar2000"
+$foobar2000Path = "$env:USERPROFILE\tools\foobar2000"
 $foobar2000PortablePath = "$foobar2000Path\profile"
 $foobar2000ConfigPath = if (Test-Path "$foobar2000Path\portable_mode_enabled") { $foobar2000PortablePath } else { "$env:APPDATA\foobar2000" }
 $themePath = Join-Path $PSScriptRoot "theme"

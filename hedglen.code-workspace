@@ -10,7 +10,7 @@
     },
     {
       "name": "foobar2000",
-      "path": "../foobar2000",
+      "path": "../tools/foobar2000",
     },
     {
       "name": "hedglen-profile",
