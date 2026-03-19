@@ -7,7 +7,7 @@
 $Host.UI.RawUI.BackgroundColor = 'Black'
 Clear-Host
 if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
-    oh-my-posh init pwsh --config "$HOME\dotfiles\oh-my-posh\hedglab.omp.json" | Invoke-Expression
+    oh-my-posh init pwsh --config "$HOME\workstation\dotfiles\oh-my-posh\hedglab.omp.json" | Invoke-Expression
 }
 
 # =============================================================================
@@ -16,10 +16,10 @@ if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
 
 function c { Set-Location C:\ }
 function d { Set-Location D:\ }
-function tools { Set-Location "$HOME\tools" }
-function psh { Set-Location C:\Tools\PowerShell }
+function tools { Set-Location "$HOME\workstation\tools" }
+function psh { Set-Location "$HOME\workstation\tools\powershell" }
 function home { Set-Location $HOME }
-function dots { Set-Location "$HOME\dotfiles" }
+function dots { Set-Location "$HOME\workstation\dotfiles" }
 
 # =============================================================================
 #   System / User Helpers
@@ -154,7 +154,7 @@ function reload { . $PROFILE; Write-Host "Profile reloaded." -ForegroundColor Gr
 # save-dots — commit and push all dotfile changes to GitHub
 function save-dots {
     param([string]$Message = "update configs")
-    Push-Location "$HOME\dotfiles"
+    Push-Location "$HOME\workstation\dotfiles"
     $status = git status --porcelain
     if (-not $status) {
         Write-Host "Nothing to save — dotfiles already up to date." -ForegroundColor DarkGray
@@ -170,7 +170,7 @@ function save-dots {
 
 # sync-dots — pull latest dotfiles from GitHub and re-apply configs (no app upgrades)
 function sync-dots {
-    & "$HOME\dotfiles\maintenance\update.ps1" -SkipApps
+    & "$HOME\workstation\dotfiles\maintenance\update.ps1" -SkipApps
 }
 
 # =============================================================================
@@ -197,7 +197,7 @@ function ytdl {
 Set-Alias dl ytdl
 function dll { yt-dlp --list-extractors @args }
 
-function scimitar { & "$HOME\dotfiles\corsair\scimitar.ps1" @args }
+function scimitar { & "$HOME\workstation\dotfiles\corsair\scimitar.ps1" @args }
 
 # =============================================================================
 #   Aliases

@@ -15,7 +15,7 @@ winget install PeterPawlowski.foobar2000
 From your dotfiles directory:
 
 ```powershell
-cd C:\Users\rjh\dotfiles\foobar2000
+cd C:\Users\rjh\workstation\dotfiles\foobar2000
 .\install-theme.ps1
 ```
 

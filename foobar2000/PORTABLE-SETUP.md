@@ -2,7 +2,7 @@
 
 ## Installation Location
 
-**Portable installation:** `C:\Users\rjh\tools\foobar2000`
+**Portable installation:** `C:\Users\rjh\workstation\tools\foobar2000`
 
 The portable version stores all configuration, components, and user data in the `profile` subdirectory, making it easy to backup and sync.
 
@@ -37,7 +37,7 @@ The portable version stores all configuration, components, and user data in the 
 ### Directory Structure
 
 ```
-C:\Users\rjh\tools\foobar2000\
+C:\Users\rjh\workstation\tools\foobar2000\
 ├── foobar2000.exe          # Main executable
 ├── portable_mode_enabled   # Enables portable mode
 ├── components/             # Installed components
@@ -66,7 +66,7 @@ C:\Users\rjh\tools\foobar2000\
 
 To backup your foobar2000 configuration:
 
-1. **Full backup:** Copy the entire `C:\Users\rjh\tools\foobar2000` folder
+1. **Full backup:** Copy the entire `C:\Users\rjh\workstation\tools\foobar2000` folder
 2. **Config only:** Copy the `profile` folder
 3. **Playlists only:** Copy `profile\playlists-v2.0`
 

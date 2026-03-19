@@ -15,7 +15,7 @@ irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 **Requires:** [Git](https://git-scm.com) installed first.
 
 This will:
-1. Clone this repo to `~/dotfiles`
+1. Clone this repo to `C:\Users\rjh\workstation\dotfiles` (canonical)
 2. Install all apps via winget
 3. Apply Windows tweaks (requires admin)
 4. Symlink all configs to their correct locations
@@ -129,9 +129,9 @@ Format: `[USER/ADMIN] HH:MM PS path>`
 | `c` | `cd C:\` |
 | `d` | `cd D:\` |
 | `home` | `cd ~` |
-| `dots` | `cd ~/dotfiles` |
-| `tools` | `cd C:\Tools` |
-| `psh` | `cd C:\Tools\PowerShell` |
+| `dots` | `cd C:\Users\rjh\workstation\dotfiles` |
+| `tools` | `cd C:\Users\rjh\workstation\tools` |
+| `psh` | `cd C:\Users\rjh\workstation\tools\powershell` |
 
 ### System Helpers
 
@@ -453,7 +453,7 @@ Theme: `oh-my-posh/hedglab.omp.json` — a custom powerline prompt with four seg
 To activate it, add this to your profile (Oh My Posh is already installed via winget):
 
 ```powershell
-oh-my-posh init pwsh --config "$HOME\dotfiles\oh-my-posh\hedglab.omp.json" | Invoke-Expression
+oh-my-posh init pwsh --config "$HOME\workstation\dotfiles\oh-my-posh\hedglab.omp.json" | Invoke-Expression
 ```
 
 ---

@@ -25,7 +25,7 @@ $DotfilesDir = $PSScriptRoot
 
 # If running via irm | iex, clone the repo first
 if (-not $DotfilesDir -or $DotfilesDir -eq "") {
-    $DotfilesDir = "$HOME\dotfiles"
+    $DotfilesDir = "$HOME\workstation\dotfiles"
     if (-not (Test-Path $DotfilesDir)) {
         Write-Host "Cloning dotfiles repo..." -ForegroundColor Cyan
         git clone https://github.com/hedglen/dotfiles.git $DotfilesDir
@@ -254,7 +254,7 @@ if (-not $AppsOnly) {
 #   8. mpv config
 # =============================================================================
 Write-Step "mpv config"
-$mpvDir = "$HOME\tools\mpv"
+$mpvDir = "$HOME\workstation\tools\mpv"
 if (Test-Path "$mpvDir\portable_config") {
     Write-Skip "Already installed at $mpvDir\portable_config"
 } elseif (Test-Path $mpvDir) {
@@ -275,7 +275,7 @@ if (Test-Path "$mpvDir\portable_config") {
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "mpv Open With registration"
-    $batPath = "$HOME\tools\mpv\mpv-single.bat"
+$batPath = "$HOME\workstation\tools\mpv\mpv-single.bat"
     if (-not (Test-Path $batPath)) {
         Write-Warn "mpv-single.bat not found at $batPath — skipping"
     } elseif ($DryRun) {
