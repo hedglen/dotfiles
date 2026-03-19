@@ -9,10 +9,6 @@
       "path": "../mpv-config",
     },
     {
-      "name": "foobar2000",
-      "path": "../tools/foobar2000",
-    },
-    {
       "name": "hedglen-profile",
       "path": "../hedglen-profile",
     },
