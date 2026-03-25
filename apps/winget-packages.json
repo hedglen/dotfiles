@@ -66,6 +66,7 @@
                                 { "PackageIdentifier" : "Rem0o.FanControl" },
                                 { "PackageIdentifier" : "AOMEI.PartitionAssistant" },
                                 { "PackageIdentifier" : "MartiCliment.UniGetUI" },
+                                { "PackageIdentifier" : "Logitech.GHUB" },
                                 { "PackageIdentifier" : "Corsair.iCUE.5" },
                                 { "PackageIdentifier" : "StartIsBack.StartAllBack" },
                                 { "PackageIdentifier" : "Microsoft.WindowsTerminal" },
