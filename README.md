@@ -376,7 +376,7 @@ Key apps tracked in `apps/winget-packages.json` (~60 packages total):
 | **Dev** | Git, VS Code, PowerShell 7, Python Launcher, AutoHotkey |
 | **Terminal** | Windows Terminal, Oh My Posh |
 | **Browsers** | Brave, Floorp, Chrome |
-| **Media** | VLC, MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP |
+| **Media** | MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP |
 | **File Management** | File Pilot, Everything, TeraCopy, NanaZip, 7-Zip, Bulk Rename, TreeSize, Ditto |
 | **Productivity** | Notion, Obsidian, LibreOffice, Flow Launcher, Zoom, LocalSend, EarTrumpet |
 | **Creative** | Adobe Creative Cloud, Adobe Acrobat Reader |
@@ -385,7 +385,7 @@ Key apps tracked in `apps/winget-packages.json` (~60 packages total):
 | **System** | MSI Afterburner, HWiNFO, CrystalDiskInfo, FanControl, AOMEI Partition Assistant |
 | **Entertainment** | Steam, Kodi, Jellyfin Server |
 | **Package Mgmt** | UniGetUI |
-| **Other** | StartAllBack, Internet Download Manager, Corsair iCUE 5 |
+| **Other** | StartAllBack, Internet Download Manager, Corsair iCUE 5, Logitech G HUB |
 
 ### CLI Tools (winget)
 
