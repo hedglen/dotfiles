@@ -71,8 +71,7 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
     $workspaceRepos = @(
         @{ url = "https://github.com/hedglen/scripts.git";  dst = "$HOME\workstation\scripts"         },
         @{ url = "https://github.com/hedglen/docs.git";     dst = "$HOME\workstation\docs"            },
-        @{ url = "https://github.com/hedglen/hedglen.git";  dst = "$HOME\workstation\hedglen-profile" },
-        @{ url = "https://github.com/hedglen/projects.git"; dst = "$HOME\workstation\projects"        }
+        @{ url = "https://github.com/hedglen/hedglen.git";  dst = "$HOME\workstation\hedglen-profile" }
     )
 
     foreach ($r in $workspaceRepos) {
@@ -89,6 +88,16 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
                 Write-Warn "Failed to clone $name — $_"
             }
         }
+    }
+
+    $projectsDir = "$HOME\workstation\projects"
+    if (Test-Path $projectsDir) {
+        Write-Skip "projects dir already present"
+    } elseif ($DryRun) {
+        Write-Skip "Would create: $projectsDir"
+    } else {
+        New-Item -ItemType Directory -Path $projectsDir -Force | Out-Null
+        Write-OK "projects dir created"
     }
 }
 

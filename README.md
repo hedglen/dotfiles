@@ -16,7 +16,7 @@ irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 
 This will:
 1. Clone this repo to `C:\Users\rjh\workstation\dotfiles` (canonical)
-2. Clone remaining workspace repos (`scripts`, `docs`, `hedglen-profile`, `projects`)
+2. Clone remaining workspace repos (`scripts`, `docs`, `hedglen-profile`) and create `projects/` directory
 3. Install all apps via winget
 4. Apply Windows tweaks (requires admin)
 5. Symlink all configs to their correct locations
