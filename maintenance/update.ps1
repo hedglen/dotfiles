@@ -112,9 +112,15 @@ foreach ($c in $configs) {
     $dstDir = Split-Path $dst -Parent
     if (-not (Test-Path $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }
 
-    if (Test-Path $dst) {
-        Copy-Item $dst "$dst.backup" -Force
-        Remove-Item $dst -Force
+    if (Test-Path $dst -ErrorAction SilentlyContinue) {
+        $existing = Get-Item $dst -Force -ErrorAction SilentlyContinue
+        if ($existing -and $existing.LinkType -eq 'SymbolicLink') {
+            Remove-Item $dst -Force
+        } elseif ($existing) {
+            Copy-Item $dst "$dst.backup" -Force
+            Remove-Item $dst -Force
+            Write-Host "   Backed up existing to $dst.backup" -ForegroundColor DarkGray
+        }
     }
 
     try {
