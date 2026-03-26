@@ -15,6 +15,7 @@ irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 **Requires:** [Git](https://git-scm.com) installed first.
 
 This will:
+
 1. Clone this repo to `C:\Users\rjh\workstation\dotfiles` (canonical)
 2. Clone remaining workspace repos (`scripts`, `docs`, `hedglen-profile`) and create `projects/` directory
 3. Install all apps via winget
@@ -29,7 +30,7 @@ This will:
 
 ## 🗂️ What's In Here
 
-```
+```text
 dotfiles/
 ├── install.ps1                    ← bootstrap script
 ├── autohotkey/
@@ -79,7 +80,7 @@ dotfiles/
 After initial setup, two commands handle ongoing maintenance:
 
 | Command | What it does |
-|---------|-------------|
+| --- | --- |
 | `save-dots` | Commit & push your local changes to GitHub |
 | `sync-dots` | Pull latest from GitHub, relink any new configs, install new extensions/fonts |
 
@@ -104,6 +105,7 @@ Options:
 ### Startup Banner
 
 On every new terminal:
+
 - A neon purple cheat sheet lists all available commands
 - A random quote prints in dim grey underneath
 
@@ -117,7 +119,7 @@ On every new terminal:
 Format: `[USER/ADMIN] HH:MM PS path>`
 
 | Element | Color |
-|---------|-------|
+| --- | --- |
 | `[USER]` / `[ADMIN]` tag | Neon green |
 | Time | Bright green |
 | `PS` label | Magenta |
@@ -126,7 +128,7 @@ Format: `[USER/ADMIN] HH:MM PS path>`
 ### Navigation
 
 | Command | Description |
-|---------|-------------|
+| --- | --- |
 | `c` | `cd C:\` |
 | `d` | `cd D:\` |
 | `home` | `cd ~` |
@@ -137,7 +139,7 @@ Format: `[USER/ADMIN] HH:MM PS path>`
 ### System Helpers
 
 | Command | Description |
-|---------|-------------|
+| --- | --- |
 | `drives` | All volumes with size and free space |
 | `uptime` | Time since last boot (`Xd Xh Xm`) |
 | `sysinfo` | OS, uptime, RAM, CPU, user, hostname |
@@ -156,7 +158,7 @@ Format: `[USER/ADMIN] HH:MM PS path>`
 ### Aliases
 
 | Alias | Resolves To |
-|-------|-------------|
+| --- | --- |
 | `ll` / `la` | `Get-ChildItem` |
 | `open` | `Invoke-Item` |
 | `startup-list` | `Get-StartupList` |
@@ -167,7 +169,7 @@ Format: `[USER/ADMIN] HH:MM PS path>`
 ### Directory Colors
 
 | Type | Color |
-|------|-------|
+| --- | --- |
 | Directories | Soft cyan |
 | Executables | Warm yellow |
 
@@ -180,7 +182,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 ### App Launchers (Win + Key)
 
 | Hotkey | Action |
-|--------|--------|
+| --- | --- |
 | `Win+T` | Windows Terminal (PowerShell) — suppressed when mpv is focused |
 | `Win+E` | File Pilot (file manager) |
 | `Win+B` | Brave Browser |
@@ -191,7 +193,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 ### Window Management
 
 | Hotkey | Action |
-|--------|--------|
+| --- | --- |
 | `Win+Alt+Left` | Move window to left monitor |
 | `Win+Alt+Right` | Move window to right monitor |
 | `Win+Alt+F` | Toggle true fullscreen (borderless, any window) |
@@ -199,13 +201,13 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 ### Clipboard
 
 | Hotkey | Action |
-|--------|--------|
+| --- | --- |
 | `Ctrl+Shift+V` | Paste as plain text (strips formatting) |
 
 ### Text Expanders
 
 | Trigger | Expands To |
-|---------|-----------|
+| --- | --- |
 | `@@` | `hedglen@pm.me` |
 | `/shrug` | `¯\_(ツ)_/¯` |
 | `/check` | `✓` |
@@ -219,7 +221,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 ### Keyboard Bindings
 
 | Hotkey | Action |
-|--------|--------|
+| --- | --- |
 | `Ctrl+T` | New tab |
 | `Ctrl+W` | Close tab |
 | `Ctrl+Tab` | Next tab |
@@ -231,7 +233,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 ### Profiles
 
 | Profile | Status |
-|---------|--------|
+| --- | --- |
 | PowerShell 7 (pwsh) | Default |
 | Windows PowerShell | Available |
 | Command Prompt | Hidden |
@@ -242,7 +244,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 **Neon Blaze** (active) — neon green on near-black
 
 | Element | Color |
-|---------|-------|
+| --- | --- |
 | Background | `#0A0A0F` |
 | Foreground | `#39FF14` (neon green) |
 | Blue / Bright Blue | `#BF00FF` / `#D966FF` (purple) |
@@ -261,7 +263,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 ### Key Settings
 
 | Setting | Value |
-|---------|-------|
+| --- | --- |
 | Theme | One Dark Pro |
 | Icons | Material Icon Theme |
 | Font | Cascadia Code / Fira Code / Consolas |
@@ -280,7 +282,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 ### Extensions
 
 | Category | Extension |
-|----------|-----------|
+| --- | --- |
 | AI | Claude Code, GitHub Copilot, Copilot Chat |
 | Git | GitLens |
 | PowerShell | ms-vscode.powershell |
@@ -303,7 +305,7 @@ Config: `git/.gitconfig` — symlinked to `~/.gitconfig` on install.
 Instead of typing full git commands, these short versions work:
 
 | Type this | Instead of |
-|-----------|-----------|
+| --- | --- |
 | `git st` | `git status` |
 | `git co` | `git checkout` |
 | `git br` | `git branch` |
@@ -322,7 +324,7 @@ Instead of typing full git commands, these short versions work:
 ### Sensible Defaults
 
 | Setting | Value | What it means |
-|---------|-------|---------------|
+| --- | --- | --- |
 | `defaultBranch` | `main` | New repos start on `main` not `master` |
 | `autocrlf` | `input` | Don't mangle line endings on Windows |
 | `editor` | `code --wait` | VS Code opens for commit messages |
@@ -339,28 +341,33 @@ Instead of typing full git commands, these short versions work:
 Script: `windows/tweaks.ps1` — run during install (admin required).
 
 **Power:**
+
 - High Performance power plan
 - Fast startup disabled
 - Sleep on AC disabled
 - Hard disk sleep disabled
 
 **Privacy:**
+
 - Telemetry set to 0, DiagTrack & dmwappushservice disabled
 - Advertising ID, tailored experiences, activity history disabled
 - Location services disabled
 - Camera/mic/location denied by default for Store apps
 
 **Xbox / Game Bar:**
+
 - Game DVR, Game Bar, background recording disabled
 - Xbox services disabled
 
 **Explorer:**
+
 - File extensions visible
 - Hidden files visible
 - Opens to This PC (not Quick Access)
 - Recent/frequent items in Quick Access disabled
 
 **Start / Search / Taskbar:**
+
 - Bing search in Start disabled
 - Cortana disabled
 - News & Interests widget disabled
@@ -373,7 +380,7 @@ Script: `windows/tweaks.ps1` — run during install (admin required).
 Key apps tracked in `apps/winget-packages.json` (~60 packages total):
 
 | Category | Apps |
-|----------|------|
+| --- | --- |
 | **Dev** | Git, VS Code, PowerShell 7, Python Launcher, AutoHotkey |
 | **Terminal** | Windows Terminal, Oh My Posh |
 | **Browsers** | Brave, Floorp, Chrome |
@@ -406,17 +413,20 @@ winget install -e --id sharkdp.bat
 These apps are **not available in winget** and must be installed manually.
 
 ### 🔵 JDownloader 2
-- **Download:** https://jdownloader.org/download/index
+
+- **Download:** [jdownloader.org/download/index](https://jdownloader.org/download/index)
 - **Install:** Run installer, sign into My JDownloader account
-- **Account:** hedglen@pm.me
+- **Account:** [hedglen@pm.me](mailto:hedglen@pm.me)
 
 ### 🟢 Macrium Reflect Home
-- **Download:** https://www.macrium.com/reflectfree
+
+- **Download:** [macrium.com/reflectfree](https://www.macrium.com/reflectfree)
 - **Install:** Run installer, select "Home" edition (free)
 - **Note:** Re-register email after install to unlock scheduling
 
 ### 🟠 Battle.net
-- **Download:** https://us.battle.net/download/getBnetInstaller
+
+- **Download:** [battle.net installer](https://us.battle.net/download/getBnetInstaller)
 - **Install:** Run Battle.net installer, log in with Blizzard account
 - **Account:** stored in Bitwarden
 
@@ -428,11 +438,11 @@ These apps are **not available in winget** and must be installed manually.
 > All license keys and passwords are stored in **Proton Pass** under `Software Licenses`.
 
 | App | Type | Where |
-|-----|------|-------|
+| --- | --- | --- |
 | StartAllBack | Paid license | Proton Pass → Software Licenses |
 | Internet Download Manager | Paid license | Proton Pass → Software Licenses |
 | Adobe Creative Cloud | Subscription | Proton Pass → Adobe |
-| Corsair iCUE | Free (account optional) | hedglen@pm.me |
+| Corsair iCUE | Free (account optional) | [hedglen@pm.me](mailto:hedglen@pm.me) |
 | Proton (VPN/Drive/Pass/Auth) | Subscription | master password — memorize it |
 | JDownloader 2 | Free (account optional) | Proton Pass → JDownloader |
 | Battle.net / Blizzard | Account | Proton Pass → Blizzard |
@@ -445,7 +455,7 @@ These apps are **not available in winget** and must be installed manually.
 Theme: `oh-my-posh/hedglab.omp.json` — a custom powerline prompt with four segments:
 
 | Segment | Background | Shows |
-|---------|-----------|-------|
+| --- | --- | --- |
 | Path | Purple `#6a0dad` | Full folder path |
 | Git | Deep pink `#ff1493` | Branch, status, stash count |
 | Exec time | Cyan `#00ffcc` | How long the last command took |
@@ -461,7 +471,7 @@ oh-my-posh init pwsh --config "$HOME\workstation\dotfiles\oh-my-posh\hedglab.omp
 
 ## 🎨 Terminal Theme — Neon Blaze
 
-CaskaydiaCove Nerd Font is installed automatically by `install.ps1` (step 6). No manual download needed.
+CaskaydiaCove Nerd Font is installed automatically by `install.ps1` (step 7). No manual download needed.
 
 The **Neon Blaze** color scheme is defined in both `windows-terminal/settings.json` and `vscode/settings.json` so the terminal looks identical everywhere.
 
