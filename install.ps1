@@ -63,7 +63,37 @@ foreach ($cmd in $prereqs) {
 }
 
 # =============================================================================
-#   2. Install apps via winget
+#   2. Clone workspace repos
+# =============================================================================
+if (-not $AppsOnly -and -not $ConfigsOnly) {
+    Write-Step "Cloning workspace repos"
+
+    $workspaceRepos = @(
+        @{ url = "https://github.com/hedglen/scripts.git";  dst = "$HOME\workstation\scripts"         },
+        @{ url = "https://github.com/hedglen/docs.git";     dst = "$HOME\workstation\docs"            },
+        @{ url = "https://github.com/hedglen/hedglen.git";  dst = "$HOME\workstation\hedglen-profile" },
+        @{ url = "https://github.com/hedglen/projects.git"; dst = "$HOME\workstation\projects"        }
+    )
+
+    foreach ($r in $workspaceRepos) {
+        $name = Split-Path $r.dst -Leaf
+        if (Test-Path $r.dst) {
+            Write-Skip "$name already present"
+        } elseif ($DryRun) {
+            Write-Skip "Would clone $($r.url) → $($r.dst)"
+        } else {
+            try {
+                git clone $r.url $r.dst
+                Write-OK "$name cloned"
+            } catch {
+                Write-Warn "Failed to clone $name — $_"
+            }
+        }
+    }
+}
+
+# =============================================================================
+#   3. Install apps via winget
 # =============================================================================
 if (-not $ConfigsOnly -and -not $NoApps) {
     Write-Step "Installing apps from winget"

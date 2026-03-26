@@ -16,13 +16,14 @@ irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 
 This will:
 1. Clone this repo to `C:\Users\rjh\workstation\dotfiles` (canonical)
-2. Install all apps via winget
-3. Apply Windows tweaks (requires admin)
-4. Symlink all configs to their correct locations
-5. Install all VS Code extensions
-6. Install CaskaydiaCove Nerd Font
-7. Clone the mpv config
-8. Register AutoHotkey on startup
+2. Clone remaining workspace repos (`scripts`, `docs`, `hedglen-profile`, `projects`)
+3. Install all apps via winget
+4. Apply Windows tweaks (requires admin)
+5. Symlink all configs to their correct locations
+6. Install all VS Code extensions
+7. Install CaskaydiaCove Nerd Font
+8. Clone the mpv config
+9. Register AutoHotkey on startup
 
 ---
 
