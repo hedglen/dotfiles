@@ -25,12 +25,13 @@
       "fontFace": "CaskaydiaCove Nerd Font",
       "fontSize": 12,
       "antialiasingMode": "cleartype",
-      "colorScheme": "Neon Blaze",
+      "colorScheme": "Neon Dark",
       "cursorShape": "bar",
+      "cursorBlinking": "blink",
       "padding": "8",
       "scrollbarState": "hidden",
-      "useAcrylic": true,
-      "opacity": 85
+      "useAcrylic": false,
+      "opacity": 100
     },
     "list": [
       {
@@ -83,6 +84,29 @@
       "yellow": "#F9E2AF",
       "cursorColor": "#F5E0DC",
       "selectionBackground": "#585B70"
+    },
+    {
+      "name": "Neon Dark",
+      "background": "#0E0E0E",
+      "foreground": "#E4E4E4",
+      "black": "#252525",
+      "red": "#FF6B8A",
+      "green": "#00E8B5",
+      "yellow": "#FFD447",
+      "blue": "#64B5FF",
+      "purple": "#E954FF",
+      "cyan": "#00E8FF",
+      "white": "#C8C8D0",
+      "brightBlack": "#4A4A55",
+      "brightRed": "#FF99AA",
+      "brightGreen": "#5CFFB8",
+      "brightYellow": "#FFE566",
+      "brightBlue": "#A8D4FF",
+      "brightPurple": "#F4A4FF",
+      "brightCyan": "#66F9FF",
+      "brightWhite": "#FFFFFF",
+      "cursorColor": "#FF66EE",
+      "selectionBackground": "#3D2560"
     },
     {
       "name": "Neon Blaze",

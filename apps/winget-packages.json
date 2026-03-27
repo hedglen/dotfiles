@@ -12,6 +12,12 @@
                                 { "PackageIdentifier" : "Codeium.Windsurf" },
                                 { "PackageIdentifier" : "AutoHotkey.AutoHotkey" },
                                 { "PackageIdentifier" : "Python.Launcher" },
+                                { "PackageIdentifier" : "BurntSushi.ripgrep.MSVC" },
+                                { "PackageIdentifier" : "junegunn.fzf" },
+                                { "PackageIdentifier" : "sharkdp.fd" },
+                                { "PackageIdentifier" : "sharkdp.bat" },
+                                { "PackageIdentifier" : "GitHub.cli" },
+                                { "PackageIdentifier" : "ajeetdsouza.zoxide" },
                                 { "PackageIdentifier" : "JanDeDobbeleer.OhMyPosh" },
                                 { "PackageIdentifier" : "Microsoft.DotNet.DesktopRuntime.6" },
                                 { "PackageIdentifier" : "Microsoft.DotNet.DesktopRuntime.8" },
@@ -74,9 +80,7 @@
                                 { "PackageIdentifier" : "Microsoft.WindowsTerminal" },
                                 { "PackageIdentifier" : "Adobe.CreativeCloud" },
                                 { "PackageIdentifier" : "Adobe.Acrobat.Reader.64-bit" },
-                                { "PackageIdentifier" : "Valve.Steam" },
-                                { "PackageIdentifier" : "Jellyfin.Server" },
-                                { "PackageIdentifier" : "9P4CLT2RJ1RS" }
+                                { "PackageIdentifier" : "Valve.Steam" }
                         ],
                         "SourceDetails" :
                         {

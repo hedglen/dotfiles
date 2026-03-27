@@ -1,44 +1,78 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "version": 3,
+  "final_space": true,
+  "console_title_template": "{{ .Folder }} — {{ .Shell }}",
   "blocks": [
     {
       "type": "prompt",
       "alignment": "left",
       "segments": [
         {
+          "type": "shell",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "trailing_diamond": "\ue0b0",
+          "foreground": "#0E0E0E",
+          "background": "#E954FF",
+          "template": " {{ .Name }} ",
+          "properties": {
+            "mapped_shell_names": {
+              "pwsh": "\uebc7 pwsh",
+              "powershell": "\uebc7 powershell"
+            }
+          }
+        },
+        {
           "properties": {
             "folder_separator_icon": " \ue0b1 ",
-            "style": "full"
+            "style": "full",
+            "folder_icon": "\uf07c"
           },
-          "foreground": "#ffffff",
-          "background": "#6a0dad",
+          "foreground": "#66F9FF",
+          "background": "#1B2B38",
           "type": "path",
           "style": "powerline"
         },
         {
           "properties": {
             "display_stash_count": true,
-            "display_status": true
+            "display_status": true,
+            "branch_icon": "\ue0a0"
           },
-          "foreground": "#ffffff",
-          "background": "#ff1493",
+          "foreground": "#0E0E0E",
+          "background": "#FFD447",
           "type": "git",
           "style": "powerline"
         },
         {
-          "foreground": "#000000",
-          "background": "#00ffcc",
+          "foreground": "#0E0E0E",
+          "background": "#00E8B5",
           "type": "executiontime",
           "style": "powerline"
         },
         {
-          "foreground": "#ffffff",
-          "background": "#ff5555",
+          "foreground": "#FFFFFF",
+          "background": "#FF6B8A",
           "type": "exit",
           "style": "diamond"
         }
       ]
+    },
+    {
+      "type": "prompt",
+      "alignment": "right",
+      "segments": [
+        {
+          "type": "time",
+          "style": "plain",
+          "foreground": "#64B5FF",
+          "template": " \uf017 {{ .CurrentDate | date .Format }} ",
+          "properties": {
+            "time_format": "15:04:05"
+          }
+        }
+      ]
     }
-  ],
-  "version": 3
+  ]
 }

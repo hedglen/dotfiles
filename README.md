@@ -77,12 +77,12 @@ dotfiles/
 ├── powershell/
 │   └── profile.ps1                ← prompt, aliases, helper functions
 ├── oh-my-posh/
-│   └── hedglab.omp.json           ← custom OMP theme (purple/pink/cyan)
+│   └── hedglab.omp.json           ← custom OMP theme (Neon Dark–style segments)
 ├── vscode/
 │   ├── settings.json              ← editor settings, font, theme
 │   └── extensions.txt             ← extension list for auto-install
 ├── windows-terminal/
-│   └── settings.json              ← Neon Blaze theme, Nerd Font, keybindings
+│   └── settings.json              ← Neon Dark terminal scheme, Nerd Font, keybindings
 ├── windows/
 │   └── tweaks.ps1                 ← privacy, power, explorer tweaks
 ├── git/
@@ -145,7 +145,7 @@ Options:
 
 On every new terminal:
 
-- A neon purple cheat sheet lists all available commands
+- A multi-color neon cheat sheet lists helper commands (cyan, magenta, gold, sky blue, orange, mint)
 - A random quote prints in dim grey underneath
 
 ### PSReadLine
@@ -278,20 +278,31 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 | Command Prompt | Hidden |
 | Azure Cloud Shell | Hidden |
 
+### Cursor
+
+| Setting | Value |
+| --- | --- |
+| Shape | Bar (vertical “I”) |
+| Blink | On (`cursorBlinking`: `blink` in `windows-terminal/settings.json`; `terminal.integrated.cursorBlinking` in VS Code) |
+
 ### Color Schemes
 
-**Neon Blaze** (active) — neon green on near-black
+**Neon Dark** (active) — aligned with Sudhan’s [Neon Dark Theme](https://marketplace.visualstudio.com/items?itemName=Sudhan.neondark-theme): near-black base, light text, magenta/cyan/gold accents (see `settings.json` schemes).
 
 | Element | Color |
 | --- | --- |
-| Background | `#0A0A0F` |
-| Foreground | `#39FF14` (neon green) |
-| Blue / Bright Blue | `#BF00FF` / `#D966FF` (purple) |
-| Red | `#FF2D55` |
-| Cyan | `#00FFCC` |
-| Yellow | `#FF6000` |
-| Cursor | `#FF6000` |
-| Selection | `#3D0066` |
+| Background | `#0E0E0E` |
+| Foreground | `#E4E4E4` |
+| Magenta (keywords) | `#E954FF` / bright `#F4A4FF` |
+| Cyan (types) | `#00E8FF` / bright `#66F9FF` |
+| Blue (sky) | `#64B5FF` / bright `#A8D4FF` |
+| Yellow (strings) | `#FFD447` / bright `#FFE566` |
+| Red/pink | `#FF6B8A` |
+| Teal/green | `#00E8B5` |
+| Cursor | `#FF66EE` |
+| Selection | `#3D2560` |
+
+**Neon Blaze** — legacy neon green/purple palette (still in `settings.json` if you switch profile scheme).
 
 **Catppuccin Mocha** — soft pastel dark theme (available, not active)
 
@@ -303,7 +314,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 
 | Setting | Value |
 | --- | --- |
-| Theme | Oled Neon Dark |
+| Theme | Neon Dark ([Sudhan.neondark-theme](https://marketplace.visualstudio.com/items?itemName=Sudhan.neondark-theme)) |
 | Icons | Material Icon Theme |
 | Font | Cascadia Code / Fira Code / Consolas |
 | Font size | 14 |
@@ -416,11 +427,11 @@ Script: `windows/tweaks.ps1` — run during install (admin required).
 
 ## 📦 Apps (via winget)
 
-Key apps tracked in `apps/winget-packages.json` (~60 packages total):
+Key apps tracked in `apps/winget-packages.json` (see the file for the full list):
 
 | Category | Apps |
 | --- | --- |
-| **Dev** | Git, VS Code, PowerShell 7, Python Launcher, AutoHotkey |
+| **Dev** | Git, VS Code, PowerShell 7, Python Launcher, AutoHotkey, ripgrep, fzf, fd, bat, GitHub CLI, zoxide |
 | **Terminal** | Windows Terminal, Oh My Posh |
 | **Browsers** | Brave, Floorp, Chrome |
 | **Media** | MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP |
@@ -430,20 +441,39 @@ Key apps tracked in `apps/winget-packages.json` (~60 packages total):
 | **Privacy** | Proton VPN, Proton Drive, Proton Pass, Proton Authenticator, Bitwarden, Signal |
 | **Cloud** | Google Drive, pCloud Drive |
 | **System** | MSI Afterburner, HWiNFO, CrystalDiskInfo, FanControl, AOMEI Partition Assistant |
-| **Entertainment** | Steam, Kodi, Jellyfin Server |
+| **Entertainment** | Steam |
 | **Package Mgmt** | UniGetUI |
 | **Other** | StartAllBack, Internet Download Manager, Corsair iCUE 5, Logitech G HUB |
 
 ### CLI Tools (winget)
 
-These are the everyday CLI search/navigation tools:
+These are installed automatically with `install.ps1` / `winget import` (listed in `apps/winget-packages.json`). To add or refresh one package by hand:
 
 ```powershell
 winget install -e --id BurntSushi.ripgrep.MSVC
 winget install -e --id junegunn.fzf
 winget install -e --id sharkdp.fd
 winget install -e --id sharkdp.bat
+winget install -e --id GitHub.cli
+winget install -e --id ajeetdsouza.zoxide
 ```
+
+`zoxide` is the usual **z**-style directory jumper (`z`, `zi` after you hook it in your shell).
+
+#### GitHub CLI (`gh`)
+
+Winget only installs the `gh` program. It is **not** logged into GitHub until you authenticate.
+
+1. Open PowerShell (or any terminal where `gh` is on your `PATH`).
+2. Run:
+
+```powershell
+gh auth login
+```
+
+3. Follow the prompts: choose **GitHub.com**, preferred protocol (**HTTPS** or **SSH**), and sign in via **browser** or paste a **personal access token**.
+
+After that, `gh repo clone`, `gh pr create`, and other `gh` commands use your account. This is separate from `git`’s own credential helper unless you deliberately use the same method (for example, HTTPS with the same stored token).
 
 ---
 
@@ -491,14 +521,16 @@ These apps are **not available in winget** and must be installed manually.
 
 ## 🎨 Oh My Posh Theme
 
-Theme: `oh-my-posh/hedglab.omp.json` — a custom powerline prompt with four segments:
+Theme: `oh-my-posh/hedglab.omp.json` — diamond **shell** chip, powerline **path** / **git** / **timing** / **exit**, plus a right-aligned **clock**.
 
-| Segment | Background | Shows |
+| Segment | Colors | Shows |
 | --- | --- | --- |
-| Path | Purple `#6a0dad` | Full folder path |
-| Git | Deep pink `#ff1493` | Branch, status, stash count |
-| Exec time | Cyan `#00ffcc` | How long the last command took |
-| Exit code | Red `#ff5555` | Success or failure of last command |
+| Shell | Diamond, BG `#E954FF`, text `#0E0E0E` | Nerd icon + shell name (`pwsh`, …) |
+| Path | BG `#1B2B38`, text `#66F9FF` | Full path, folder icon, `\ue0b1` separators |
+| Git | BG `#FFD447`, text `#0E0E0E` | Branch (powerline branch icon), status, stash |
+| Exec time | BG `#00E8B5`, text `#0E0E0E` | How long the last command took |
+| Exit code | Diamond, BG `#FF6B8A`, text `#FFFFFF` | Success or failure of last command |
+| Time | Plain, `#64B5FF` | Current time (`HH:mm:ss`), clock icon |
 
 To activate it, add this to your profile (Oh My Posh is already installed via winget):
 
@@ -508,11 +540,11 @@ oh-my-posh init pwsh --config "$HOME\workstation\dotfiles\oh-my-posh\hedglab.omp
 
 ---
 
-## 🎨 Terminal Theme — Neon Blaze
+## 🎨 Terminal Theme — Neon Dark
 
 CaskaydiaCove Nerd Font is installed automatically by `install.ps1` (step 7). No manual download needed.
 
-The **Neon Blaze** color scheme is defined in both `windows-terminal/settings.json` and `vscode/settings.json` so the terminal looks identical everywhere.
+The **Neon Dark** scheme (matched to Sudhan’s VS Code [Neon Dark Theme](https://marketplace.visualstudio.com/items?itemName=Sudhan.neondark-theme)) is defined in `windows-terminal/settings.json` and mirrored in `vscode/settings.json` (`terminal.integrated.*` + `workbench.colorCustomizations`) so Windows Terminal and the VS Code integrated terminal stay consistent. **Neon Blaze** remains in `settings.json` if you want the old green-accent look.
 
 ---
 
