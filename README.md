@@ -6,17 +6,56 @@
 
 ## ⚡ Fresh Machine Setup
 
-Open PowerShell and run:
+Use this on a **brand-new Windows PC** before you do anything else. Order matters: Git must exist so the bootstrap can clone repos; `winget` must work so apps can install.
+
+**Username:** Nothing here is tied to the name `rjh`. The installer and profile use **`$HOME\workstation\...`** (same as **`%USERPROFILE%\workstation\...`** on disk). If your account is `alex`, you get `C:\Users\alex\workstation\...`. Forks and docs that still show `C:\Users\rjh\...` are just the author’s machine—substitute your profile path or use `$HOME` in PowerShell.
+
+### 1. Open PowerShell
+
+Use **Windows PowerShell** or **PowerShell 7** (either is fine for the steps below). You do not need admin for Git or the remote install line; you will need admin later if you want Windows tweaks applied automatically (the installer will tell you).
+
+### 2. Confirm `winget` (Windows Package Manager)
+
+The installer uses `winget` to import your app list. On Windows 11 it is usually already available.
+
+```powershell
+winget --version
+```
+
+If that fails:
+
+- **Windows 11:** Install pending updates, or install [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1) from the Microsoft Store.
+- **Windows 10:** Install **App Installer** from the Store (same link), or see [Microsoft’s winget install docs](https://learn.microsoft.com/windows/package-manager/winget/).
+
+### 3. Install Git (required before the one-liner)
+
+The remote bootstrap runs `git clone`. Install Git first, then **open a new terminal** so `git` is on your `PATH`.
+
+**Recommended (matches the rest of your stack):**
+
+```powershell
+winget install -e --id Git.Git --accept-package-agreements --accept-source-agreements
+```
+
+**Alternative:** Download and run the installer from [git-scm.com/download/win](https://git-scm.com/download/win). Use the default options unless you know you want something different; ensure **“Git from the command line and also from 3rd-party software”** (or equivalent) is selected so PowerShell can find `git`.
+
+**Verify:**
+
+```powershell
+git --version
+```
+
+You should see something like `git version 2.x.x`.
+
+### 4. Run the bootstrap (one command)
 
 ```powershell
 irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 ```
 
-**Requires:** [Git](https://git-scm.com) installed first.
-
 This will:
 
-1. Clone this repo to `C:\Users\rjh\workstation\dotfiles` (canonical)
+1. Clone this repo to `$HOME\workstation\dotfiles` (i.e. `%USERPROFILE%\workstation\dotfiles`)
 2. Clone remaining workspace repos (`scripts`, `docs`, `hedglen-profile`) and create `projects/` directory
 3. Install all apps via winget
 4. Apply Windows tweaks (requires admin)
@@ -132,9 +171,9 @@ Format: `[USER/ADMIN] HH:MM PS path>`
 | `c` | `cd C:\` |
 | `d` | `cd D:\` |
 | `home` | `cd ~` |
-| `dots` | `cd C:\Users\rjh\workstation\dotfiles` |
-| `tools` | `cd C:\Users\rjh\workstation\tools` |
-| `psh` | `cd C:\Users\rjh\workstation\tools\powershell` |
+| `dots` | `cd $HOME\workstation\dotfiles` |
+| `tools` | `cd $HOME\workstation\tools` |
+| `psh` | `cd $HOME\workstation\tools\powershell` |
 
 ### System Helpers
 
@@ -264,7 +303,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 
 | Setting | Value |
 | --- | --- |
-| Theme | One Dark Pro |
+| Theme | Oled Neon Dark |
 | Icons | Material Icon Theme |
 | Font | Cascadia Code / Fira Code / Consolas |
 | Font size | 14 |
@@ -386,7 +425,7 @@ Key apps tracked in `apps/winget-packages.json` (~60 packages total):
 | **Browsers** | Brave, Floorp, Chrome |
 | **Media** | MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP |
 | **File Management** | File Pilot, Everything, TeraCopy, NanaZip, 7-Zip, Bulk Rename, TreeSize, Ditto |
-| **Productivity** | Notion, Obsidian, LibreOffice, Flow Launcher, Zoom, LocalSend, EarTrumpet |
+| **Productivity** | Notion, Obsidian, LibreOffice, Calibre, Thorium Reader, Flow Launcher, Zoom, LocalSend, EarTrumpet |
 | **Creative** | Adobe Creative Cloud, Adobe Acrobat Reader |
 | **Privacy** | Proton VPN, Proton Drive, Proton Pass, Proton Authenticator, Bitwarden, Signal |
 | **Cloud** | Google Drive, pCloud Drive |

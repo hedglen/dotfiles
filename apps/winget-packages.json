@@ -52,6 +52,8 @@
                                 { "PackageIdentifier" : "LocalSend.LocalSend" },
                                 { "PackageIdentifier" : "Zoom.Zoom" },
                                 { "PackageIdentifier" : "Ditto.Ditto" },
+                                { "PackageIdentifier" : "calibre.calibre" },
+                                { "PackageIdentifier" : "EDRLab.Thorium" },
                                 { "PackageIdentifier" : "TheDocumentFoundation.LibreOffice" },
                                 { "PackageIdentifier" : "Tonec.InternetDownloadManager" },
                                 { "PackageIdentifier" : "Proton.ProtonVPN" },

@@ -199,6 +199,12 @@ function dll { yt-dlp --list-extractors @args }
 
 function scimitar { & "$HOME\workstation\dotfiles\corsair\scimitar.ps1" @args }
 
+function trans {
+    $py  = "$HOME\workstation\tools\transcribe-env\Scripts\python.exe"
+    $scr = "$HOME\workstation\scripts\transcribe.py"
+    & $py $scr @args
+}
+
 # =============================================================================
 #   Aliases
 # =============================================================================
@@ -233,6 +239,7 @@ $esc = [char]27
 [Console]::WriteLine("${esc}[38;5;129m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  orgmed [--apply] [--dest x|movies|tv|music_videos]  orgmedx  -- organize D:\media\Downloads${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  ytdl <url> [--audio] [--quality 1080|720|480|best]   -- download video/audio${esc}[0m")
+[Console]::WriteLine("${esc}[38;5;129m  trans <path> [--model large-v3|medium|small] [--language en]  -- transcribe video to .srt + .md${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")
 [Console]::WriteLine("${esc}[38;5;129m  sync-dots             — pull latest dotfiles & relink configs${esc}[0m")
 
