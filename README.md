@@ -145,7 +145,7 @@ Options:
 
 On every new terminal:
 
-- A multi-color neon cheat sheet lists helper commands (cyan, magenta, gold, sky blue, orange, mint)
+- A multi-color neon cheat sheet lists helper commands (cyan, magenta, **bold red** `ytdl`, sky blue, orange, mint); random quotes use **gold** (`#FFD447`)
 - A random quote prints in dim grey underneath
 
 ### PSReadLine
@@ -328,6 +328,9 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 | Terminal font | CaskaydiaCove Nerd Font |
 | Terminal font size | 13 |
 | Terminal default | PowerShell |
+| Terminal cursor | Line + blink (`terminal.integrated.cursorStyle` / `cursorBlinking`) |
+
+**Cursor:** the same `vscode/settings.json` is symlinked to `%APPDATA%\Cursor\User\settings.json` by `install.ps1` / `update.ps1`, so integrated-terminal options (font, Neon Dark colors, **blinking bar cursor**) apply in Cursor—not only in VS Code.
 
 ### Extensions
 
@@ -526,7 +529,7 @@ Theme: `oh-my-posh/hedglab.omp.json` — diamond **shell** chip, powerline **pat
 | Segment | Colors | Shows |
 | --- | --- | --- |
 | Shell | Diamond, BG `#E954FF`, text `#0E0E0E` | Nerd icon + shell name (`pwsh`, …) |
-| Path | BG `#1B2B38`, text `#66F9FF` | Full path, folder icon, `\ue0b1` separators |
+| Path | BG `#1B2B38`, text `#66F9FF` | Full path, `/` separators (avoids Powerline PUA glitches in some terminals) |
 | Git | BG `#FFD447`, text `#0E0E0E` | Branch (powerline branch icon), status, stash |
 | Exec time | BG `#00E8B5`, text `#0E0E0E` | How long the last command took |
 | Exit code | Diamond, BG `#FF6B8A`, text `#FFFFFF` | Success or failure of last command |

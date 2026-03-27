@@ -168,6 +168,11 @@ if (-not $AppsOnly) {
             desc = "VS Code settings"
         },
         @{
+            src  = "vscode\settings.json"
+            dst  = "$HOME\AppData\Roaming\Cursor\User\settings.json"
+            desc = "Cursor settings"
+        },
+        @{
             src  = "yt-dlp\config"
             dst  = "$env:APPDATA\yt-dlp\config"
             desc = "yt-dlp config"

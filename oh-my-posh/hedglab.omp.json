@@ -25,9 +25,8 @@
         },
         {
           "properties": {
-            "folder_separator_icon": " \ue0b1 ",
-            "style": "full",
-            "folder_icon": "\uf07c"
+            "folder_separator_icon": " / ",
+            "style": "full"
           },
           "foreground": "#66F9FF",
           "background": "#1B2B38",

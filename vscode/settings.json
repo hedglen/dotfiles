@@ -86,8 +86,7 @@
   "workbench.colorCustomizations": {
     "terminal.background": "#0E0E0E",
     "terminal.foreground": "#E4E4E4",
-    "terminalCursor.background": "#FF66EE",
-    "terminalCursor.foreground": "#0E0E0E",
+    "terminalCursor.foreground": "#FF66EE",
     "terminal.selectionBackground": "#3D2560",
     "terminal.ansiBlack": "#252525",
     "terminal.ansiRed": "#FF6B8A",
