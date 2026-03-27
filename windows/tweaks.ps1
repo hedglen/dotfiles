@@ -1,13 +1,12 @@
 # =============================================================================
-#   windows/tweaks.ps1
-#   Windows hardening, privacy, and quality-of-life tweaks.
-#   Run as Administrator.
+# windows/tweaks.ps1
+# Windows privacy and quality-of-life tweaks.
+# Run as Administrator.
 #
-#   Usage:
-#     .\tweaks.ps1           # apply everything
-#     .\tweaks.ps1 -WhatIf   # preview without changing anything
+# Usage:
+#   .\tweaks.ps1          # apply everything
+#   .\tweaks.ps1 -WhatIf  # preview without changing anything
 # =============================================================================
-
 param([switch]$WhatIf)
 
 # --- Admin check ---
@@ -28,24 +27,24 @@ function Set-Reg {
 function Disable-Svc {
     param($Name, $Label)
     $svc = Get-Service -Name $Name -ErrorAction SilentlyContinue
-    if (-not $svc) { Write-Host "  skip  $Label (not found)" -ForegroundColor DarkGray; return }
-    if ($WhatIf)   { Write-Host "  [WHATIF] Disable service: $Label" -ForegroundColor DarkGray; return }
-    Stop-Service   -Name $Name -Force -ErrorAction SilentlyContinue
-    Set-Service    -Name $Name -StartupType Disabled -ErrorAction SilentlyContinue
-    Write-Host "  OK    $Label disabled" -ForegroundColor Green
+    if (-not $svc) { Write-Host "  skip $Label (not found)" -ForegroundColor DarkGray; return }
+    if ($WhatIf) { Write-Host "  [WHATIF] Disable service: $Label" -ForegroundColor DarkGray; return }
+    Stop-Service -Name $Name -Force -ErrorAction SilentlyContinue
+    Set-Service -Name $Name -StartupType Disabled -ErrorAction SilentlyContinue
+    Write-Host "  OK $Label disabled" -ForegroundColor Green
 }
 
 function Write-Section { param($Title) Write-Host "`n[ $Title ]" -ForegroundColor Cyan }
-function Write-OK       { param($Msg)   Write-Host "  OK    $Msg" -ForegroundColor Green }
+function Write-OK      { param($Msg)   Write-Host "  OK $Msg"  -ForegroundColor Green }
 
 if ($WhatIf) { Write-Host "`n  DRY RUN — no changes will be made`n" -ForegroundColor Yellow }
 
+
 # =============================================================================
-#   Power Plan
+# Power Plan
 # =============================================================================
 Write-Section "Power"
 
-# Activate High Performance plan
 $hp = Get-CimInstance -Namespace root\cimv2\power -ClassName Win32_PowerPlan |
       Where-Object { $_.ElementName -eq 'High performance' }
 if ($hp) {
@@ -61,132 +60,135 @@ if ($hp) {
 Set-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power' 'HiberbootEnabled' 0
 Write-OK "Fast startup disabled"
 
-# Disable sleep on AC (desktop — never sleep while plugged in)
+# Disable sleep on AC
 if (-not $WhatIf) { powercfg /change standby-timeout-ac 0 }
 Write-OK "AC sleep disabled"
 
-# Disable hard disk sleep
 if (-not $WhatIf) { powercfg /change disk-timeout-ac 0 }
 Write-OK "Disk sleep disabled"
 
+
 # =============================================================================
-#   Privacy — Telemetry
+# Privacy — Telemetry
 # =============================================================================
 Write-Section "Privacy — Telemetry"
 
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection'              'AllowTelemetry' 0
-Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' 'AllowTelemetry' 0
+Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection'              'AllowTelemetry'    0
+Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' 'AllowTelemetry'  0
 Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' 'MaxTelemetryAllowed' 0
 Disable-Svc 'DiagTrack'        'Connected User Experiences & Telemetry'
 Disable-Svc 'dmwappushservice' 'WAP Push Message Routing'
 Write-OK "Telemetry minimized"
 
+
 # =============================================================================
-#   Privacy — Advertising & Activity
+# Privacy — Advertising & Activity
 # =============================================================================
 Write-Section "Privacy — Advertising"
 
-Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo'      'Enabled' 0
-Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy'              'TailoredExperiencesWithDiagnosticDataEnabled' 0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                     'EnableActivityFeed' 0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                     'PublishUserActivities' 0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                     'UploadUserActivities' 0
+Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo'    'Enabled'                                  0
+Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy'            'TailoredExperiencesWithDiagnosticDataEnabled' 0
+Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'EnableActivityFeed'     0
+Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'PublishUserActivities'  0
+Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'UploadUserActivities'   0
 Write-OK "Advertising ID disabled"
 Write-OK "Activity history / Timeline disabled"
 
-# =============================================================================
-#   Privacy — Location
-# =============================================================================
-Write-Section "Privacy — Location"
-
-Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}' 'SensorPermissionState' 0
-Set-Reg 'HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration'  'Status' 0
-Write-OK "Location services disabled"
 
 # =============================================================================
-#   Privacy — App Permissions
+# Privacy — App Permissions
 # =============================================================================
 Write-Section "Privacy — App Permissions"
 
-# Prevent apps from accessing camera / mic globally (user can re-enable per app)
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy' 'LetAppsAccessCamera'      2
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy' 'LetAppsAccessMicrophone'  2
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy' 'LetAppsAccessLocation'    2
-Write-OK "Camera/mic/location: deny by default for store apps"
+# NOTE: We do NOT globally block camera/mic/location via policy here.
+# Windows' built-in per-app permission prompts (Settings > Privacy) are
+# the right mechanism — they let you grant or revoke access app-by-app
+# without locking out the Settings UI.
+# If you want to tighten a specific app, do so in Settings > Privacy & security.
+
+Write-OK "App permissions: using Windows built-in per-app controls (no policy override)"
+
 
 # =============================================================================
-#   Xbox / Game Bar / Background Recording
+# Game Bar / Background Recording (NOT Xbox services)
 # =============================================================================
-Write-Section "Xbox / Game DVR"
+Write-Section "Game DVR / Game Bar"
 
 Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled' 0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR'       'AllowGameDVR'      0
-Set-Reg 'HKCU:\System\GameConfigStore'                             'GameDVR_Enabled'   0
+Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR'       'AllowGameDVR'       0
+Set-Reg 'HKCU:\System\GameConfigStore'                             'GameDVR_Enabled'    0
 Set-Reg 'HKCU:\Software\Microsoft\GameBar'                         'AutoGameModeEnabled' 0
-Disable-Svc 'XblAuthManager'  'Xbox Live Auth Manager'
-Disable-Svc 'XblGameSave'     'Xbox Live Game Save'
-Disable-Svc 'XboxNetApiSvc'   'Xbox Live Networking'
-Write-OK "Background recording / Game DVR disabled"
+
+# NOTE: XblAuthManager / XblGameSave / XboxNetApiSvc are left alone.
+# Disabling them breaks Xbox/Game Pass titles even without a Game Bar.
+
+Write-OK "Background recording / Game DVR disabled (Xbox services untouched)"
+
 
 # =============================================================================
-#   Explorer — Quality of Life
+# Explorer — Quality of Life
 # =============================================================================
 Write-Section "Explorer"
 
 $explorerAdv = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
 $explorerKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer'
 
-Set-Reg $explorerAdv 'HideFileExt'   0   # Show file extensions
-Set-Reg $explorerAdv 'Hidden'        1   # Show hidden files
-Set-Reg $explorerAdv 'LaunchTo'      1   # Open to This PC, not Quick Access
+Set-Reg $explorerAdv 'HideFileExt'          0  # Show file extensions
+Set-Reg $explorerAdv 'Hidden'               1  # Show hidden files
+Set-Reg $explorerAdv 'LaunchTo'             1  # Open to This PC, not Quick Access
 Set-Reg $explorerAdv 'NavPaneShowAllFolders' 0
-Set-Reg $explorerKey 'ShowRecent'    0   # Don't pollute Quick Access with recent files
-Set-Reg $explorerKey 'ShowFrequent'  0   # Don't pollute Quick Access with frequent folders
+Set-Reg $explorerKey 'ShowRecent'           0  # No recent files in Quick Access
+Set-Reg $explorerKey 'ShowFrequent'         0  # No frequent folders in Quick Access
 
 Write-OK "File extensions visible"
 Write-OK "Hidden files visible"
 Write-OK "Explorer opens to This PC"
 Write-OK "Quick Access clutter removed"
 
+
 # =============================================================================
-#   Start Menu / Search / Taskbar
+# Start Menu / Search / Taskbar
 # =============================================================================
 Write-Section "Start / Search / Taskbar"
 
-$search  = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search'
-$cdm     = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
-$feeds   = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds'
+$search = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search'
+$cdm    = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
+$feeds  = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds'
 
-Set-Reg $search 'BingSearchEnabled'                     0  # No web in Start search
-Set-Reg $search 'CortanaConsent'                        0  # Disable Cortana
-Set-Reg $feeds  'EnableFeeds'                           0  # Disable news widget
+Set-Reg $search 'BingSearchEnabled'  0  # No web results in Start search
+Set-Reg $search 'CortanaConsent'     0  # Disable Cortana
+Set-Reg $feeds  'EnableFeeds'        0  # Disable news/interests widget
 
-# Disable suggested/promoted apps in Start
-Set-Reg $cdm 'ContentDeliveryAllowed'                   0
-Set-Reg $cdm 'OemPreInstalledAppsEnabled'               0
-Set-Reg $cdm 'PreInstalledAppsEnabled'                  0
-Set-Reg $cdm 'SilentInstalledAppsEnabled'               0
-Set-Reg $cdm 'SoftLandingEnabled'                       0
-Set-Reg $cdm 'SubscribedContent-338388Enabled'          0
-Set-Reg $cdm 'SubscribedContent-338389Enabled'          0
-Set-Reg $cdm 'SystemPaneSuggestionsEnabled'             0
+Set-Reg $cdm 'ContentDeliveryAllowed'          0
+Set-Reg $cdm 'OemPreInstalledAppsEnabled'      0
+Set-Reg $cdm 'PreInstalledAppsEnabled'         0
+Set-Reg $cdm 'SilentInstalledAppsEnabled'      0
+Set-Reg $cdm 'SoftLandingEnabled'              0
+Set-Reg $cdm 'SubscribedContent-338388Enabled' 0
+Set-Reg $cdm 'SubscribedContent-338389Enabled' 0
+Set-Reg $cdm 'SystemPaneSuggestionsEnabled'    0
 
 Write-OK "Bing / web search in Start: off"
 Write-OK "Cortana: off"
 Write-OK "News / Interests widget: off"
 Write-OK "Suggested / promoted apps: off"
 
+
 # =============================================================================
-#   Useless Services (safe to disable)
+# Unnecessary Services
 # =============================================================================
 Write-Section "Unnecessary Services"
 
-Disable-Svc 'MapsBroker'      'Downloaded Maps Manager'
-Disable-Svc 'RetailDemo'      'Retail Demo Service'
-Disable-Svc 'WSearch'         'Windows Search (indexing)' # Comment out if you use Windows Search
+Disable-Svc 'MapsBroker'  'Downloaded Maps Manager'
+Disable-Svc 'RetailDemo'  'Retail Demo Service'
+
+# Windows Search indexing — comment this IN only if you never use Start/file search.
+# Disabling it silently breaks search across the whole OS.
+# Disable-Svc 'WSearch' 'Windows Search (indexing)'
+
 
 # =============================================================================
-#   Restart Explorer to apply visual changes
+# Restart Explorer to apply visual changes
 # =============================================================================
 Write-Section "Applying"
 
