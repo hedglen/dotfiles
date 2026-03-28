@@ -219,15 +219,29 @@ if ($installed) {
 }
 
 # =============================================================================
-#   5. Upgrade apps via winget
+#   5. Upgrade apps via winget (managed packages only)
 # =============================================================================
 if (-not $SkipApps) {
     Write-Step "Upgrading apps (winget)"
-    if ($DryRun) {
-        Write-Skip "Would run: winget upgrade --all"
+
+    $pkgFile = Join-Path $DotfilesDir "apps\winget-packages.json"
+    if (-not (Test-Path $pkgFile)) {
+        Write-Warn "apps\winget-packages.json not found -- skipping"
     } else {
-        winget upgrade --all --accept-package-agreements --accept-source-agreements
-        Write-OK "Apps upgraded"
+        $packages = (Get-Content $pkgFile | ConvertFrom-Json).Sources.Packages.PackageIdentifier
+
+        foreach ($id in $packages) {
+            if ($DryRun) {
+                Write-Skip "Would upgrade: $id"
+            } else {
+                $result = winget upgrade --id $id --accept-package-agreements --accept-source-agreements 2>&1
+                if ($result -match 'No applicable upgrade') {
+                    Write-Skip "$id (up to date)"
+                } else {
+                    Write-OK "$id"
+                }
+            }
+        }
     }
 }
 
