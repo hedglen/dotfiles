@@ -71,7 +71,8 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
     $workspaceRepos = @(
         @{ url = "https://github.com/hedglen/scripts.git";  dst = "$HOME\workstation\scripts"         },
         @{ url = "https://github.com/hedglen/docs.git";     dst = "$HOME\workstation\docs"            },
-        @{ url = "https://github.com/hedglen/hedglen.git";  dst = "$HOME\workstation\hedglen-profile" }
+        @{ url = "https://github.com/hedglen/hedglen.git";  dst = "$HOME\workstation\hedglen-profile" },
+        @{ url = "https://github.com/hedglen/notes.git";    dst = "$HOME\workstation\notes"           }
     )
 
     foreach ($r in $workspaceRepos) {
