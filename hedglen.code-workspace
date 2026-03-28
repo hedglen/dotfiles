@@ -34,7 +34,7 @@
     },
   ],
   "settings": {
-    "workbench.colorTheme": "SynthWave '84",
+    "workbench.colorTheme": "Neon Dark Theme",
     "workbench.iconTheme": "material-icon-theme",
     "chat.tools.terminal.autoApprove": {
       "git add": true,

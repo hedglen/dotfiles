@@ -149,7 +149,7 @@ if (-not $AppsOnly) {
     $configs = @(
         @{
             src  = "powershell\profile.ps1"
-            dst  = "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
+            dst  = $PROFILE.CurrentUserCurrentHost
             desc = "PowerShell profile"
         },
         @{
