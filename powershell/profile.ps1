@@ -250,10 +250,37 @@ $esc = [char]27
 [Console]::WriteLine("${esc}[38;2;92;255;184m  sync-dots             — pull latest dotfiles & relink configs${esc}[0m")
 
 $quotes = @(
+    # originals
     "You're not debugging. You're time travelling.",
     "AI writes code. You write the future.",
     "The bug you ignore today spawns tech debt tomorrow.",
     "Clarity comes not from code, but from thought before code.",
-    "Refactor until it sings. Then refactor again."
+    "Refactor until it sings. Then refactor again.",
+    # new
+    "It works on my machine. Ship the machine.",
+    "rm -rf and a prayer.",
+    "The only valid measurement of code quality is WTFs per minute.",
+    "git commit -m 'fix' for the 11th time today.",
+    "It's not a bug, it's an undocumented feature with commitment issues.",
+    "Any sufficiently advanced config file is indistinguishable from magic.",
+    "First rule of optimisation: don't. Second rule: not yet.",
+    "I don't always test my code, but when I do, I do it in production.",
+    "sudo make me a sandwich.",
+    "Weeks of coding can save you hours of planning.",
+    "The computer was working fine until I touched it.",
+    "Have you tried turning it off and turning it on again? I have. Twice.",
+    "If it's stupid but it works, it's still stupid. Fix it later.",
+    "git blame: a love letter to past you.",
+    "One more 'quick fix' and I'm rewriting the whole thing.",
+    "Stack Overflow is just outsourced memory.",
+    "Winget upgrade --all and pray nothing breaks.",
+    "Documentation? The code is self-documenting. (It's not.)",
+    "The cloud is just someone else's computer having a bad day.",
+    "I love deadlines. I love the whooshing noise they make as they go by.",
+    "This is fine. Everything is fine. The terminal is on fire.",
+    "Neon dark or go home.",
+    "Copy-paste is a feature, not a crime.",
+    "The fastest code is the code that never runs.",
+    "I didn't choose the sysadmin life. The sysadmin life chose me."
 )
 [Console]::WriteLine("${esc}[38;2;255;212;71m  $(Get-Random -InputObject $quotes)${esc}[0m")
