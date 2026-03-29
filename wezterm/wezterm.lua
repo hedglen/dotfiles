@@ -244,7 +244,7 @@ wezterm.on('gui-startup', function(cmd)
   git_tab:set_title 'git'
   local git_live_pane = git_pane:split {
     direction = 'Bottom',
-    size = 0.32,
+    size = 0.5,
     cwd = dotfiles,
     args = git_bash_spawn(dotfiles).args,
   }
@@ -308,6 +308,7 @@ config.window_background_opacity = 1.0
 config.text_background_opacity = 1.0
 config.window_decorations = 'TITLE | RESIZE'
 config.integrated_title_button_style = 'Windows'
+config.window_close_confirmation = 'NeverPrompt'
 
 config.default_cursor_style = 'BlinkingBar'
 config.cursor_blink_rate = 500
@@ -393,6 +394,7 @@ config.keys = {
   { key = 'RightArrow', mods = 'ALT|SHIFT', action = act.AdjustPaneSize { 'Right', 5 } },
   { key = 'UpArrow', mods = 'ALT|SHIFT', action = act.AdjustPaneSize { 'Up', 2 } },
   { key = 'DownArrow', mods = 'ALT|SHIFT', action = act.AdjustPaneSize { 'Down', 2 } },
+  { key = 'q', mods = 'CTRL|SHIFT', action = act.QuitApplication },
   { key = 'w', mods = 'CTRL|SHIFT', action = act.CloseCurrentTab { confirm = true } },
   { key = 'x', mods = 'CTRL|SHIFT', action = act.CloseCurrentPane { confirm = true } },
 }
