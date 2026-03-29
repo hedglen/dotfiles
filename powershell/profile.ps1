@@ -181,6 +181,29 @@ function sync-dots {
     & "$HOME\workstation\dotfiles\maintenance\update.ps1" -SkipApps
 }
 
+# ask — plain-English terminal helper powered by Anthropic
+function ask {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Prompt
+    )
+
+    if (-not $Prompt) {
+        Write-Host 'Usage: ask "what you want to do"' -ForegroundColor Yellow
+        return
+    }
+
+    $script = "$HOME\workstation\dotfiles\powershell\ask.py"
+    $python = (Get-Command python -ErrorAction SilentlyContinue)?.Source
+
+    if (-not $python) {
+        Write-Host "Python is not available on PATH." -ForegroundColor Red
+        return
+    }
+
+    & $python $script @Prompt
+}
+
 # =============================================================================
 #   Media Organizer
 # =============================================================================
