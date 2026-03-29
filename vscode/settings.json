@@ -103,7 +103,7 @@
     "terminal.ansiBrightBlue": "#A8D4FF",
     "terminal.ansiBrightMagenta": "#F4A4FF",
     "terminal.ansiBrightCyan": "#66F9FF",
-    "terminal.ansiBrightWhite": "#FFFFFF"
+    "terminal.ansiBrightWhite": "#FFFFFF",
   },
 
   // =============================================================================
@@ -213,4 +213,5 @@
   "workbench.scrollbar.verticalScrollbarSize": 14,
   "editor.scrollbar.verticalScrollbarSize": 14,
   "cSpell.userWords": ["autohotkey", "hedglen"],
+  "git.openRepositoryInParentFolders": "never",
 }

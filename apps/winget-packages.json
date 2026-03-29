@@ -12,13 +12,14 @@
                                 { "PackageIdentifier" : "Codeium.Windsurf" },
                                 { "PackageIdentifier" : "AutoHotkey.AutoHotkey" },
                                 { "PackageIdentifier" : "Python.Launcher" },
-                                { "PackageIdentifier" : "BurntSushi.ripgrep.MSVC" },
+  e                              { "PackageIdentifier" : "BurntSushi.ripgrep.MSVC" },
                                 { "PackageIdentifier" : "junegunn.fzf" },
                                 { "PackageIdentifier" : "sharkdp.fd" },
                                 { "PackageIdentifier" : "sharkdp.bat" },
                                 { "PackageIdentifier" : "GitHub.cli" },
                                 { "PackageIdentifier" : "ajeetdsouza.zoxide" },
                                 { "PackageIdentifier" : "JanDeDobbeleer.OhMyPosh" },
+
                                 { "PackageIdentifier" : "Microsoft.DotNet.DesktopRuntime.6" },
                                 { "PackageIdentifier" : "Microsoft.DotNet.DesktopRuntime.8" },
                                 { "PackageIdentifier" : "Microsoft.DotNet.DesktopRuntime.9" },
@@ -32,9 +33,11 @@
                                 { "PackageIdentifier" : "Microsoft.UI.Xaml.2.8" },
                                 { "PackageIdentifier" : "Microsoft.WindowsAppRuntime.1.8" },
                                 { "PackageIdentifier" : "Nvidia.PhysX" },
+
                                 { "PackageIdentifier" : "Brave.Brave" },
                                 { "PackageIdentifier" : "Ablaze.Floorp" },
                                 { "PackageIdentifier" : "Google.Chrome.EXE" },
+
                                 { "PackageIdentifier" : "PeterPawlowski.foobar2000" },
                                 { "PackageIdentifier" : "Daum.PotPlayer" },
                                 { "PackageIdentifier" : "MPC-BE.MPC-BE" },
@@ -42,6 +45,7 @@
                                 { "PackageIdentifier" : "BandicamCompany.Bandicut" },
                                 { "PackageIdentifier" : "yt-dlp.yt-dlp" },
                                 { "PackageIdentifier" : "XnSoft.XnViewMP" },
+
                                 { "PackageIdentifier" : "7zip.7zip" },
                                 { "PackageIdentifier" : "M2Team.NanaZip" },
                                 { "PackageIdentifier" : "CodeSector.TeraCopy" },
@@ -51,23 +55,25 @@
                                 { "PackageIdentifier" : "JAMSoftware.TreeSize.Free" },
                                 { "PackageIdentifier" : "Google.GoogleDrive" },
                                 { "PackageIdentifier" : "pCloudAG.pCloudDrive" },
-                                { "PackageIdentifier" : "Notion.Notion" },
+                                { "PackageIdentifier" : "Tonec.InternetDownloadManager" },
+
                                 { "PackageIdentifier" : "Obsidian.Obsidian" },
+                                { "PackageIdentifier" : "calibre.calibre" },
+                                { "PackageIdentifier" : "EDRLab.Thorium" },
+                                { "PackageIdentifier" : "TheDocumentFoundation.LibreOffice" },
                                 { "PackageIdentifier" : "Flow-Launcher.Flow-Launcher" },
                                 { "PackageIdentifier" : "File-New-Project.EarTrumpet" },
                                 { "PackageIdentifier" : "LocalSend.LocalSend" },
                                 { "PackageIdentifier" : "Zoom.Zoom" },
                                 { "PackageIdentifier" : "Ditto.Ditto" },
-                                { "PackageIdentifier" : "calibre.calibre" },
-                                { "PackageIdentifier" : "EDRLab.Thorium" },
-                                { "PackageIdentifier" : "TheDocumentFoundation.LibreOffice" },
-                                { "PackageIdentifier" : "Tonec.InternetDownloadManager" },
+
                                 { "PackageIdentifier" : "Proton.ProtonVPN" },
                                 { "PackageIdentifier" : "Proton.ProtonDrive" },
                                 { "PackageIdentifier" : "Proton.ProtonPass" },
                                 { "PackageIdentifier" : "Proton.ProtonAuthenticator" },
                                 { "PackageIdentifier" : "Bitwarden.Bitwarden" },
                                 { "PackageIdentifier" : "OpenWhisperSystems.Signal" },
+
                                 { "PackageIdentifier" : "REALiX.HWiNFO" },
                                 { "PackageIdentifier" : "CrystalDewWorld.CrystalDiskInfo" },
                                 { "PackageIdentifier" : "Guru3D.Afterburner" },
@@ -76,8 +82,10 @@
                                 { "PackageIdentifier" : "MartiCliment.UniGetUI" },
                                 { "PackageIdentifier" : "Logitech.GHUB" },
                                 { "PackageIdentifier" : "Corsair.iCUE.5" },
+
                                 { "PackageIdentifier" : "StartIsBack.StartAllBack" },
                                 { "PackageIdentifier" : "Microsoft.WindowsTerminal" },
+
                                 { "PackageIdentifier" : "Adobe.CreativeCloud" },
                                 { "PackageIdentifier" : "Adobe.Acrobat.Reader.64-bit" },
                                 { "PackageIdentifier" : "Valve.Steam" }

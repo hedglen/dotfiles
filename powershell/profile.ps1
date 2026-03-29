@@ -3,6 +3,9 @@
 #   Managed via dotfiles: https://github.com/hedglen/dotfiles
 # =============================================================================
 
+# --- Secrets (not in git) ---
+if (Test-Path "$HOME\.secrets.ps1") { . "$HOME\.secrets.ps1" }
+
 # --- Prompt (Oh My Posh) ---
 $Host.UI.RawUI.BackgroundColor = 'Black'
 Clear-Host
@@ -209,6 +212,13 @@ function trans {
     $scr = "$HOME\workstation\scripts\transcribe.py"
     & $py $scr @args
 }
+
+function vtrans {
+    $py  = "$HOME\workstation\tools\transcribe-env\Scripts\python.exe"
+    $scr = "$HOME\workstation\scripts\video-ocr-translate.py"
+    & $py $scr @args
+}
+function fixsub { vtrans @args }
 
 # =============================================================================
 #   Aliases

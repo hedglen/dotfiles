@@ -100,6 +100,16 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
         New-Item -ItemType Directory -Path $projectsDir -Force | Out-Null
         Write-OK "projects dir created"
     }
+
+    $toolsDir = "$HOME\workstation\tools"
+    if (Test-Path $toolsDir) {
+        Write-Skip "tools dir already present"
+    } elseif ($DryRun) {
+        Write-Skip "Would create: $toolsDir"
+    } else {
+        New-Item -ItemType Directory -Path $toolsDir -Force | Out-Null
+        Write-OK "tools dir created"
+    }
 }
 
 # =============================================================================
@@ -113,8 +123,12 @@ if (-not $ConfigsOnly -and -not $NoApps) {
         if ($DryRun) {
             Write-Skip "Would run: winget import -i $pkgFile"
         } else {
-            winget import -i $pkgFile --accept-package-agreements --accept-source-agreements --ignore-versions
-            Write-OK "Apps installed"
+            try {
+                winget import -i $pkgFile --accept-package-agreements --accept-source-agreements --ignore-versions
+                Write-OK "Apps installed"
+            } catch {
+                Write-Warn "winget import finished with errors (some packages may have failed) — $_"
+            }
         }
     } else {
         Write-Warn "apps\winget-packages.json not found — skipping"
@@ -122,7 +136,7 @@ if (-not $ConfigsOnly -and -not $NoApps) {
 }
 
 # =============================================================================
-#   3. Windows tweaks (optional — requires admin, skipped if not elevated)
+#   4. Windows tweaks (optional — requires admin, skipped if not elevated)
 # =============================================================================
 if (-not $AppsOnly -and -not $ConfigsOnly) {
     Write-Step "Windows tweaks"
@@ -142,7 +156,7 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
 }
 
 # =============================================================================
-#   4. Symlink configs
+#   5. Symlink configs
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "Linking config files"
@@ -195,6 +209,13 @@ if (-not $AppsOnly) {
             continue
         }
 
+        # Skip if symlink already points to the right place
+        $existingTarget = (Get-Item $dst -ErrorAction SilentlyContinue).Target
+        if ($existingTarget -eq $src) {
+            Write-Skip "$($c.desc) already linked"
+            continue
+        }
+
         # Ensure destination directory exists
         if (-not (Test-Path $dstDir)) {
             New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
@@ -220,7 +241,7 @@ if (-not $AppsOnly) {
 }
 
 # =============================================================================
-#   5. VS Code extensions
+#   6. VS Code extensions
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "VS Code extensions"
@@ -237,7 +258,11 @@ if (-not $AppsOnly) {
                     Write-Skip "Would install: $ext"
                 } else {
                     & $codeCmd --install-extension $ext --force 2>&1 | Out-Null
-                    Write-OK $ext
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Warn "Failed to install extension: $ext"
+                    } else {
+                        Write-OK $ext
+                    }
                 }
             }
         }
@@ -247,7 +272,38 @@ if (-not $AppsOnly) {
 }
 
 # =============================================================================
-#   6. Fonts
+#   7. Cursor extensions
+# =============================================================================
+if (-not $AppsOnly) {
+    Write-Step "Cursor extensions"
+    $cursorCmd = "$env:LOCALAPPDATA\Programs\cursor\resources\app\bin\cursor.cmd"
+    if (-not (Test-Path $cursorCmd)) { $cursorCmd = "cursor" }
+    if (Get-Command $cursorCmd -ErrorAction SilentlyContinue) {
+        $extFile = Join-Path $DotfilesDir "vscode\extensions.txt"
+        if (Test-Path $extFile) {
+            Get-Content $extFile |
+            Where-Object { $_.Trim() -ne '' -and $_ -notmatch '^\s*#' } |
+            ForEach-Object {
+                $ext = $_.Trim()
+                if ($DryRun) {
+                    Write-Skip "Would install: $ext"
+                } else {
+                    & $cursorCmd --install-extension $ext --force 2>&1 | Out-Null
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Warn "Failed to install extension: $ext"
+                    } else {
+                        Write-OK $ext
+                    }
+                }
+            }
+        }
+    } else {
+        Write-Warn "Cursor not on PATH — skipping extensions"
+    }
+}
+
+# =============================================================================
+#   8. Fonts
 # =============================================================================
 if (-not $AppsOnly) {
     Write-Step "Fonts"
@@ -262,7 +318,7 @@ if (-not $AppsOnly) {
     }
     if (-not $installed) {
         $fontFile = Get-ChildItem "$fontsDir\CaskaydiaCove*" -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($fontFile) { $installed = $fontFile.FullName }
+        if ($fontFile) { $installed = $fontFile.FullName }
     }
 
     if ($installed) {
@@ -296,31 +352,33 @@ if (-not $AppsOnly) {
 }
 
 # =============================================================================
-#   8. mpv config
+#   9. mpv config
 # =============================================================================
-Write-Step "mpv config"
-$mpvDir = "$HOME\workstation\tools\mpv"
-if (Test-Path "$mpvDir\portable_config") {
-    Write-Skip "Already installed at $mpvDir\portable_config"
-} elseif (Test-Path $mpvDir) {
-    if ($DryRun) {
-        Write-Skip "Would clone mpv-config into $mpvDir\portable_config"
+if (-not $AppsOnly -and -not $ConfigsOnly) {
+    Write-Step "mpv config"
+    $mpvDir = "$HOME\workstation\tools\mpv"
+    if (Test-Path "$mpvDir\portable_config") {
+        Write-Skip "Already installed at $mpvDir\portable_config"
+    } elseif (Test-Path $mpvDir) {
+        if ($DryRun) {
+            Write-Skip "Would clone mpv-config into $mpvDir\portable_config"
+        } else {
+            git clone https://github.com/hedglen/mpv-config.git "$mpvDir\portable_config"
+            Write-OK "mpv config cloned"
+        }
     } else {
-        git clone https://github.com/hedglen/mpv-config.git "$mpvDir\portable_config"
-        Write-OK "mpv config cloned"
+        Write-Warn "mpv not found at $mpvDir"
+        Write-Warn "  Download shinchiro build and extract to $mpvDir, then re-run install.ps1"
+        Write-Warn "  Or run: irm https://raw.githubusercontent.com/hedglen/mpv-config/master/install.ps1 | iex"
     }
-} else {
-    Write-Warn "mpv not found at $mpvDir"
-    Write-Warn "  Download shinchiro build and extract to $mpvDir, then re-run install.ps1"
-    Write-Warn "  Or run: irm https://raw.githubusercontent.com/hedglen/mpv-config/master/install.ps1 | iex"
 }
 
 # =============================================================================
-#   9. mpv — register as "Open with" for video files
+#   10. mpv — register as "Open with" for video files
 # =============================================================================
-if (-not $AppsOnly) {
+if (-not $AppsOnly -and -not $ConfigsOnly) {
     Write-Step "mpv Open With registration"
-$batPath = "$HOME\workstation\tools\mpv\mpv-single.bat"
+    $batPath = "$HOME\workstation\tools\mpv\mpv-single.bat"
     if (-not (Test-Path $batPath)) {
         Write-Warn "mpv-single.bat not found at $batPath — skipping"
     } elseif ($DryRun) {
@@ -347,11 +405,7 @@ if (-not $AppsOnly) {
     Write-Step "foobar2000 theme"
     $fb2kScript = Join-Path $DotfilesDir "foobar2000\install-theme.ps1"
     if (Test-Path $fb2kScript) {
-        if ($DryRun) {
-            Write-Skip "Would run: foobar2000\install-theme.ps1"
-        } else {
-            & $fb2kScript
-        }
+        & $fb2kScript -DryRun:$DryRun
     } else {
         Write-Warn "foobar2000\install-theme.ps1 not found — skipping"
     }
@@ -363,23 +417,25 @@ if (-not $AppsOnly) {
 if (-not $AppsOnly) {
     Write-Step "AutoHotkey startup"
     $ahkSrc = Join-Path $DotfilesDir "autohotkey\main.ahk"
-    $ahkExe = (Get-Command AutoHotkey.exe -ErrorAction SilentlyContinue)?.Source
-    if (-not $ahkExe) {
-        $ahkExe = "${env:ProgramFiles}\AutoHotkey\v2\AutoHotkey64.exe"
-    }
+    $ahkCmd = Get-Command AutoHotkey.exe -ErrorAction SilentlyContinue
+    $ahkExe = if ($ahkCmd) { $ahkCmd.Source } else { "${env:ProgramFiles}\AutoHotkey\v2\AutoHotkey64.exe" }
     if (Test-Path $ahkSrc) {
-        $runKey  = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
-        $runVal  = "`"$ahkExe`" `"$ahkSrc`""
-        if ($DryRun) {
-            Write-Skip "Would register AHK in Run: $runVal"
+        if (-not (Test-Path $ahkExe)) {
+            Write-Warn "AutoHotkey.exe not found at $ahkExe — skipping. Install AutoHotkey v2 and re-run."
         } else {
-            Set-ItemProperty -Path $runKey -Name 'AutoHotkey' -Value $runVal -Force
-            # Launch it now too
-            if (Get-Process -Name 'AutoHotkey*' -ErrorAction SilentlyContinue) {
-                Stop-Process -Name 'AutoHotkey*' -Force -ErrorAction SilentlyContinue
+            $runKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+            $runVal = "`"$ahkExe`" `"$ahkSrc`""
+            if ($DryRun) {
+                Write-Skip "Would register AHK in Run: $runVal"
+            } else {
+                Set-ItemProperty -Path $runKey -Name 'AutoHotkey' -Value $runVal -Force
+                # Launch it now too
+                if (Get-Process -Name 'AutoHotkey*' -ErrorAction SilentlyContinue) {
+                    Stop-Process -Name 'AutoHotkey*' -Force -ErrorAction SilentlyContinue
+                }
+                Start-Process -FilePath $ahkExe -ArgumentList "`"$ahkSrc`""
+                Write-OK "AutoHotkey registered for startup and launched"
             }
-            Start-Process $ahkExe $ahkSrc
-            Write-OK "AutoHotkey registered for startup and launched"
         }
     } else {
         Write-Warn "autohotkey\main.ahk not found — skipping"
