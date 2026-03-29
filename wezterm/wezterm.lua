@@ -140,17 +140,39 @@ if (-not $workspaceFolders) {
 
 Write-Host ''
 ]]
+local git_top_helper_cmd = [[__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo; export PROMPT_COMMAND='__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo'; git status --short --branch; exec bash -il]]
 local git_live_view_cmd = [[
-if command -v lazygit >/dev/null 2>&1; then
-  lazygit
-else
-  while true; do
-    clear
-    printf "\033[38;5;45mRecent git activity (live, every 3s)\033[0m\n\n"
-    git -c color.ui=always log --oneline --graph --decorate --all -20
-    sleep 3
-  done
-fi
+state_file="$HOME/.wezterm-git-current-repo"
+default_repo="$HOME/workstation/dotfiles"
+
+while true; do
+  clear
+  repo="$default_repo"
+  if [ -f "$state_file" ]; then
+    candidate="$(tr -d '\r' < "$state_file" 2>/dev/null)"
+    if [ -n "$candidate" ]; then
+      repo="$candidate"
+    fi
+  fi
+
+  if git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    branch="$(git -C "$repo" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+    repo_name="$(basename "$repo")"
+    printf "\033[38;5;45mGit Watch\033[0m  %s [%s]\n\n" "$repo_name" "$branch"
+    printf "\033[38;5;81mLegend:\033[0m * commit | / \\ branch/merge lines | (...) refs | M modified | A added | ?? untracked\n\n"
+    printf "\033[38;5;81mStatus:\033[0m\n"
+    git -C "$repo" status --short --branch
+    printf "\n\033[38;5;81mRecent history:\033[0m\n"
+    git -C "$repo" -c color.ui=always log --oneline --graph --decorate --all -20
+  else
+    printf "\033[38;5;45mGit Watch\033[0m\n\n"
+    printf "Waiting for a git repo in the top pane.\n"
+    printf "Current path: %s\n" "$repo"
+  fi
+
+  printf "\n\033[38;5;244mRefreshes every 3s. Change repo in the top pane with cd.\033[0m\n"
+  sleep 3
+done
 ]]
 
 local config = {}
@@ -218,7 +240,7 @@ wezterm.on('gui-startup', function(cmd)
     args = pwsh_spawn(workstation, coding_helper_cmd).args,
   }
 
-  local git_tab, git_pane = window:spawn_tab(git_bash_spawn(dotfiles, 'git status --short --branch'))
+  local git_tab, git_pane = window:spawn_tab(git_bash_spawn(dotfiles, git_top_helper_cmd))
   git_tab:set_title 'git'
   local git_live_pane = git_pane:split {
     direction = 'Bottom',
