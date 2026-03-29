@@ -88,6 +88,11 @@ $configs = @(
         src  = "yt-dlp\config"
         dst  = "$env:APPDATA\yt-dlp\config"
         desc = "yt-dlp config"
+    },
+    @{
+        src  = "wezterm\wezterm.lua"
+        dst  = "$HOME\.wezterm.lua"
+        desc = "WezTerm"
     }
 )
 
