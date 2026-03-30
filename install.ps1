@@ -422,6 +422,9 @@ if (-not $AppsOnly) {
 if (-not $AppsOnly) {
     Write-Step "AutoHotkey startup"
     $ahkSrc = Join-Path $DotfilesDir "autohotkey\main.ahk"
+    if (Test-Path $ahkSrc) {
+        $ahkSrc = (Resolve-Path $ahkSrc).Path
+    }
     $ahkCmd = Get-Command AutoHotkey.exe -ErrorAction SilentlyContinue
     $ahkExe = if ($ahkCmd) { $ahkCmd.Source } else { "${env:ProgramFiles}\AutoHotkey\v2\AutoHotkey64.exe" }
     if (Test-Path $ahkSrc) {
@@ -430,9 +433,18 @@ if (-not $AppsOnly) {
         } else {
             $runKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
             $runVal = "`"$ahkExe`" `"$ahkSrc`""
+            $currentRun = (Get-ItemProperty -Path $runKey -Name 'AutoHotkey' -ErrorAction SilentlyContinue).AutoHotkey
             if ($DryRun) {
+                if ($currentRun -and $currentRun -ne $runVal) {
+                    Write-Skip "Would repair stale AHK Run entry:"
+                    Write-Skip "   old: $currentRun"
+                }
                 Write-Skip "Would register AHK in Run: $runVal"
             } else {
+                if ($currentRun -and $currentRun -ne $runVal) {
+                    Write-Warn "Repairing stale AHK Run entry:"
+                    Write-Warn "   old: $currentRun"
+                }
                 Set-ItemProperty -Path $runKey -Name 'AutoHotkey' -Value $runVal -Force
                 # Launch it now too
                 if (Get-Process -Name 'AutoHotkey*' -ErrorAction SilentlyContinue) {

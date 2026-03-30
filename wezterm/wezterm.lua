@@ -12,6 +12,9 @@ local projects = workstation .. '\\projects'
 local dotfiles = workstation .. '\\dotfiles'
 local workspace_file = workstation .. '\\rjh-workspace.code-workspace'
 local git_bash = 'C:\\Program Files\\Git\\bin\\bash.exe'
+local wsl_distro = 'Ubuntu'
+local wsl_home = '/home/rjh'
+local wsl_workstation = '/mnt/c/Users/rjh/workstation'
 local system_helper_cmd = [[
 $now = Get-Date
 $os = Get-CimInstance Win32_OperatingSystem
@@ -174,6 +177,28 @@ while true; do
   sleep 3
 done
 ]]
+local wsl_helper_cmd = [[
+cd /home/rjh || exit 1
+clear
+printf "\033[35mWSL Helper\033[0m\n\n"
+printf "\033[36mDistro:\033[0m  %s\n" "${WSL_DISTRO_NAME:-Ubuntu}"
+printf "\033[36mKernel:\033[0m  %s\n" "$(uname -r)"
+printf "\033[36mShell:\033[0m   %s\n" "$(command -v zsh)"
+printf "\033[36mHome:\033[0m    %s\n" "$HOME"
+printf "\033[36mMount:\033[0m   /mnt/c/Users/rjh/workstation\n"
+printf "\n\033[36mQuick jump:\033[0m\n"
+printf "  cd ~\n"
+printf "  cd /mnt/c/Users/rjh/workstation\n"
+printf "  cd /mnt/c/Users/rjh/workstation/projects\n"
+printf "  cd /mnt/c/Users/rjh/workstation/dotfiles\n"
+printf "  cd /mnt/c/Users/rjh/workstation/scripts\n"
+printf "\n\033[36mTooling:\033[0m\n"
+if command -v git >/dev/null 2>&1; then printf "  git:     %s\n" "$(git --version | sed 's/git version //')"; else printf "  git:     missing\n"; fi
+if command -v node >/dev/null 2>&1; then printf "  node:    %s\n" "$(node -v)"; else printf "  node:    missing\n"; fi
+if command -v python3 >/dev/null 2>&1; then printf "  python3: %s\n" "$(python3 --version 2>&1 | sed 's/Python //')"; else printf "  python3: missing\n"; fi
+printf "\n"
+exec zsh -il
+]]
 
 local config = {}
 
@@ -214,6 +239,18 @@ local function git_bash_spawn(cwd, cmd)
   }
 end
 
+local function wsl_spawn()
+  return {
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'cd ' .. wsl_home .. ' && exec zsh -il' },
+  }
+end
+
+local function wsl_helper_spawn()
+  return {
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', wsl_helper_cmd },
+  }
+end
+
 wezterm.on('gui-startup', function(cmd)
   local startup = pwsh_spawn(home)
 
@@ -249,6 +286,14 @@ wezterm.on('gui-startup', function(cmd)
     args = git_bash_spawn(dotfiles).args,
   }
   git_live_pane:send_text(git_live_view_cmd .. '\n')
+
+  local wsl_tab, wsl_pane = window:spawn_tab(wsl_spawn())
+  wsl_tab:set_title 'wsl'
+  wsl_pane:split {
+    direction = 'Right',
+    size = 0.30,
+    args = wsl_helper_spawn().args,
+  }
 
   coding_tab:activate()
   window:gui_window():maximize()
@@ -364,6 +409,10 @@ config.launch_menu = {
     label = 'pwsh — scripts',
     args = { 'pwsh.exe', '-NoLogo' },
     cwd = workstation .. '\\scripts',
+  },
+  {
+    label = 'wsl — ubuntu zsh',
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'cd ' .. wsl_home .. ' && exec zsh -il' },
   },
 }
 
