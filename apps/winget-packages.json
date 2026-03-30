@@ -12,7 +12,7 @@
                                 { "PackageIdentifier" : "Codeium.Windsurf" },
                                 { "PackageIdentifier" : "AutoHotkey.AutoHotkey" },
                                 { "PackageIdentifier" : "Python.Launcher" },
-  e                              { "PackageIdentifier" : "BurntSushi.ripgrep.MSVC" },
+                                { "PackageIdentifier" : "BurntSushi.ripgrep.MSVC" },
                                 { "PackageIdentifier" : "junegunn.fzf" },
                                 { "PackageIdentifier" : "sharkdp.fd" },
                                 { "PackageIdentifier" : "sharkdp.bat" },
