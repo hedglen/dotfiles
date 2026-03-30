@@ -14,7 +14,7 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_DEFAULT_MODEL = "claude-3-5-haiku-latest"
 ANTHROPIC_API_VERSION = "2023-06-01"
 OLLAMA_API_URL = "http://127.0.0.1:11434/api/chat"
-OLLAMA_DEFAULT_MODEL = "llama3.2:3b"
+OLLAMA_DEFAULT_MODEL = "qwen3:8b"
 WINDOWS_OLLAMA_PATH = os.path.expandvars(r"%LOCALAPPDATA%\Programs\Ollama\ollama.exe")
 
 
