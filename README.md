@@ -78,6 +78,13 @@ dotfiles/
 │   └── profile.ps1                ← prompt, aliases, helper functions
 ├── oh-my-posh/
 │   └── hedglab.omp.json           ← custom OMP theme (Neon Dark–style segments)
+├── wezterm/
+│   ├── wezterm.lua                ← startup dashboard with system / coding / git / wsl / ollama tabs
+│   └── ollama-helper.sh           ← live Ollama status pane used by the WezTerm ollama tab
+├── wsl/
+│   ├── .zshrc                     ← WSL shell aliases, workstation helpers, ollama shortcuts
+│   ├── .p10k.zsh                  ← WSL Powerlevel10k prompt
+│   └── README.md                  ← sync instructions for the tracked WSL shell files
 ├── vscode/
 │   ├── settings.json              ← editor settings, font, theme
 │   └── extensions.txt             ← extension list for auto-install
@@ -477,6 +484,25 @@ gh auth login
 3. Follow the prompts: choose **GitHub.com**, preferred protocol (**HTTPS** or **SSH**), and sign in via **browser** or paste a **personal access token**.
 
 After that, `gh repo clone`, `gh pr create`, and other `gh` commands use your account. This is separate from `git`’s own credential helper unless you deliberately use the same method (for example, HTTPS with the same stored token).
+
+##### WSL Note
+
+If you run `gh auth login` inside WSL, install `wslu` first so browser login opens correctly in Windows:
+
+```bash
+sudo apt update
+sudo apt install -y wslu
+gh auth login
+```
+
+Recommended WSL answers:
+
+- account: `GitHub.com`
+- protocol: `HTTPS`
+- authenticate Git with GitHub credentials: `Yes`
+- auth method: `Login with a web browser`
+
+If the browser handoff still misbehaves, open [github.com/login/device](https://github.com/login/device) in Windows and enter the one-time code shown by `gh`.
 
 ---
 
