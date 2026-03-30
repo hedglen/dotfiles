@@ -173,7 +173,7 @@
   // =============================================================================
   //   Language — AutoHotkey
   // =============================================================================
-  "AutoHotkey2.InterpreterPath": "C:\\Users\\rjh\\AppData\\Local\\Microsoft\\WindowsApps\\AutoHotkeyV2.exe",
+  "AutoHotkey2.InterpreterPath": "${env:LOCALAPPDATA}\\Microsoft\\WindowsApps\\AutoHotkeyV2.exe",
 
   // =============================================================================
   //   Language — Lua

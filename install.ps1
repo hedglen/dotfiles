@@ -4,7 +4,7 @@
 #   https://github.com/hedglen/dotfiles
 #
 #   Usage:
-#     irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
+#     irm https://raw.githubusercontent.com/hedglen/dotfiles/main/install.ps1 | iex
 #
 #   Flags:
 #     -AppsOnly     Only install winget apps

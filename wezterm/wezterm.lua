@@ -10,11 +10,8 @@ local home = wezterm.home_dir
 local workstation = home .. '\\workstation'
 local projects = workstation .. '\\projects'
 local dotfiles = workstation .. '\\dotfiles'
-local workspace_file = workstation .. '\\rjh-workspace.code-workspace'
 local git_bash = 'C:\\Program Files\\Git\\bin\\bash.exe'
 local wsl_distro = 'Ubuntu'
-local wsl_home = '/home/rjh'
-local wsl_workstation = '/mnt/c/Users/rjh/workstation'
 local system_helper_cmd = [[
 $now = Get-Date
 $os = Get-CimInstance Win32_OperatingSystem
@@ -90,14 +87,15 @@ Write-Host ' orgmed       ytdl         trans        save-dots' -ForegroundColor 
 Write-Host ''
 ]]
 local coding_helper_cmd = [[
-Set-Location 'C:\Users\rjh\workstation'
-$workspace = Get-Content -LiteralPath 'C:\Users\rjh\workstation\rjh-workspace.code-workspace' -Raw | ConvertFrom-Json
-$workspaceFolders = $workspace.folders | ForEach-Object {
+Set-Location "$env:USERPROFILE\workstation"
+$wsFile = Get-ChildItem -LiteralPath "$env:USERPROFILE\workstation" -Filter "*.code-workspace" -ErrorAction SilentlyContinue | Select-Object -First 1
+$workspace = if ($wsFile) { Get-Content -LiteralPath $wsFile.FullName -Raw | ConvertFrom-Json } else { $null }
+$workspaceFolders = if ($workspace) { $workspace.folders | ForEach-Object {
   [PSCustomObject]@{
     Name = $_.name
-    FullName = Join-Path 'C:\Users\rjh\workstation' $_.path
+    FullName = Join-Path "$env:USERPROFILE\workstation" $_.path
   }
-}
+} } else { @() }
 
 Write-Host 'Coding Helper' -ForegroundColor Magenta
 Write-Host ''
@@ -178,20 +176,21 @@ while true; do
 done
 ]]
 local wsl_helper_cmd = [[
-cd /home/rjh || exit 1
+cd "$HOME" || exit 1
 clear
+_win_ws=$(wslpath "$(powershell.exe -NoProfile -Command '$env:USERPROFILE' 2>/dev/null | tr -d '\r')")/workstation
 printf "\033[35mWSL Helper\033[0m\n\n"
 printf "\033[36mDistro:\033[0m  %s\n" "${WSL_DISTRO_NAME:-Ubuntu}"
 printf "\033[36mKernel:\033[0m  %s\n" "$(uname -r)"
 printf "\033[36mShell:\033[0m   %s\n" "$(command -v zsh)"
 printf "\033[36mHome:\033[0m    %s\n" "$HOME"
-printf "\033[36mMount:\033[0m   /mnt/c/Users/rjh/workstation\n"
+printf "\033[36mMount:\033[0m   %s\n" "$_win_ws"
 printf "\n\033[36mQuick jump:\033[0m\n"
 printf "  cd ~\n"
-printf "  cd /mnt/c/Users/rjh/workstation\n"
-printf "  cd /mnt/c/Users/rjh/workstation/projects\n"
-printf "  cd /mnt/c/Users/rjh/workstation/dotfiles\n"
-printf "  cd /mnt/c/Users/rjh/workstation/scripts\n"
+printf "  cd %s\n" "$_win_ws"
+printf "  cd %s/projects\n" "$_win_ws"
+printf "  cd %s/dotfiles\n" "$_win_ws"
+printf "  cd %s/scripts\n" "$_win_ws"
 printf "\n\033[36mTooling:\033[0m\n"
 if command -v git >/dev/null 2>&1; then printf "  git:     %s\n" "$(git --version | sed 's/git version //')"; else printf "  git:     missing\n"; fi
 if command -v node >/dev/null 2>&1; then printf "  node:    %s\n" "$(node -v)"; else printf "  node:    missing\n"; fi
@@ -241,7 +240,7 @@ end
 
 local function wsl_spawn()
   return {
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'cd ' .. wsl_home .. ' && exec zsh -il' },
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'exec zsh -il' },
   }
 end
 
@@ -412,7 +411,7 @@ config.launch_menu = {
   },
   {
     label = 'wsl — ubuntu zsh',
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'cd ' .. wsl_home .. ' && exec zsh -il' },
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'exec zsh -il' },
   },
 }
 
