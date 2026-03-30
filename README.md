@@ -554,3 +554,5 @@ The **Neon Dark** scheme (matched to Sudhan’s VS Code [Neon Dark Theme](https:
 ## 🖥️ Related
 
 - **[mpv-config](https://github.com/hedglen/mpv-config)** — full mpv media player setup with HDR auto-switching, FSRCNNX/Anime4K shaders, ultrawide optimization, Corsair Scimitar button mapping, chapter editor, clip export, GIF creation, favorites, audio normalize, and more
+
+# dotfiles
