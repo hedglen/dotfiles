@@ -142,6 +142,29 @@ if (-not $workspaceFolders) {
 Write-Host ''
 ]]
 local git_top_helper_cmd = [[__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo; export PROMPT_COMMAND='__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo'; git status --short --branch; exec bash -il]]
+local git_cheat_sheet_cmd = [[
+clear
+printf "\033[35mGit — Commit & Push\033[0m\n\n"
+printf "  \033[33m1.\033[0m  git status --short --branch\n"
+printf "          see what changed and what branch you're on\n\n"
+printf "  \033[33m2.\033[0m  git diff\n"
+printf "          review unstaged changes\n\n"
+printf "  \033[33m3.\033[0m  git add <file>\n"
+printf "          \033[38;5;244mor: git add -A  to stage everything\033[0m\n\n"
+printf "  \033[33m4.\033[0m  git diff --staged\n"
+printf "          confirm what's about to be committed\n\n"
+printf "  \033[33m5.\033[0m  git commit -m \"type: description\"\n"
+printf "          feat  fix  docs  chore  refactor  style\n\n"
+printf "  \033[33m6.\033[0m  git push\n"
+printf "          \033[38;5;244mnew branch: git push -u origin HEAD\033[0m\n\n"
+printf "\033[36mUndo:\033[0m\n"
+printf "  unstage   git restore --staged <file>\n"
+printf "  discard   git restore <file>\n"
+printf "  park      git stash push -m \"note\"\n"
+printf "  unpause   git stash pop\n"
+tput cup 0 0
+sleep infinity
+]]
 local git_live_view_cmd = [[
 state_file="$HOME/.wezterm-git-current-repo"
 default_repo="$HOME/workstation/dotfiles"
@@ -259,7 +282,7 @@ local function git_bash_spawn(cwd, cmd)
 
   return {
     cwd = cwd,
-    args = { git_bash, '--login', '-i', '-c', bash_cmd .. '; exec bash -il' },
+    args = { git_bash, '--login', '-i', '-c', bash_cmd .. '\nexec bash -il' },
   }
 end
 
@@ -330,11 +353,17 @@ wezterm.on('gui-startup', function(cmd)
   git_tab:set_title 'git'
   local git_live_pane = git_pane:split {
     direction = 'Bottom',
-    size = 0.5,
+    size = 0.35,
     cwd = dotfiles,
     args = git_bash_spawn(dotfiles).args,
   }
   git_live_pane:send_text(git_live_view_cmd .. '\n')
+  git_pane:split {
+    direction = 'Right',
+    size = 0.37,
+    cwd = dotfiles,
+    args = git_bash_spawn(dotfiles, git_cheat_sheet_cmd).args,
+  }
 
   local wsl_tab, wsl_pane = window:spawn_tab(wsl_spawn(workstation))
   wsl_tab:set_title 'wsl'
@@ -352,7 +381,7 @@ wezterm.on('gui-startup', function(cmd)
 
   local ollama_tab, ollama_pane = window:spawn_tab(wsl_spawn(workstation))
   ollama_tab:set_title 'ollama'
-  ollama_pane:send_text('og\n')
+  ollama_pane:send_text('oc\n')
   local ollama_helper_pane = ollama_pane:split {
     direction = 'Right',
     size = 0.32,

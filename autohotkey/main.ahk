@@ -46,7 +46,7 @@
 #!Left:: {
     WinGetPos &x, &y, &w, &h, "A"
     monitors := []
-    MonitorGetCount(&count)
+    count := MonitorGetCount()
     loop count
         monitors.Push(A_Index)
     MonitorGet(MonitorGetPrimary(), &ml, &mt, &mr, &mb)
@@ -108,7 +108,7 @@
 *CapsLock:: {
     Send "{Blind}{Ctrl Down}"
     KeyWait "CapsLock"
-    if (A_TimeSinceThisHotkey < 200 && !A_PriorKey ~= "^Ctrl")
+    if (A_TimeSinceThisHotkey < 200)
         SetCapsLockState !GetKeyState("CapsLock", "T")
     Send "{Blind}{Ctrl Up}"
 }
@@ -116,6 +116,37 @@
 ; =============================================================================
 ;   Helpers
 ; =============================================================================
+
+; Win+Alt+H → Toggle HDR on/off
+#!h:: Run A_ComSpec ' /c "C:\Users\rjh\workstation\tools\HdrSwitcher\HdrSwitcher.exe toggle"',, "Hide"
+
+; =============================================================================
+;   HDR Auto-Toggle for Games
+;   Enables HDR when a supported game launches, disables when it exits.
+; =============================================================================
+
+global g_hdrGames := ["Diablo IV.exe", "PathOfExile2.exe", "LastEpoch.exe"]
+global g_hdrEnabledByGame := false
+
+SetTimer GameHDRWatch, 5000
+
+GameHDRWatch() {
+    global g_hdrGames, g_hdrEnabledByGame
+    gameRunning := false
+    for game in g_hdrGames {
+        if ProcessExist(game) {
+            gameRunning := true
+            break
+        }
+    }
+    if (gameRunning && !g_hdrEnabledByGame) {
+        g_hdrEnabledByGame := true
+        Run A_ComSpec ' /c "C:\Users\rjh\workstation\tools\HdrSwitcher\HdrSwitcher.exe enable"',, "Hide"
+    } else if (!gameRunning && g_hdrEnabledByGame) {
+        g_hdrEnabledByGame := false
+        Run A_ComSpec ' /c "C:\Users\rjh\workstation\tools\HdrSwitcher\HdrSwitcher.exe disable"',, "Hide"
+    }
+}
 
 ; Win+Alt+R → Reload this script
 #!r:: Reload
