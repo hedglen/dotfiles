@@ -30,6 +30,7 @@
           },
           "foreground": "#66F9FF",
           "background": "#1B2B38",
+          "template": " {{ .AbsolutePWD }} ",
           "type": "path",
           "style": "powerline"
         },

@@ -57,7 +57,7 @@ This will:
 
 1. Clone this repo to `$HOME\workstation\dotfiles` (i.e. `%USERPROFILE%\workstation\dotfiles`)
 2. Clone remaining workspace repos (`scripts`, `docs`, `hedglen-profile`) and create `projects/` directory
-3. Install all apps via winget
+3. Install all apps via `winget import` (see `apps/winget-packages.json`; Scoop CLI list in `apps/scoop-packages.json` is separate)
 4. Apply Windows tweaks (requires admin)
 5. Symlink all configs to their correct locations
 6. Install all VS Code extensions
@@ -78,6 +78,13 @@ dotfiles/
 │   └── profile.ps1                ← prompt, aliases, helper functions
 ├── oh-my-posh/
 │   └── hedglab.omp.json           ← custom OMP theme (Neon Dark–style segments)
+├── wezterm/
+│   ├── wezterm.lua                ← startup dashboard with system / coding / git / wsl / ollama tabs
+│   └── ollama-helper.sh           ← live Ollama status pane used by the WezTerm ollama tab
+├── wsl/
+│   ├── .zshrc                     ← WSL shell aliases, workstation helpers, ollama shortcuts
+│   ├── .p10k.zsh                  ← WSL Powerlevel10k prompt
+│   └── README.md                  ← sync instructions for the tracked WSL shell files
 ├── vscode/
 │   ├── settings.json              ← editor settings, font, theme
 │   └── extensions.txt             ← extension list for auto-install
@@ -88,7 +95,8 @@ dotfiles/
 ├── git/
 │   └── .gitconfig                 ← aliases, colors, sensible defaults
 └── apps/
-    └── winget-packages.json       ← full app list for winget import
+    ├── winget-packages.json       ← full app list for winget import
+    └── scoop-packages.json        ← CLI apps installed via Scoop (manual after Scoop setup)
 ```
 
 ---
@@ -223,7 +231,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 | Hotkey | Action |
 | --- | --- |
 | `Win+T` | Windows Terminal (PowerShell) — suppressed when mpv is focused |
-| `Win+E` | File Pilot (file manager) |
+| `Win+E` | Directory Opus (file manager) |
 | `Win+B` | Brave Browser |
 | `Win+N` | Notion |
 | `Win+O` | Obsidian |
@@ -428,18 +436,21 @@ Script: `windows/tweaks.ps1` — run during install (admin required).
 
 ---
 
-## 📦 Apps (via winget)
+## 📦 Apps (winget + Scoop)
 
-Key apps tracked in `apps/winget-packages.json` (see the file for the full list):
+**Winget** is used for most desktop apps and is imported by `install.ps1`. **Scoop** (optional) covers small CLIs with clean per-user shims; install Scoop yourself, then install the list in `apps/scoop-packages.json`.
+
+For **how to use** installed apps and profile helpers (not just the install list), see the companion doc **`docs/guides/workstation-tools.md`** in your [docs](https://github.com/hedglen/docs) clone (`%USERPROFILE%\workstation\docs\guides\workstation-tools.md` on disk).
 
 | Category | Apps |
 | --- | --- |
-| **Dev** | Git, VS Code, PowerShell 7, Python Launcher, AutoHotkey, ripgrep, fzf, fd, bat, GitHub CLI, zoxide |
-| **Terminal** | Windows Terminal, Oh My Posh |
+| **Dev** | Git, VS Code, Windsurf, PowerShell 7, Python Launcher, AutoHotkey, Node.js LTS, Deno, JetBrainsMono Nerd Font |
+| **CLI (Scoop)** | ripgrep, fzf, fd, bat, gh, lazygit, zoxide, jq, delta, fastfetch, rclone, gsudo, eza, pandoc (`apps/scoop-packages.json`) |
+| **Terminal** | Windows Terminal, Oh My Posh (winget) |
 | **Browsers** | Brave, Floorp, Chrome |
-| **Media** | MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP |
-| **File Management** | File Pilot, Everything, TeraCopy, NanaZip, 7-Zip, Bulk Rename, TreeSize, Ditto |
-| **Productivity** | Notion, Obsidian, LibreOffice, Calibre, Thorium Reader, Flow Launcher, Zoom, LocalSend, EarTrumpet |
+| **Media** | MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP, HandBrake, OBS Studio, MediaInfo, ImageGlass, ScreenToGif |
+| **File Management** | Everything, TeraCopy, WizTree, Bulk Rename, TreeSize, Ditto; **Directory Opus** (manual); NanaZip / 7-Zip as needed |
+| **Productivity** | Notion, Obsidian, LibreOffice, Calibre, Thorium Reader, Flow Launcher, Zoom, LocalSend, EarTrumpet, SumatraPDF |
 | **Creative** | Adobe Creative Cloud, Adobe Acrobat Reader |
 | **Privacy** | Proton VPN, Proton Drive, Proton Pass, Proton Authenticator, Bitwarden, Signal |
 | **Cloud** | Google Drive, pCloud Drive |
@@ -448,24 +459,21 @@ Key apps tracked in `apps/winget-packages.json` (see the file for the full list)
 | **Package Mgmt** | UniGetUI |
 | **Other** | StartAllBack, Internet Download Manager, Corsair iCUE 5, Logitech G HUB |
 
-### CLI Tools (winget)
+### Scoop (CLI packages)
 
-These are installed automatically with `install.ps1` / `winget import` (listed in `apps/winget-packages.json`). To add or refresh one package by hand:
+Not run by `install.ps1`. Install [Scoop](https://github.com/ScoopInstaller/Install) (`irm get.scoop.sh | iex`), then install everything listed in `apps/scoop-packages.json`:
 
 ```powershell
-winget install -e --id BurntSushi.ripgrep.MSVC
-winget install -e --id junegunn.fzf
-winget install -e --id sharkdp.fd
-winget install -e --id sharkdp.bat
-winget install -e --id GitHub.cli
-winget install -e --id ajeetdsouza.zoxide
+scoop install bat delta eza fastfetch fd fzf gh gsudo jq lazygit pandoc rclone ripgrep zoxide
 ```
 
 `zoxide` is the usual **z**-style directory jumper (`z`, `zi` after you hook it in your shell).
 
+Many GUI apps and heavy runtimes stay on **winget** (see `apps/winget-packages.json`). Add `scoop bucket add extras` if you later install Scoop-only GUI apps.
+
 #### GitHub CLI (`gh`)
 
-Winget only installs the `gh` program. It is **not** logged into GitHub until you authenticate.
+The `gh` binary is **not** logged into GitHub until you authenticate.
 
 1. Open PowerShell (or any terminal where `gh` is on your `PATH`).
 2. Run:
@@ -477,6 +485,25 @@ gh auth login
 3. Follow the prompts: choose **GitHub.com**, preferred protocol (**HTTPS** or **SSH**), and sign in via **browser** or paste a **personal access token**.
 
 After that, `gh repo clone`, `gh pr create`, and other `gh` commands use your account. This is separate from `git`’s own credential helper unless you deliberately use the same method (for example, HTTPS with the same stored token).
+
+##### WSL Note
+
+If you run `gh auth login` inside WSL, install `wslu` first so browser login opens correctly in Windows:
+
+```bash
+sudo apt update
+sudo apt install -y wslu
+gh auth login
+```
+
+Recommended WSL answers:
+
+- account: `GitHub.com`
+- protocol: `HTTPS`
+- authenticate Git with GitHub credentials: `Yes`
+- auth method: `Login with a web browser`
+
+If the browser handoff still misbehaves, open [github.com/login/device](https://github.com/login/device) in Windows and enter the one-time code shown by `gh`.
 
 ---
 
@@ -553,6 +580,5 @@ The **Neon Dark** scheme (matched to Sudhan’s VS Code [Neon Dark Theme](https:
 
 ## 🖥️ Related
 
+- **[Workstation tools guide](https://github.com/hedglen/docs/blob/main/guides/workstation-tools.md)** — practical map of winget/Scoop apps, PowerShell helpers (`ytdl`, `orgmed`, `trans`, …), and links to upstream docs
 - **[mpv-config](https://github.com/hedglen/mpv-config)** — full mpv media player setup with HDR auto-switching, FSRCNNX/Anime4K shaders, ultrawide optimization, Corsair Scimitar button mapping, chapter editor, clip export, GIF creation, favorites, audio normalize, and more
-
-# dotfiles

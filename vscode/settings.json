@@ -166,14 +166,14 @@
     "editor.tabSize": 4,
     "editor.formatOnSave": true,
   },
-  "python.languageServer": "Pylance",
+  "python.languageServer": "None",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
 
   // =============================================================================
   //   Language — AutoHotkey
   // =============================================================================
-  "AutoHotkey2.InterpreterPath": "C:\\Users\\rjh\\AppData\\Local\\Microsoft\\WindowsApps\\AutoHotkeyV2.exe",
+  "AutoHotkey2.InterpreterPath": "${env:LOCALAPPDATA}\\Microsoft\\WindowsApps\\AutoHotkeyV2.exe",
 
   // =============================================================================
   //   Language — Lua
@@ -214,4 +214,6 @@
   "editor.scrollbar.verticalScrollbarSize": 14,
   "cSpell.userWords": ["autohotkey", "hedglen"],
   "git.openRepositoryInParentFolders": "never",
+  "cursorpyright.analysis.autoImportCompletions": true,
+  "cursorpyright.analysis.typeCheckingMode": "basic",
 }

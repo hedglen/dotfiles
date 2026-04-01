@@ -6,10 +6,27 @@
 # --- Secrets (not in git) ---
 if (Test-Path "$HOME\.secrets.ps1") { . "$HOME\.secrets.ps1" }
 
+# --- Session capabilities ---
+$script:IsInteractiveTerminal = $false
+try {
+    $script:IsInteractiveTerminal = ($Host.Name -eq 'ConsoleHost' -or $Host.Name -eq 'Visual Studio Code Host') `
+        -and -not [Console]::IsInputRedirected `
+        -and -not [Console]::IsOutputRedirected
+} catch {
+    $script:IsInteractiveTerminal = $false
+}
+
 # --- Prompt (Oh My Posh) ---
-$Host.UI.RawUI.BackgroundColor = 'Black'
-Clear-Host
-if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+if ($script:IsInteractiveTerminal) {
+    try {
+        $Host.UI.RawUI.BackgroundColor = 'Black'
+        Clear-Host
+    } catch {
+        $script:IsInteractiveTerminal = $false
+    }
+}
+
+if ($script:IsInteractiveTerminal -and (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
     oh-my-posh init pwsh --config "$HOME\workstation\dotfiles\oh-my-posh\hedglab.omp.json" | Invoke-Expression
 }
 
@@ -259,61 +276,71 @@ Set-Alias uptime       Get-Uptime
 #   PSReadLine
 # =============================================================================
 
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -Colors @{ InlinePrediction = "#64B5FF" }
+if ($script:IsInteractiveTerminal -and (Get-Module -ListAvailable -Name PSReadLine)) {
+    try {
+        Set-PSReadLineOption -PredictionSource History
+        Set-PSReadLineOption -Colors @{ InlinePrediction = "#64B5FF" }
+    } catch {
+        Write-Verbose "PSReadLine setup skipped: $_"
+    }
+}
 
 # =============================================================================
 #   Styling
 # =============================================================================
 
-$PSStyle.FileInfo.Directory = "`e[38;5;81m"   # soft cyan
-$PSStyle.FileInfo.Executable = "`e[38;5;220m"  # warm yellow
+if ($PSStyle) {
+    $PSStyle.FileInfo.Directory = "`e[38;5;81m"   # soft cyan
+    $PSStyle.FileInfo.Executable = "`e[38;5;220m"  # warm yellow
+}
 
 # =============================================================================
 #   Startup Banner
 # =============================================================================
 
-# Banner lines: truecolor aligned with Neon Dark terminal (cyan / magenta / bold red / sky / orange / mint / gold quote)
-$esc = [char]27
-[Console]::WriteLine("${esc}[38;2;102;249;255m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
-[Console]::WriteLine("${esc}[38;2;233;84;255m  orgmed [--apply] [--dest x|movies|tv|music_videos]  ${esc}[38;2;255;20;200morgmedx${esc}[38;2;233;84;255m  -- organize D:\media\Downloads${esc}[0m")
-[Console]::WriteLine("${esc}[1m${esc}[38;2;255;28;65m  ytdl <url> [--audio] [--quality 1080|720|480|best]   -- download video/audio${esc}[0m")
-[Console]::WriteLine("${esc}[38;2;100;181;255m  trans <path> [--model large-v3|medium|small] [--language en]  -- transcribe video to .srt + .md${esc}[0m")
-[Console]::WriteLine("${esc}[38;2;255;102;0m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")
-[Console]::WriteLine("${esc}[38;2;92;255;184m  sync-dots             — pull latest dotfiles & relink configs${esc}[0m")
+if ($script:IsInteractiveTerminal) {
+    # Banner lines: truecolor aligned with Neon Dark terminal (cyan / magenta / bold red / sky / orange / mint / gold quote)
+    $esc = [char]27
+    [Console]::WriteLine("${esc}[38;2;102;249;255m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
+    [Console]::WriteLine("${esc}[38;2;233;84;255m  orgmed [--apply] [--dest x|movies|tv|music_videos]  ${esc}[38;2;255;20;200morgmedx${esc}[38;2;233;84;255m  -- organize R:\Media\x\dl${esc}[0m")
+    [Console]::WriteLine("${esc}[1m${esc}[38;2;255;28;65m  ytdl <url> [--audio] [--quality 1080|720|480|best]   -- download video/audio${esc}[0m")
+    [Console]::WriteLine("${esc}[38;2;100;181;255m  trans <path> [--model large-v3|medium|small] [--language en]  -- transcribe video to .srt + .md${esc}[0m")
+    [Console]::WriteLine("${esc}[38;2;255;102;0m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")
+    [Console]::WriteLine("${esc}[38;2;92;255;184m  sync-dots             — pull latest dotfiles & relink configs${esc}[0m")
 
-$quotes = @(
-    # originals
-    "You're not debugging. You're time travelling.",
-    "AI writes code. You write the future.",
-    "The bug you ignore today spawns tech debt tomorrow.",
-    "Clarity comes not from code, but from thought before code.",
-    "Refactor until it sings. Then refactor again.",
-    # new
-    "It works on my machine. Ship the machine.",
-    "rm -rf and a prayer.",
-    "The only valid measurement of code quality is WTFs per minute.",
-    "git commit -m 'fix' for the 11th time today.",
-    "It's not a bug, it's an undocumented feature with commitment issues.",
-    "Any sufficiently advanced config file is indistinguishable from magic.",
-    "First rule of optimisation: don't. Second rule: not yet.",
-    "I don't always test my code, but when I do, I do it in production.",
-    "sudo make me a sandwich.",
-    "Weeks of coding can save you hours of planning.",
-    "The computer was working fine until I touched it.",
-    "Have you tried turning it off and turning it on again? I have. Twice.",
-    "If it's stupid but it works, it's still stupid. Fix it later.",
-    "git blame: a love letter to past you.",
-    "One more 'quick fix' and I'm rewriting the whole thing.",
-    "Stack Overflow is just outsourced memory.",
-    "Winget upgrade --all and pray nothing breaks.",
-    "Documentation? The code is self-documenting. (It's not.)",
-    "The cloud is just someone else's computer having a bad day.",
-    "I love deadlines. I love the whooshing noise they make as they go by.",
-    "This is fine. Everything is fine. The terminal is on fire.",
-    "Neon dark or go home.",
-    "Copy-paste is a feature, not a crime.",
-    "The fastest code is the code that never runs.",
-    "I didn't choose the sysadmin life. The sysadmin life chose me."
-)
-[Console]::WriteLine("${esc}[38;2;255;212;71m  $(Get-Random -InputObject $quotes)${esc}[0m")
+    $quotes = @(
+        # originals
+        "You're not debugging. You're time travelling.",
+        "AI writes code. You write the future.",
+        "The bug you ignore today spawns tech debt tomorrow.",
+        "Clarity comes not from code, but from thought before code.",
+        "Refactor until it sings. Then refactor again.",
+        # new
+        "It works on my machine. Ship the machine.",
+        "rm -rf and a prayer.",
+        "The only valid measurement of code quality is WTFs per minute.",
+        "git commit -m 'fix' for the 11th time today.",
+        "It's not a bug, it's an undocumented feature with commitment issues.",
+        "Any sufficiently advanced config file is indistinguishable from magic.",
+        "First rule of optimisation: don't. Second rule: not yet.",
+        "I don't always test my code, but when I do, I do it in production.",
+        "sudo make me a sandwich.",
+        "Weeks of coding can save you hours of planning.",
+        "The computer was working fine until I touched it.",
+        "Have you tried turning it off and turning it on again? I have. Twice.",
+        "If it's stupid but it works, it's still stupid. Fix it later.",
+        "git blame: a love letter to past you.",
+        "One more 'quick fix' and I'm rewriting the whole thing.",
+        "Stack Overflow is just outsourced memory.",
+        "Winget upgrade --all and pray nothing breaks.",
+        "Documentation? The code is self-documenting. (It's not.)",
+        "The cloud is just someone else's computer having a bad day.",
+        "I love deadlines. I love the whooshing noise they make as they go by.",
+        "This is fine. Everything is fine. The terminal is on fire.",
+        "Neon dark or go home.",
+        "Copy-paste is a feature, not a crime.",
+        "The fastest code is the code that never runs.",
+        "I didn't choose the sysadmin life. The sysadmin life chose me."
+    )
+    [Console]::WriteLine("${esc}[38;2;255;212;71m  $(Get-Random -InputObject $quotes)${esc}[0m")
+}

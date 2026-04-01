@@ -10,11 +10,8 @@ local home = wezterm.home_dir
 local workstation = home .. '\\workstation'
 local projects = workstation .. '\\projects'
 local dotfiles = workstation .. '\\dotfiles'
-local workspace_file = workstation .. '\\rjh-workspace.code-workspace'
 local git_bash = 'C:\\Program Files\\Git\\bin\\bash.exe'
 local wsl_distro = 'Ubuntu'
-local wsl_home = '/home/rjh'
-local wsl_workstation = '/mnt/c/Users/rjh/workstation'
 local system_helper_cmd = [[
 $now = Get-Date
 $os = Get-CimInstance Win32_OperatingSystem
@@ -90,14 +87,15 @@ Write-Host ' orgmed       ytdl         trans        save-dots' -ForegroundColor 
 Write-Host ''
 ]]
 local coding_helper_cmd = [[
-Set-Location 'C:\Users\rjh\workstation'
-$workspace = Get-Content -LiteralPath 'C:\Users\rjh\workstation\rjh-workspace.code-workspace' -Raw | ConvertFrom-Json
-$workspaceFolders = $workspace.folders | ForEach-Object {
+Set-Location "$env:USERPROFILE\workstation"
+$wsFile = Get-ChildItem -LiteralPath "$env:USERPROFILE\workstation" -Filter "*.code-workspace" -ErrorAction SilentlyContinue | Select-Object -First 1
+$workspace = if ($wsFile) { Get-Content -LiteralPath $wsFile.FullName -Raw | ConvertFrom-Json } else { $null }
+$workspaceFolders = if ($workspace) { $workspace.folders | ForEach-Object {
   [PSCustomObject]@{
     Name = $_.name
-    FullName = Join-Path 'C:\Users\rjh\workstation' $_.path
+    FullName = Join-Path "$env:USERPROFILE\workstation" $_.path
   }
-}
+} } else { @() }
 
 Write-Host 'Coding Helper' -ForegroundColor Magenta
 Write-Host ''
@@ -144,6 +142,76 @@ if (-not $workspaceFolders) {
 Write-Host ''
 ]]
 local git_top_helper_cmd = [[__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo; export PROMPT_COMMAND='__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo'; git status --short --branch; exec bash -il]]
+-- Right pane: workspace clean/dirty (same as coding tab) + cheat sheet; refreshes every 10s.
+local git_right_panel_cmd = [[
+while ($true) {
+  Clear-Host
+  Set-Location "$env:USERPROFILE\workstation"
+  $wsFile = Get-ChildItem -LiteralPath "$env:USERPROFILE\workstation" -Filter "*.code-workspace" -ErrorAction SilentlyContinue | Select-Object -First 1
+  $workspace = if ($wsFile) { Get-Content -LiteralPath $wsFile.FullName -Raw | ConvertFrom-Json } else { $null }
+  $workspaceFolders = if ($workspace) { $workspace.folders | ForEach-Object {
+    [PSCustomObject]@{
+      Name = $_.name
+      FullName = Join-Path "$env:USERPROFILE\workstation" $_.path
+    }
+  } } else { @() }
+
+  Write-Host 'Workspace folders:' -ForegroundColor Cyan
+  if (-not $workspaceFolders) {
+    Write-Host ' No workspace file or folders.' -ForegroundColor Yellow
+  } else {
+    foreach ($folder in $workspaceFolders) {
+      $isRepo = Test-Path (Join-Path $folder.FullName '.git')
+      $branch = if ($isRepo) { git -C $folder.FullName rev-parse --abbrev-ref HEAD 2>$null } else { '-' }
+      if (-not $branch) { $branch = '?' }
+      $dirty = if ($isRepo) { (git -C $folder.FullName status --porcelain 2>$null | Measure-Object).Count } else { 0 }
+      $state = if (-not $isRepo) { 'folder' } elseif ($dirty -gt 0) { 'dirty' } else { 'clean' }
+      $markers = @()
+      if ($isRepo) { $markers += 'git' }
+      if (Test-Path (Join-Path $folder.FullName 'package.json')) { $markers += 'node' }
+      if (Test-Path (Join-Path $folder.FullName 'pnpm-lock.yaml')) { $markers += 'pnpm' }
+      if (Test-Path (Join-Path $folder.FullName 'requirements.txt')) { $markers += 'python' }
+      if (Test-Path (Join-Path $folder.FullName 'pyproject.toml')) { $markers += 'pyproject' }
+      if (-not $markers) { $markers += 'folder' }
+
+      Write-Host (' - ' + $folder.Name) -NoNewline -ForegroundColor White
+      Write-Host (' [' + $branch + '] ') -NoNewline -ForegroundColor DarkGray
+      Write-Host ($state + ' ') -NoNewline -ForegroundColor $(if (-not $isRepo) { 'DarkGray' } elseif ($dirty -gt 0) { 'Yellow' } else { 'Green' })
+      Write-Host ('(' + ($markers -join ', ') + ')') -ForegroundColor DarkCyan
+    }
+  }
+
+  Write-Host ''
+  Write-Host 'Git — Commit & Push' -ForegroundColor Magenta
+  Write-Host ''
+  Write-Host '  1.  git status --short --branch' -ForegroundColor Yellow
+  Write-Host '      see what changed and what branch you are on' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  2.  git diff' -ForegroundColor Yellow
+  Write-Host '      review unstaged changes' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  3.  git add <file>' -ForegroundColor Yellow
+  Write-Host '      or: git add -A  to stage everything' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  4.  git diff --staged' -ForegroundColor Yellow
+  Write-Host '      confirm what is about to be committed' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  5.  git commit -m "type: description"' -ForegroundColor Yellow
+  Write-Host '      feat  fix  docs  chore  refactor  style' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  6.  git push' -ForegroundColor Yellow
+  Write-Host '      new branch: git push -u origin HEAD' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host 'Undo:' -ForegroundColor Cyan
+  Write-Host '  unstage   git restore --staged <file>'
+  Write-Host '  discard   git restore <file>'
+  Write-Host '  park      git stash push -m "note"'
+  Write-Host '  unpause   git stash pop'
+  Write-Host ''
+  Write-Host 'Workspace + cheat refresh every 10s. Ctrl+C to stop.' -ForegroundColor DarkGray
+  Start-Sleep -Seconds 10
+}
+]]
 local git_live_view_cmd = [[
 state_file="$HOME/.wezterm-git-current-repo"
 default_repo="$HOME/workstation/dotfiles"
@@ -178,28 +246,44 @@ while true; do
 done
 ]]
 local wsl_helper_cmd = [[
-cd /home/rjh || exit 1
+cd "$HOME" || exit 1
 clear
-printf "\033[35mWSL Helper\033[0m\n\n"
-printf "\033[36mDistro:\033[0m  %s\n" "${WSL_DISTRO_NAME:-Ubuntu}"
-printf "\033[36mKernel:\033[0m  %s\n" "$(uname -r)"
-printf "\033[36mShell:\033[0m   %s\n" "$(command -v zsh)"
-printf "\033[36mHome:\033[0m    %s\n" "$HOME"
-printf "\033[36mMount:\033[0m   /mnt/c/Users/rjh/workstation\n"
-printf "\n\033[36mQuick jump:\033[0m\n"
-printf "  cd ~\n"
-printf "  cd /mnt/c/Users/rjh/workstation\n"
-printf "  cd /mnt/c/Users/rjh/workstation/projects\n"
-printf "  cd /mnt/c/Users/rjh/workstation/dotfiles\n"
-printf "  cd /mnt/c/Users/rjh/workstation/scripts\n"
-printf "\n\033[36mTooling:\033[0m\n"
-if command -v git >/dev/null 2>&1; then printf "  git:     %s\n" "$(git --version | sed 's/git version //')"; else printf "  git:     missing\n"; fi
-if command -v node >/dev/null 2>&1; then printf "  node:    %s\n" "$(node -v)"; else printf "  node:    missing\n"; fi
-if command -v python3 >/dev/null 2>&1; then printf "  python3: %s\n" "$(python3 --version 2>&1 | sed 's/Python //')"; else printf "  python3: missing\n"; fi
-printf "\n"
-exec zsh -il
+_win_ws=$(wslpath "$(powershell.exe -NoProfile -Command '$env:USERPROFILE' 2>/dev/null | tr -d '\r')")/workstation
+_win_projects="${_win_ws}/projects"
+_win_dotfiles="${_win_ws}/dotfiles"
+_win_scripts="${_win_ws}/scripts"
+ printf "\033[35mWSL Helper\033[0m\n\n"
+ printf "\033[36mDistro:\033[0m  %s\n" "${WSL_DISTRO_NAME:-Ubuntu}"
+ printf "\033[36mKernel:\033[0m  %s\n" "$(uname -r)"
+ printf "\033[36mShell:\033[0m   %s\n" "$(command -v zsh)"
+ printf "\033[36mHome:\033[0m    %s\n" "$HOME"
+ printf "\033[36mMount:\033[0m   %s\n" "$_win_ws"
+ printf "\n\033[36mQuick jump:\033[0m\n"
+ printf "  cd ~\n"
+ printf "  cd %s\n" "$_win_ws"
+ printf "  cd %s\n" "$_win_projects"
+ printf "  cd %s\n" "$_win_dotfiles"
+ printf "  cd %s\n" "$_win_scripts"
+ printf "\n\033[36mLabels:\033[0m\n"
+ printf "  workstation -> %s\n" "$_win_ws"
+ printf "  projects    -> %s\n" "$_win_projects"
+ printf "  dotfiles    -> %s\n" "$_win_dotfiles"
+ printf "  scripts     -> %s\n" "$_win_scripts"
+ printf "\n\033[36mTooling:\033[0m\n"
+ if command -v git >/dev/null 2>&1; then printf "  git:     %s\n" "$(git --version | sed 's/git version //')"; else printf "  git:     missing\n"; fi
+ if command -v node >/dev/null 2>&1; then printf "  node:    %s\n" "$(node -v)"; else printf "  node:    missing\n"; fi
+ if command -v python3 >/dev/null 2>&1; then printf "  python3: %s\n" "$(python3 --version 2>&1 | sed 's/Python //')"; else printf "  python3: missing\n"; fi
+ printf "\n\033[36mGitHub CLI:\033[0m\n"
+ if command -v wslview >/dev/null 2>&1; then
+   printf "  browser bridge: wslview ready\n"
+ else
+   printf "  browser bridge: install wslu for gh auth login browser flow\n"
+ fi
+ printf "  login: gh auth login\n"
+ printf "  status: gh auth status\n"
+ printf "\n"
+ exec zsh -il
 ]]
-
 local config = {}
 
 local function pwsh_spawn(cwd, cmd)
@@ -226,6 +310,16 @@ local function bash_path(path)
   return path:gsub('\\', '/')
 end
 
+local function wsl_path(path)
+  local drive, rest = path:match '^([A-Za-z]):\\(.*)$'
+
+  if drive then
+    return '/mnt/' .. drive:lower() .. '/' .. rest:gsub('\\', '/')
+  end
+
+  return path:gsub('\\', '/')
+end
+
 local function git_bash_spawn(cwd, cmd)
   local bash_cmd = 'cd ' .. bash_quote(bash_path(cwd))
 
@@ -235,19 +329,44 @@ local function git_bash_spawn(cwd, cmd)
 
   return {
     cwd = cwd,
-    args = { git_bash, '--login', '-i', '-c', bash_cmd .. '; exec bash -il' },
+    args = { git_bash, '--login', '-i', '-c', bash_cmd .. '\nexec bash -il' },
   }
 end
 
-local function wsl_spawn()
+local function wsl_spawn(cwd)
+  local shell_cmd = ''
+
+  if cwd then
+    shell_cmd = 'cd ' .. bash_quote(wsl_path(cwd)) .. ' && '
+  end
+
   return {
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'cd ' .. wsl_home .. ' && exec zsh -il' },
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', shell_cmd .. 'exec zsh -il' },
+  }
+end
+
+local function wsl_command_spawn(cwd, cmd)
+  local shell_cmd = ''
+
+  if cwd then
+    shell_cmd = 'cd ' .. bash_quote(wsl_path(cwd)) .. ' && '
+  end
+
+  return {
+    args = { 'wsl.exe', '-d', wsl_distro, 'zsh', '-ic', shell_cmd .. cmd },
   }
 end
 
 local function wsl_helper_spawn()
   return {
     args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', wsl_helper_cmd },
+  }
+end
+
+local function ollama_helper_spawn()
+  local helper_script = wsl_path(dotfiles .. '\\wezterm\\ollama-helper.sh')
+  return {
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', helper_script },
   }
 end
 
@@ -268,7 +387,7 @@ wezterm.on('gui-startup', function(cmd)
     args = pwsh_spawn(home, system_helper_cmd).args,
   }
 
-  local coding_tab, coding_pane = window:spawn_tab(pwsh_spawn(projects))
+  local coding_tab, coding_pane = window:spawn_tab(pwsh_spawn(workstation))
   coding_tab:set_title 'coding'
   coding_pane:split {
     direction = 'Right',
@@ -277,22 +396,50 @@ wezterm.on('gui-startup', function(cmd)
     args = pwsh_spawn(workstation, coding_helper_cmd).args,
   }
 
+  -- Left column: status (top) + live watch (bottom). Right: workspace clean/dirty + cheat (pwsh, 10s refresh).
+  -- Order matters: split Right first, then Bottom on the left pane only.
   local git_tab, git_pane = window:spawn_tab(git_bash_spawn(dotfiles, git_top_helper_cmd))
   git_tab:set_title 'git'
+  git_pane:split {
+    direction = 'Right',
+    size = 0.37,
+    cwd = dotfiles,
+    args = pwsh_spawn(dotfiles, git_right_panel_cmd).args,
+  }
   local git_live_pane = git_pane:split {
     direction = 'Bottom',
-    size = 0.5,
+    size = 0.35,
     cwd = dotfiles,
     args = git_bash_spawn(dotfiles).args,
   }
   git_live_pane:send_text(git_live_view_cmd .. '\n')
 
-  local wsl_tab, wsl_pane = window:spawn_tab(wsl_spawn())
+  local wsl_tab, wsl_pane = window:spawn_tab(wsl_spawn(workstation))
   wsl_tab:set_title 'wsl'
   wsl_pane:split {
     direction = 'Right',
     size = 0.30,
     args = wsl_helper_spawn().args,
+  }
+
+  local claude_tab = window:spawn_tab(wsl_command_spawn(workstation, 'claude'))
+  claude_tab:set_title 'claude'
+
+  local codex_tab = window:spawn_tab(wsl_command_spawn(workstation, 'codex'))
+  codex_tab:set_title 'codex'
+
+  local ollama_tab, ollama_pane = window:spawn_tab(wsl_spawn(workstation))
+  ollama_tab:set_title 'ollama'
+  ollama_pane:send_text('oc\n')
+  local ollama_helper_pane = ollama_pane:split {
+    direction = 'Right',
+    size = 0.32,
+    args = ollama_helper_spawn().args,
+  }
+  ollama_helper_pane:split {
+    direction = 'Bottom',
+    size = 0.33,
+    args = wsl_spawn(workstation).args,
   }
 
   coding_tab:activate()
@@ -412,7 +559,7 @@ config.launch_menu = {
   },
   {
     label = 'wsl — ubuntu zsh',
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'cd ' .. wsl_home .. ' && exec zsh -il' },
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'exec zsh -il' },
   },
 }
 
@@ -431,6 +578,8 @@ config.keys = {
   { key = '3', mods = 'ALT', action = act.ActivateTab(2) },
   { key = '4', mods = 'ALT', action = act.ActivateTab(3) },
   { key = '5', mods = 'ALT', action = act.ActivateTab(4) },
+  { key = '6', mods = 'ALT', action = act.ActivateTab(5) },
+  { key = '7', mods = 'ALT', action = act.ActivateTab(6) },
   { key = 'Tab', mods = 'CTRL', action = act.ActivateTabRelative(1) },
   { key = '\\', mods = 'ALT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = '-', mods = 'ALT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
