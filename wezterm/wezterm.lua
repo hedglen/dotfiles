@@ -85,6 +85,15 @@ Write-Host ' drives       uptime       sysinfo      users        admins' -Foregr
 Write-Host ' startup-list tasks-user   pkillf       reload       sync-dots' -ForegroundColor DarkGray
 Write-Host ' orgmed       ytdl         trans        save-dots' -ForegroundColor DarkGray
 Write-Host ''
+Write-Host 'Updates & upgrades' -ForegroundColor Magenta
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget upgrade --all' -NoNewline -ForegroundColor Yellow; Write-Host '  upgrade WinGet-managed apps' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget list --upgrade-available' -NoNewline -ForegroundColor Yellow; Write-Host '  see what would upgrade first' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget source update' -NoNewline -ForegroundColor Yellow; Write-Host '  refresh WinGet index' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop update scoop; scoop update *' -NoNewline -ForegroundColor Yellow; Write-Host '  Scoop CLI tools' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'sync-dots' -NoNewline -ForegroundColor Yellow; Write-Host '  pull dotfiles + relink (update.ps1 -SkipApps)' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'Start ms-settings:windowsupdate' -NoNewline -ForegroundColor Yellow; Write-Host '  Windows Update (Settings)' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor DarkGray; Write-Host 'WinGet hash mismatch: enable InstallerHashOverride once (admin), then install with --ignore-security-hash in non-admin pwsh' -ForegroundColor DarkGray
+Write-Host ''
 ]]
 local coding_helper_cmd = [[
 Clear-Host
