@@ -87,62 +87,64 @@ Write-Host ' orgmed       ytdl         trans        save-dots' -ForegroundColor 
 Write-Host ''
 ]]
 local coding_helper_cmd = [[
-Set-Location "$env:USERPROFILE\workstation"
-$wsFile = Get-ChildItem -LiteralPath "$env:USERPROFILE\workstation" -Filter "*.code-workspace" -ErrorAction SilentlyContinue | Select-Object -First 1
-$workspace = if ($wsFile) { Get-Content -LiteralPath $wsFile.FullName -Raw | ConvertFrom-Json } else { $null }
-$workspaceFolders = if ($workspace) { $workspace.folders | ForEach-Object {
-  [PSCustomObject]@{
-    Name = $_.name
-    FullName = Join-Path "$env:USERPROFILE\workstation" $_.path
+Clear-Host
+& {
+  function _cliRow($cmd, $desc) {
+    Write-Host '  ' -NoNewline
+    Write-Host $cmd -NoNewline -ForegroundColor Yellow
+    Write-Host ('  ' + $desc) -ForegroundColor DarkGray
   }
-} } else { @() }
-
-Write-Host 'Coding Helper' -ForegroundColor Magenta
-Write-Host ''
-
-if (-not $workspaceFolders) {
-  Write-Host 'No workspace folders found.' -ForegroundColor Yellow
-} elseif ($workspaceFolders.Count -eq 1) {
-  $folder = $workspaceFolders[0]
-  Set-Location $folder.FullName
-  Write-Host ('Opened workspace folder: ' + $folder.Name) -ForegroundColor Cyan
-  if (Test-Path (Join-Path $folder.FullName '.git')) {
-    Write-Host ''
-    git status --short --branch
-  }
-} else {
-  Write-Host 'Workspace folders:' -ForegroundColor Cyan
-  foreach ($folder in $workspaceFolders) {
-    $isRepo = Test-Path (Join-Path $folder.FullName '.git')
-    $branch = if ($isRepo) { git -C $folder.FullName rev-parse --abbrev-ref HEAD 2>$null } else { '-' }
-    if (-not $branch) { $branch = '?' }
-    $dirty = if ($isRepo) { (git -C $folder.FullName status --porcelain 2>$null | Measure-Object).Count } else { 0 }
-    $state = if (-not $isRepo) { 'folder' } elseif ($dirty -gt 0) { 'dirty' } else { 'clean' }
-    $markers = @()
-    if ($isRepo) { $markers += 'git' }
-    if (Test-Path (Join-Path $folder.FullName 'package.json')) { $markers += 'node' }
-    if (Test-Path (Join-Path $folder.FullName 'pnpm-lock.yaml')) { $markers += 'pnpm' }
-    if (Test-Path (Join-Path $folder.FullName 'requirements.txt')) { $markers += 'python' }
-    if (Test-Path (Join-Path $folder.FullName 'pyproject.toml')) { $markers += 'pyproject' }
-    if (-not $markers) { $markers += 'folder' }
-
-    Write-Host (' - ' + $folder.Name) -NoNewline -ForegroundColor White
-    Write-Host (' [' + $branch + '] ') -NoNewline -ForegroundColor DarkGray
-    Write-Host ($state + ' ') -NoNewline -ForegroundColor $(if (-not $isRepo) { 'DarkGray' } elseif ($dirty -gt 0) { 'Yellow' } else { 'Green' })
-    Write-Host ('(' + ($markers -join ', ') + ')') -ForegroundColor DarkCyan
-  }
-
+  Write-Host 'Coding - CLI quick reference' -ForegroundColor Magenta
+  Write-Host 'Most tools from Scoop. Git tab for repo status; System tab for drives and pwsh helpers.' -ForegroundColor DarkGray
   Write-Host ''
-  Write-Host 'Quick jump:' -ForegroundColor Cyan
-  foreach ($folder in $workspaceFolders) {
-    Write-Host ('  cd .\' + $folder.Name) -ForegroundColor DarkGray
-  }
-}
 
-Write-Host ''
+  Write-Host 'Listing' -ForegroundColor Cyan
+  _cliRow 'll / la' 'Get-ChildItem (pwsh profile aliases)'
+  _cliRow 'eza -la' 'colorized long listing'
+  _cliRow 'eza -la --git' 'git column when cwd is inside one repo'
+  Write-Host ''
+
+  Write-Host 'Find and pick' -ForegroundColor Cyan
+  _cliRow 'rg pattern' 'ripgrep: search file contents'
+  _cliRow 'rg -l pattern' 'only filenames with matches'
+  _cliRow 'fd name' 'find files by path pattern (respects .gitignore)'
+  _cliRow 'fzf' 'fuzzy picker; pipe lines in (e.g. fd | fzf)'
+  Write-Host ''
+
+  Write-Host 'View and diffs' -ForegroundColor Cyan
+  _cliRow 'bat file' 'syntax-highlighted file view'
+  _cliRow 'less file' 'plain pager'
+  _cliRow 'git diff' 'uses delta if set in gitconfig pager / diff filter'
+  Write-Host ''
+
+  Write-Host 'Data' -ForegroundColor Cyan
+  _cliRow 'jq' 'query JSON (.key, map, select; stdin = JSON text)'
+  Write-Host ''
+
+  Write-Host 'Navigate' -ForegroundColor Cyan
+  _cliRow 'z / zi' 'zoxide jump (zi = interactive); pwsh and bash'
+  Write-Host ''
+
+  Write-Host 'Git and GitHub' -ForegroundColor Cyan
+  _cliRow 'lazygit' 'full-screen git TUI'
+  _cliRow 'gh' 'GitHub CLI (pr, issue, repo; gh auth login once)'
+  _cliRow 'git status -sb' 'short branch + change list'
+  Write-Host ''
+
+  Write-Host 'PowerShell profile' -ForegroundColor Cyan
+  _cliRow 'reload' 're-source profile.ps1'
+  _cliRow 'which name' 'resolve a command to its path'
+  _cliRow 'grep pat' 'pipeline: ... | grep pat (Select-String)'
+  _cliRow 'touch path' 'create empty file'
+  _cliRow 'dots / tools / home' 'cd shortcuts (see profile.ps1)'
+  Write-Host ''
+
+  Write-Host 'Docs: docs/guides/workstation-tools.md (full tool map)' -ForegroundColor DarkCyan
+  Write-Host ''
+}
 ]]
 local git_top_helper_cmd = [[__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo; export PROMPT_COMMAND='__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo'; git status --short --branch; exec bash -il]]
--- Right pane: workspace clean/dirty (same as coding tab) + cheat sheet; refreshes every 10s.
+-- Git tab right pane: workspace clean/dirty + git cheat sheet; refreshes every 10s.
 local git_right_panel_cmd = [[
 while ($true) {
   Clear-Host
@@ -396,7 +398,8 @@ wezterm.on('gui-startup', function(cmd)
     args = pwsh_spawn(workstation, coding_helper_cmd).args,
   }
 
-  -- Left column: status (top) + live watch (bottom). Right: workspace clean/dirty + cheat (pwsh, 10s refresh).
+  -- Git tab: left column status (top) + live watch (bottom). Right: workspace clean/dirty + git cheat (pwsh, 10s).
+  -- Coding tab right: static CLI reference (no refresh).
   -- Order matters: split Right first, then Bottom on the left pane only.
   local git_tab, git_pane = window:spawn_tab(git_bash_spawn(dotfiles, git_top_helper_cmd))
   git_tab:set_title 'git'
