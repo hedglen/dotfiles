@@ -76,10 +76,12 @@ dotfiles/
 │   └── main.ahk                   ← hotkeys, app launchers, text expanders
 ├── powershell/
 │   └── profile.ps1                ← prompt, aliases, helper functions
+├── shell/
+│   └── git-aware-ll.bash          ← optional Git Bash `ll`: colors git subdirs green (clean) / yellow (dirty); source from `~/.bashrc`
 ├── oh-my-posh/
 │   └── hedglab.omp.json           ← custom OMP theme (Neon Dark–style segments)
 ├── wezterm/
-│   ├── wezterm.lua                ← startup dashboard with system / coding / git / wsl / ollama tabs
+│   ├── wezterm.lua                ← gui-startup tabs: system (dashboard + helper names), coding (CLI cheat sheet in right split), git (workspace status + commit steps), wsl, ollama
 │   └── ollama-helper.sh           ← live Ollama status pane used by the WezTerm ollama tab
 ├── wsl/
 │   ├── .zshrc                     ← WSL shell aliases, workstation helpers, ollama shortcuts
