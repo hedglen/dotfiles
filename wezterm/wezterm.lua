@@ -142,28 +142,75 @@ if (-not $workspaceFolders) {
 Write-Host ''
 ]]
 local git_top_helper_cmd = [[__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo; export PROMPT_COMMAND='__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo'; git status --short --branch; exec bash -il]]
-local git_cheat_sheet_cmd = [[
-clear
-printf "\033[35mGit — Commit & Push\033[0m\n\n"
-printf "  \033[33m1.\033[0m  git status --short --branch\n"
-printf "          see what changed and what branch you're on\n\n"
-printf "  \033[33m2.\033[0m  git diff\n"
-printf "          review unstaged changes\n\n"
-printf "  \033[33m3.\033[0m  git add <file>\n"
-printf "          \033[38;5;244mor: git add -A  to stage everything\033[0m\n\n"
-printf "  \033[33m4.\033[0m  git diff --staged\n"
-printf "          confirm what's about to be committed\n\n"
-printf "  \033[33m5.\033[0m  git commit -m \"type: description\"\n"
-printf "          feat  fix  docs  chore  refactor  style\n\n"
-printf "  \033[33m6.\033[0m  git push\n"
-printf "          \033[38;5;244mnew branch: git push -u origin HEAD\033[0m\n\n"
-printf "\033[36mUndo:\033[0m\n"
-printf "  unstage   git restore --staged <file>\n"
-printf "  discard   git restore <file>\n"
-printf "  park      git stash push -m \"note\"\n"
-printf "  unpause   git stash pop\n"
-tput cup 0 0
-sleep infinity
+-- Right pane: workspace clean/dirty (same as coding tab) + cheat sheet; refreshes every 10s.
+local git_right_panel_cmd = [[
+while ($true) {
+  Clear-Host
+  Set-Location "$env:USERPROFILE\workstation"
+  $wsFile = Get-ChildItem -LiteralPath "$env:USERPROFILE\workstation" -Filter "*.code-workspace" -ErrorAction SilentlyContinue | Select-Object -First 1
+  $workspace = if ($wsFile) { Get-Content -LiteralPath $wsFile.FullName -Raw | ConvertFrom-Json } else { $null }
+  $workspaceFolders = if ($workspace) { $workspace.folders | ForEach-Object {
+    [PSCustomObject]@{
+      Name = $_.name
+      FullName = Join-Path "$env:USERPROFILE\workstation" $_.path
+    }
+  } } else { @() }
+
+  Write-Host 'Workspace folders:' -ForegroundColor Cyan
+  if (-not $workspaceFolders) {
+    Write-Host ' No workspace file or folders.' -ForegroundColor Yellow
+  } else {
+    foreach ($folder in $workspaceFolders) {
+      $isRepo = Test-Path (Join-Path $folder.FullName '.git')
+      $branch = if ($isRepo) { git -C $folder.FullName rev-parse --abbrev-ref HEAD 2>$null } else { '-' }
+      if (-not $branch) { $branch = '?' }
+      $dirty = if ($isRepo) { (git -C $folder.FullName status --porcelain 2>$null | Measure-Object).Count } else { 0 }
+      $state = if (-not $isRepo) { 'folder' } elseif ($dirty -gt 0) { 'dirty' } else { 'clean' }
+      $markers = @()
+      if ($isRepo) { $markers += 'git' }
+      if (Test-Path (Join-Path $folder.FullName 'package.json')) { $markers += 'node' }
+      if (Test-Path (Join-Path $folder.FullName 'pnpm-lock.yaml')) { $markers += 'pnpm' }
+      if (Test-Path (Join-Path $folder.FullName 'requirements.txt')) { $markers += 'python' }
+      if (Test-Path (Join-Path $folder.FullName 'pyproject.toml')) { $markers += 'pyproject' }
+      if (-not $markers) { $markers += 'folder' }
+
+      Write-Host (' - ' + $folder.Name) -NoNewline -ForegroundColor White
+      Write-Host (' [' + $branch + '] ') -NoNewline -ForegroundColor DarkGray
+      Write-Host ($state + ' ') -NoNewline -ForegroundColor $(if (-not $isRepo) { 'DarkGray' } elseif ($dirty -gt 0) { 'Yellow' } else { 'Green' })
+      Write-Host ('(' + ($markers -join ', ') + ')') -ForegroundColor DarkCyan
+    }
+  }
+
+  Write-Host ''
+  Write-Host 'Git — Commit & Push' -ForegroundColor Magenta
+  Write-Host ''
+  Write-Host '  1.  git status --short --branch' -ForegroundColor Yellow
+  Write-Host '      see what changed and what branch you are on' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  2.  git diff' -ForegroundColor Yellow
+  Write-Host '      review unstaged changes' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  3.  git add <file>' -ForegroundColor Yellow
+  Write-Host '      or: git add -A  to stage everything' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  4.  git diff --staged' -ForegroundColor Yellow
+  Write-Host '      confirm what is about to be committed' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  5.  git commit -m "type: description"' -ForegroundColor Yellow
+  Write-Host '      feat  fix  docs  chore  refactor  style' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  6.  git push' -ForegroundColor Yellow
+  Write-Host '      new branch: git push -u origin HEAD' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host 'Undo:' -ForegroundColor Cyan
+  Write-Host '  unstage   git restore --staged <file>'
+  Write-Host '  discard   git restore <file>'
+  Write-Host '  park      git stash push -m "note"'
+  Write-Host '  unpause   git stash pop'
+  Write-Host ''
+  Write-Host 'Workspace + cheat refresh every 10s. Ctrl+C to stop.' -ForegroundColor DarkGray
+  Start-Sleep -Seconds 10
+}
 ]]
 local git_live_view_cmd = [[
 state_file="$HOME/.wezterm-git-current-repo"
@@ -349,8 +396,16 @@ wezterm.on('gui-startup', function(cmd)
     args = pwsh_spawn(workstation, coding_helper_cmd).args,
   }
 
+  -- Left column: status (top) + live watch (bottom). Right: workspace clean/dirty + cheat (pwsh, 10s refresh).
+  -- Order matters: split Right first, then Bottom on the left pane only.
   local git_tab, git_pane = window:spawn_tab(git_bash_spawn(dotfiles, git_top_helper_cmd))
   git_tab:set_title 'git'
+  git_pane:split {
+    direction = 'Right',
+    size = 0.37,
+    cwd = dotfiles,
+    args = pwsh_spawn(dotfiles, git_right_panel_cmd).args,
+  }
   local git_live_pane = git_pane:split {
     direction = 'Bottom',
     size = 0.35,
@@ -358,12 +413,6 @@ wezterm.on('gui-startup', function(cmd)
     args = git_bash_spawn(dotfiles).args,
   }
   git_live_pane:send_text(git_live_view_cmd .. '\n')
-  git_pane:split {
-    direction = 'Right',
-    size = 0.37,
-    cwd = dotfiles,
-    args = git_bash_spawn(dotfiles, git_cheat_sheet_cmd).args,
-  }
 
   local wsl_tab, wsl_pane = window:spawn_tab(wsl_spawn(workstation))
   wsl_tab:set_title 'wsl'

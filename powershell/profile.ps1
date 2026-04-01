@@ -302,7 +302,7 @@ if ($script:IsInteractiveTerminal) {
     # Banner lines: truecolor aligned with Neon Dark terminal (cyan / magenta / bold red / sky / orange / mint / gold quote)
     $esc = [char]27
     [Console]::WriteLine("${esc}[38;2;102;249;255m  drives  uptime  sysinfo  users  admins  startup-list  tasks-user  pkillf  reload${esc}[0m")
-    [Console]::WriteLine("${esc}[38;2;233;84;255m  orgmed [--apply] [--dest x|movies|tv|music_videos]  ${esc}[38;2;255;20;200morgmedx${esc}[38;2;233;84;255m  -- organize D:\media\Downloads${esc}[0m")
+    [Console]::WriteLine("${esc}[38;2;233;84;255m  orgmed [--apply] [--dest x|movies|tv|music_videos]  ${esc}[38;2;255;20;200morgmedx${esc}[38;2;233;84;255m  -- organize R:\Media\x\dl${esc}[0m")
     [Console]::WriteLine("${esc}[1m${esc}[38;2;255;28;65m  ytdl <url> [--audio] [--quality 1080|720|480|best]   -- download video/audio${esc}[0m")
     [Console]::WriteLine("${esc}[38;2;100;181;255m  trans <path> [--model large-v3|medium|small] [--language en]  -- transcribe video to .srt + .md${esc}[0m")
     [Console]::WriteLine("${esc}[38;2;255;102;0m  save-dots [message]  — commit & push dotfiles to GitHub${esc}[0m")

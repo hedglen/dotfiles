@@ -97,3 +97,131 @@ This workstation uses the classic Powerlevel10k layout with:
 - command status, timing, and clock on the right
 
 If you change the prompt, update both the live WSL file and the tracked copy here.
+
+---
+
+## Initial Setup
+
+Ubuntu 24.04 LTS installed via `wsl --install -d Ubuntu` from PowerShell. Shell is zsh with Powerlevel10k.
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y git curl wget ffmpeg python3 python3-pip nodejs npm jq htop neofetch
+```
+
+### yt-dlp
+
+```bash
+pip3 install --break-system-packages yt-dlp
+```
+
+Add local bin to PATH (pip installs here):
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### Git identity
+
+```bash
+git config --global user.name "Rob Hedglen"
+git config --global user.email "YOUR_GITHUB_EMAIL"
+```
+
+### SSH key for GitHub
+
+```bash
+ssh-keygen -t ed25519 -C "YOUR_GITHUB_EMAIL"
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy the output, go to [github.com/settings/keys](https://github.com/settings/keys), click **New SSH key**, title it `WSL Ubuntu`, paste the key.
+
+Test:
+
+```bash
+ssh -T git@github.com
+```
+
+---
+
+## Key Paths
+
+| What | Path |
+|------|------|
+| WSL home | `/home/rjh` |
+| Windows home | `/mnt/c/Users/rjh` |
+| Workstation folder | `/mnt/c/Users/rjh/workstation` |
+| Dotfiles | `/mnt/c/Users/rjh/workstation/dotfiles` |
+| Music library | `/mnt/r/Media/Music` |
+| Video download inbox | `/mnt/r/Media/x/dl` (same as Windows `R:\Media\x\dl`) |
+| zsh config | `~/.zshrc` |
+
+---
+
+## Aliases
+
+### dl (yt-dlp wrapper)
+
+Downloads best quality video + audio to the Windows media folder. Uses Chrome cookies for YouTube authentication.
+
+**Note:** Chrome encrypts cookies with Windows DPAPI, so WSL can't read them while Chrome is running. For YouTube downloads, use the PowerShell `dl` function instead. This alias works for non-YouTube sites that don't need cookies.
+
+```bash
+alias dl='yt-dlp -o "/mnt/r/Media/x/dl/%(title)s.%(ext)s"'
+```
+
+---
+
+## PowerShell vs WSL — When to Use Which
+
+| Task | Use |
+|------|-----|
+| YouTube downloads | PowerShell (cookies work) |
+| winget / Windows apps | PowerShell |
+| dotfiles management | PowerShell (source of truth is Windows side) |
+| Claude Code | WSL |
+| Bash scripts from the internet | WSL |
+| Bulk file rename / find / process | WSL |
+| ffmpeg batch jobs | Either (WSL is slightly easier to chain) |
+| SSH into servers | WSL |
+| Git push/pull | Either (both have SSH keys) |
+
+---
+
+## Troubleshooting
+
+### pip not found
+
+```bash
+sudo apt install -y python3-pip
+```
+
+### Command installed but not found
+
+Probably in `~/.local/bin`. Make sure PATH is set:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### zsh glob errors with %
+
+Zsh interprets `%` as glob patterns. Wrap paths with `%(` in proper quotes or escape them.
+
+### Permission denied on Windows files
+
+Close the Windows app that has the file locked, or copy the file to `/tmp/` first.
+
+### Reset WSL completely
+
+From PowerShell:
+
+```powershell
+wsl --unregister Ubuntu
+wsl --install -d Ubuntu
+```
+
+This wipes the Linux side. Windows files are untouched.

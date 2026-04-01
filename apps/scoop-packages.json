@@ -1,0 +1,19 @@
+{
+  "comment": "Scoop packages (main bucket). Install Scoop: irm get.scoop.sh | iex. Not run by install.ps1 — install after Scoop exists.",
+  "packages": [
+    "bat",
+    "delta",
+    "eza",
+    "fastfetch",
+    "fd",
+    "fzf",
+    "gh",
+    "gsudo",
+    "jq",
+    "lazygit",
+    "pandoc",
+    "rclone",
+    "ripgrep",
+    "zoxide"
+  ]
+}

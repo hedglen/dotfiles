@@ -21,7 +21,7 @@ export WORKSTATION="${WORKSTATION:-$WINDOWS_HOME_WSL/workstation}"
 dl() {
   yt-dlp \
     --cookies-from-browser "chrome:${WINDOWS_HOME_WSL}/AppData/Local/Google/Chrome/User Data" \
-    -o "/mnt/d/Media/Downloads/%(title)s.%(ext)s" \
+    -o "/mnt/r/Media/x/dl/%(title)s.%(ext)s" \
     "$@"
 }
 

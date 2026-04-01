@@ -166,7 +166,7 @@
     "editor.tabSize": 4,
     "editor.formatOnSave": true,
   },
-  "python.languageServer": "Pylance",
+  "python.languageServer": "None",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
 
@@ -214,4 +214,6 @@
   "editor.scrollbar.verticalScrollbarSize": 14,
   "cSpell.userWords": ["autohotkey", "hedglen"],
   "git.openRepositoryInParentFolders": "never",
+  "cursorpyright.analysis.autoImportCompletions": true,
+  "cursorpyright.analysis.typeCheckingMode": "basic",
 }

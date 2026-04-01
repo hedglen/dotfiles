@@ -101,7 +101,7 @@ Theme files are stored in:
 
 ## Music Library
 
-Library location: `D:\Media\Music\`
+Library location: `R:\Media\Music\`
 
 The library is monitored and automatically updates when files are added or changed.
 
