@@ -39,7 +39,8 @@ render() {
   fi
 
   printf "\n\033[36mShortcuts:\033[0m\n"
-  printf "  oc  qwen2.5-coder:7b\n"
+  printf "  oc  OpenClaw\n"
+  printf "  qc  qwen2.5-coder:7b\n"
   printf "  og  qwen3:8b\n"
   printf "  ov  gemma3:4b\n"
 
@@ -121,7 +122,7 @@ EOF
   printf "  Left pane starts in model chat\n"
   printf "  >>> means you are talking to a model\n"
   printf "  Ctrl+D or /bye returns to shell\n"
-  printf "  From shell: oc | og | ov\n"
+  printf "  From shell: oc | qc | og | ov\n"
   printf "  Bottom-right pane is always shell\n"
   printf "\n\033[38;5;244mRefreshes every 3s. Press Ctrl+C to open a shell.\033[0m\n"
 }

@@ -33,7 +33,8 @@ codex() {
   cd "$WORKSTATION" && command codex "$@"
 }
 
-alias oc='ollama run qwen2.5-coder:7b'
+alias oc='ollama launch openclaw'
+alias qc='ollama run qwen2.5-coder:7b'
 alias og='ollama run qwen3:8b'
 alias ov='ollama run gemma3:4b'
 

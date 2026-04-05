@@ -442,7 +442,7 @@ wezterm.on('gui-startup', function(cmd)
 
   local ollama_tab, ollama_pane = window:spawn_tab(wsl_spawn(workstation))
   ollama_tab:set_title 'ollama'
-  ollama_pane:send_text('oc\n')
+  ollama_pane:send_text('qc\n')
   local ollama_helper_pane = ollama_pane:split {
     direction = 'Right',
     size = 0.32,

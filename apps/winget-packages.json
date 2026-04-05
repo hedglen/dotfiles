@@ -59,7 +59,6 @@
         { "PackageIdentifier": "calibre.calibre" },
         { "PackageIdentifier": "EDRLab.Thorium" },
         { "PackageIdentifier": "TheDocumentFoundation.LibreOffice" },
-        { "PackageIdentifier": "Flow-Launcher.Flow-Launcher" },
         { "PackageIdentifier": "File-New-Project.EarTrumpet" },
         { "PackageIdentifier": "LocalSend.LocalSend" },
         { "PackageIdentifier": "UB-Mannheim.TesseractOCR" },
