@@ -403,24 +403,40 @@ if (-not $AppsOnly) {
             continue
         }
 
-        # Skip if symlink already points to the right place
-        $existingTarget = (Get-Item $dst -ErrorAction SilentlyContinue).Target
-        if ($existingTarget -eq $src) {
-            Write-Skip "$($c.desc) already linked"
-            continue
+        # Skip if symlink already points to the right place (full paths; Target may be string[])
+        if (Test-Path -LiteralPath $dst -ErrorAction SilentlyContinue) {
+            $linkItem = Get-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue
+            if ($linkItem -and $linkItem.LinkType -eq 'SymbolicLink') {
+                $t = $linkItem.Target
+                if ($t -is [System.Array]) { $t = $t[0] }
+                try {
+                    if ([IO.Path]::GetFullPath($t) -eq [IO.Path]::GetFullPath($src)) {
+                        Write-Skip "$($c.desc) already linked"
+                        continue
+                    }
+                } catch { }
+            }
         }
 
-        # Ensure destination directory exists
-        if (-not (Test-Path $dstDir)) {
-            New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
-        }
+        # Ensure destination directory exists (-Force is idempotent; creates full path)
+        New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
 
-        # Back up existing file
-        if (Test-Path $dst) {
-            $backup = "$dst.backup"
-            Copy-Item $dst $backup -Force
-            Remove-Item $dst -Force
-            Write-Host "   Backed up existing to $backup" -ForegroundColor DarkGray
+        # Wrong symlink: remove (Copy-Item on links often fails). Plain file/dir: back up then remove.
+        $existing = Get-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue
+        if ($existing) {
+            if ($existing.LinkType -eq 'SymbolicLink') {
+                Remove-Item -LiteralPath $dst -Force
+            } elseif ($existing.PSIsContainer) {
+                $backup = "$dst.backup"
+                Copy-Item -LiteralPath $dst -Destination $backup -Recurse -Force
+                Remove-Item -LiteralPath $dst -Recurse -Force
+                Write-Host "   Backed up existing to $backup" -ForegroundColor DarkGray
+            } else {
+                $backup = "$dst.backup"
+                Copy-Item -LiteralPath $dst -Destination $backup -Force
+                Remove-Item -LiteralPath $dst -Force
+                Write-Host "   Backed up existing to $backup" -ForegroundColor DarkGray
+            }
         }
 
         # Try symlink first, fall back to copy
@@ -451,9 +467,10 @@ if (-not $AppsOnly) {
                 if ($DryRun) {
                     Write-Skip "Would install: $ext"
                 } else {
-                    & $codeCmd --install-extension $ext --force 2>&1 | Out-Null
+                    $installOut = & $codeCmd --install-extension $ext --force 2>&1
                     if ($LASTEXITCODE -ne 0) {
                         Write-Warn "Failed to install extension: $ext"
+                        $installOut | ForEach-Object { Write-Warn "  $_" }
                     } else {
                         Write-OK $ext
                     }
@@ -482,9 +499,10 @@ if (-not $AppsOnly) {
                 if ($DryRun) {
                     Write-Skip "Would install: $ext"
                 } else {
-                    & $cursorCmd --install-extension $ext --force 2>&1 | Out-Null
+                    $installOut = & $cursorCmd --install-extension $ext --force 2>&1
                     if ($LASTEXITCODE -ne 0) {
                         Write-Warn "Failed to install extension: $ext"
+                        $installOut | ForEach-Object { Write-Warn "  $_" }
                     } else {
                         Write-OK $ext
                     }

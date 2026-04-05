@@ -105,12 +105,18 @@ foreach ($c in $configs) {
         continue
     }
 
-    # Check if symlink already points to the right place
-    if (Test-Path $dst) {
-        $item = Get-Item $dst -Force
-        if ($item.LinkType -eq 'SymbolicLink' -and $item.Target -eq $src) {
-            Write-Skip "$($c.desc): already linked"
-            continue
+    # Check if symlink already points to the right place (full paths; Target may be string[])
+    if (Test-Path -LiteralPath $dst -ErrorAction SilentlyContinue) {
+        $item = Get-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue
+        if ($item -and $item.LinkType -eq 'SymbolicLink') {
+            $t = $item.Target
+            if ($t -is [System.Array]) { $t = $t[0] }
+            try {
+                if ([IO.Path]::GetFullPath($t) -eq [IO.Path]::GetFullPath($src)) {
+                    Write-Skip "$($c.desc): already linked"
+                    continue
+                }
+            } catch { }
         }
     }
 
@@ -120,15 +126,19 @@ foreach ($c in $configs) {
     }
 
     $dstDir = Split-Path $dst -Parent
-    if (-not (Test-Path $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }
+    New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
 
-    if (Test-Path $dst -ErrorAction SilentlyContinue) {
-        $existing = Get-Item $dst -Force -ErrorAction SilentlyContinue
-        if ($existing -and $existing.LinkType -eq 'SymbolicLink') {
-            Remove-Item $dst -Force
-        } elseif ($existing) {
-            Copy-Item $dst "$dst.backup" -Force
-            Remove-Item $dst -Force
+    $existing = Get-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue
+    if ($existing) {
+        if ($existing.LinkType -eq 'SymbolicLink') {
+            Remove-Item -LiteralPath $dst -Force
+        } elseif ($existing.PSIsContainer) {
+            Copy-Item -LiteralPath $dst -Destination "$dst.backup" -Recurse -Force
+            Remove-Item -LiteralPath $dst -Recurse -Force
+            Write-Host "   Backed up existing to $dst.backup" -ForegroundColor DarkGray
+        } else {
+            Copy-Item -LiteralPath $dst -Destination "$dst.backup" -Force
+            Remove-Item -LiteralPath $dst -Force
             Write-Host "   Backed up existing to $dst.backup" -ForegroundColor DarkGray
         }
     }
