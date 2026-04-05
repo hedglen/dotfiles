@@ -11,6 +11,7 @@
 #     -ConfigsOnly  Only symlink config files
 #     -NoApps    Skip winget import and Scoop installs
 #     -NoScoop   Skip Scoop only (winget import still runs)
+#     -NoPythonProjects  Skip venv setup for projects\media-organizer and projects\ytdl
 #     -DryRun    Preview what would happen without doing anything
 #
 #   Scoop: if missing, get.scoop.sh is run automatically, then packages from apps\scoop-packages.json.
@@ -21,6 +22,7 @@ param(
     [switch]$ConfigsOnly,
     [switch]$NoApps,
     [switch]$NoScoop,
+    [switch]$NoPythonProjects,
     [switch]$DryRun
 )
 
@@ -44,6 +46,63 @@ function Write-Step { param([string]$Msg) Write-Host "`n>> $Msg" -ForegroundColo
 function Write-OK   { param([string]$Msg) Write-Host "   OK  $Msg" -ForegroundColor Green }
 function Write-Skip { param([string]$Msg) Write-Host "   --  $Msg" -ForegroundColor DarkGray }
 function Write-Warn { param([string]$Msg) Write-Host "   !!  $Msg" -ForegroundColor Yellow }
+
+function Install-DotfilesPythonProject {
+    param(
+        [Parameter(Mandatory)]
+        [string] $RelativePath,
+        [Parameter(Mandatory)]
+        [string[]] $PipArgs,
+        [switch] $DryRun
+    )
+    $proj = Join-Path $DotfilesDir $RelativePath
+    if (-not (Test-Path $proj)) {
+        Write-Warn "Project not found — $RelativePath"
+        return
+    }
+    $py = Get-Command py -ErrorAction SilentlyContinue
+    if (-not $py) {
+        Write-Warn "Python launcher (py) not on PATH — skip venv for $RelativePath"
+        return
+    }
+    $venvPy = Join-Path $proj ".venv\Scripts\python.exe"
+    if ($DryRun) {
+        if (Test-Path $venvPy) {
+            Write-Skip "Would pip install in $RelativePath (venv exists)"
+        } else {
+            Write-Skip "Would create .venv and pip install in $RelativePath"
+        }
+        return
+    }
+    Push-Location $proj
+    try {
+        if (-not (Test-Path $venvPy)) {
+            & py -3 -m venv .venv
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warn "python -m venv failed in $RelativePath"
+                return
+            }
+        }
+        $pip = Join-Path $proj ".venv\Scripts\pip.exe"
+        if (-not (Test-Path $pip)) {
+            Write-Warn "pip not found under $RelativePath\.venv"
+            return
+        }
+        $prevEA = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        & $pip install --upgrade pip 2>$null | Out-Null
+        & $pip install @PipArgs
+        $exit = $LASTEXITCODE
+        $ErrorActionPreference = $prevEA
+        if ($exit -eq 0) {
+            Write-OK "Python venv: $RelativePath"
+        } else {
+            Write-Warn "pip install exited $exit for $RelativePath"
+        }
+    } finally {
+        Pop-Location
+    }
+}
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Magenta
@@ -92,14 +151,39 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
         }
     }
 
-    $projectsDir = "$HOME\workstation\projects"
-    if (Test-Path $projectsDir) {
-        Write-Skip "projects dir already present"
+    # Python helpers (media-organizer, ytdl) ship under dotfiles\projects\
+    Write-Step "Projects (dotfiles\projects)"
+    $projectsBundled = Join-Path $DotfilesDir "projects"
+    if (Test-Path $projectsBundled) {
+        Write-OK "projects directory present in dotfiles"
     } elseif ($DryRun) {
-        Write-Skip "Would create: $projectsDir"
+        Write-Skip "Would create: $projectsBundled"
     } else {
-        New-Item -ItemType Directory -Path $projectsDir -Force | Out-Null
-        Write-OK "projects dir created"
+        New-Item -ItemType Directory -Path $projectsBundled -Force | Out-Null
+        Write-Warn "Created empty projects\ — git pull dotfiles for media-organizer / ytdl"
+    }
+
+    $legacyProjects = "$HOME\workstation\projects"
+    if (Test-Path $legacyProjects) {
+        try {
+            $item = Get-Item -LiteralPath $legacyProjects -ErrorAction Stop
+            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                Write-Skip "workstation\projects already present (junction or symlink)"
+            } else {
+                Write-Skip "workstation\projects exists as a normal folder — not replaced (merge into dotfiles\projects if needed)"
+            }
+        } catch {
+            Write-Warn "Could not inspect workstation\projects: $_"
+        }
+    } elseif ($DryRun) {
+        Write-Skip "Would create junction: $legacyProjects → $projectsBundled"
+    } else {
+        try {
+            New-Item -ItemType Junction -Path $legacyProjects -Target $projectsBundled | Out-Null
+            Write-OK "junction workstation\projects → dotfiles\projects"
+        } catch {
+            Write-Warn "Could not create junction at $legacyProjects — $_"
+        }
     }
 
     $toolsDir = "$HOME\workstation\tools"
@@ -110,6 +194,42 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
     } else {
         New-Item -ItemType Directory -Path $toolsDir -Force | Out-Null
         Write-OK "tools dir created"
+    }
+
+    # Utility scripts ship inside this repo (not a separate clone).
+    Write-Step "Utility scripts (dotfiles\scripts)"
+    $scriptsDir = Join-Path $DotfilesDir "scripts"
+    if (Test-Path $scriptsDir) {
+        Write-OK "scripts directory present"
+    } elseif ($DryRun) {
+        Write-Skip "Would create: $scriptsDir"
+    } else {
+        New-Item -ItemType Directory -Path $scriptsDir -Force | Out-Null
+        Write-Warn "Created empty scripts\ — git pull dotfiles for the full script tree"
+    }
+
+    # Legacy path: many docs/tools still say $HOME\workstation\scripts
+    $legacyScripts = "$HOME\workstation\scripts"
+    if (Test-Path $legacyScripts) {
+        try {
+            $item = Get-Item -LiteralPath $legacyScripts -ErrorAction Stop
+            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                Write-Skip "workstation\scripts already present (junction or symlink)"
+            } else {
+                Write-Skip "workstation\scripts exists as a normal folder — not replaced (merge into dotfiles\scripts if needed)"
+            }
+        } catch {
+            Write-Warn "Could not inspect workstation\scripts: $_"
+        }
+    } elseif ($DryRun) {
+        Write-Skip "Would create junction: $legacyScripts → $scriptsDir"
+    } else {
+        try {
+            New-Item -ItemType Junction -Path $legacyScripts -Target $scriptsDir | Out-Null
+            Write-OK "junction workstation\scripts → dotfiles\scripts"
+        } catch {
+            Write-Warn "Could not create junction at $legacyScripts — $_"
+        }
     }
 }
 
@@ -193,6 +313,17 @@ if (-not $ConfigsOnly -and -not $NoApps) {
     }
 }
 
+# Python helpers: run even with -NoApps (ConfigsOnly skips everything substantive)
+if (-not $ConfigsOnly -and -not $NoPythonProjects) {
+    Write-Step "Python venvs (media-organizer, ytdl)"
+    Install-DotfilesPythonProject -RelativePath "projects\media-organizer" -PipArgs @("-r", "requirements.txt") -DryRun:$DryRun
+    Install-DotfilesPythonProject -RelativePath "projects\ytdl" -PipArgs @("rich") -DryRun:$DryRun
+} elseif ($ConfigsOnly) {
+    Write-Skip "Skipping Python project venvs (-ConfigsOnly)"
+} else {
+    Write-Skip "Skipping Python project venvs (-NoPythonProjects)"
+}
+
 # =============================================================================
 #   4. Windows tweaks (optional — requires admin, skipped if not elevated)
 # =============================================================================
@@ -246,9 +377,9 @@ if (-not $AppsOnly) {
             desc = "Cursor settings"
         },
         @{
-            src  = "yt-dlp\config"
+            src  = "projects\ytdl\appdata-config"
             dst  = "$env:APPDATA\yt-dlp\config"
-            desc = "yt-dlp config"
+            desc = "yt-dlp global config (from projects/ytdl)"
         },
         @{
             src  = "wezterm\wezterm.lua"
@@ -415,24 +546,62 @@ if (-not $AppsOnly) {
 }
 
 # =============================================================================
-#   9. mpv config
+#   9. mpv config — junction tools\mpv\portable_config → dotfiles\mpv-config
 # =============================================================================
 if (-not $AppsOnly -and -not $ConfigsOnly) {
     Write-Step "mpv config"
-    $mpvDir = "$HOME\workstation\tools\mpv"
-    if (Test-Path "$mpvDir\portable_config") {
-        Write-Skip "Already installed at $mpvDir\portable_config"
-    } elseif (Test-Path $mpvDir) {
-        if ($DryRun) {
-            Write-Skip "Would clone mpv-config into $mpvDir\portable_config"
-        } else {
-            git clone https://github.com/hedglen/mpv-config.git "$mpvDir\portable_config"
-            Write-OK "mpv config cloned"
-        }
-    } else {
+    $mpvDir          = Join-Path $HOME "workstation\tools\mpv"
+    $mpvConfigSrc    = Join-Path $DotfilesDir "mpv-config"
+    $portableConfig  = Join-Path $mpvDir "portable_config"
+    $mpvConfigSrcFull = [System.IO.Path]::GetFullPath($mpvConfigSrc)
+
+    if (-not (Test-Path -LiteralPath $mpvConfigSrc)) {
+        Write-Warn "mpv config bundle missing: $mpvConfigSrc (expected with dotfiles checkout)"
+    } elseif (-not (Test-Path -LiteralPath $mpvDir)) {
         Write-Warn "mpv not found at $mpvDir"
         Write-Warn "  Download shinchiro build and extract to $mpvDir, then re-run install.ps1"
-        Write-Warn "  Or run: irm https://raw.githubusercontent.com/hedglen/mpv-config/master/install.ps1 | iex"
+        Write-Warn "  Or run: .\mpv-config\install.ps1 from your dotfiles checkout"
+    } else {
+        $alreadyOk = $false
+        if (Test-Path -LiteralPath $portableConfig) {
+            $item = Get-Item -LiteralPath $portableConfig -Force
+            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                $tgt = $item.Target
+                if ($tgt -is [array] -and $tgt.Count -gt 0) { $tgt = $tgt[0] }
+                $got = [System.IO.Path]::GetFullPath($tgt.TrimEnd('\', '/'))
+                if ($got -ieq $mpvConfigSrcFull) {
+                    Write-Skip "mpv portable_config already linked → $mpvConfigSrc"
+                    $alreadyOk = $true
+                }
+            }
+        }
+
+        if (-not $alreadyOk) {
+            if ($DryRun) {
+                if (Test-Path -LiteralPath $portableConfig) {
+                    Write-Skip "Would replace $portableConfig with junction → $mpvConfigSrcFull"
+                } else {
+                    Write-Skip "Would create junction: $portableConfig → $mpvConfigSrcFull"
+                }
+            } else {
+                if (Test-Path -LiteralPath $portableConfig) {
+                    $item = Get-Item -LiteralPath $portableConfig -Force
+                    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                        Remove-Item -LiteralPath $portableConfig -Force
+                    } else {
+                        $bak = "$portableConfig.backup.$(Get-Date -Format 'yyyyMMddHHmmss')"
+                        Move-Item -LiteralPath $portableConfig -Destination $bak
+                        Write-Host "   Backed up existing portable_config to $bak" -ForegroundColor DarkGray
+                    }
+                }
+                try {
+                    New-Item -ItemType Junction -Path $portableConfig -Target $mpvConfigSrcFull -Force | Out-Null
+                    Write-OK "mpv portable_config → dotfiles\mpv-config"
+                } catch {
+                    Write-Warn "Could not create junction at $portableConfig — $_"
+                }
+            }
+        }
     }
 }
 

@@ -2,13 +2,14 @@
 
 Utility scripts for this workstation. The repo holds the small tools that do not belong in a single app repo but still need to be tracked, documented, and runnable from a clean machine.
 
-## Layout
+## Layout (this folder only)
 
-- `autohotkey/` for Windows automation helpers
-- `powershell/` for PowerShell utilities
-- `python/` for cross-platform CLI helpers
-- `workstation-health.ps1` for a quick workstation integrity check
-- media and transcription scripts at repo root for one-off operational tasks
+Everything below lives under **`dotfiles/scripts/`**. For **`autohotkey/`**, **`powershell/`**, **`vscode/`**, **`projects/`**, and the rest of the repo, see the tree in the root **[`README.md`](../README.md#-whats-in-here)**.
+
+- **`python/`** — cross-platform CLI helpers (e.g. `ollama-files.py`)
+- **`workstation-health.ps1`** — layout, tooling, and installer dry-runs
+- **`transcribe.py`** / **`transcribe.ps1`** — transcription helpers
+- **`video-ocr-translate.py`** / **`.ps1`**, **`organize_media*.ps1`**, **`media-rename-downloads.ps1`** — media / one-off operational scripts
 
 ## Workstation Health Check
 
@@ -23,7 +24,7 @@ What it checks:
 - canonical `$HOME\workstation` layout
 - key Windows tools on `PATH`
 - dry-run safety for `dotfiles/install.ps1`
-- dry-run safety for `mpv-config/install.ps1` when present
+- dry-run safety for `dotfiles/mpv-config/install.ps1` when present
 - presence of important linked config files
 - dirty git repos across the main workstation repos
 

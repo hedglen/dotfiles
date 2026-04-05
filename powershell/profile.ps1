@@ -226,20 +226,20 @@ function ask {
 # =============================================================================
 
 function orgmed {
-    $py  = "$HOME\workstation\projects\media-organizer\.venv\Scripts\python.exe"
-    $scr = "$HOME\workstation\projects\media-organizer\organize.py"
+    $py  = "$HOME\workstation\dotfiles\projects\media-organizer\.venv\Scripts\python.exe"
+    $scr = "$HOME\workstation\dotfiles\projects\media-organizer\organize.py"
     & $py $scr @args
 }
 
 function orgmedx {
-    $py  = "$HOME\workstation\projects\media-organizer\.venv\Scripts\python.exe"
-    $scr = "$HOME\workstation\projects\media-organizer\organize.py"
+    $py  = "$HOME\workstation\dotfiles\projects\media-organizer\.venv\Scripts\python.exe"
+    $scr = "$HOME\workstation\dotfiles\projects\media-organizer\organize.py"
     & $py $scr --dest x --apply
 }
 
 function ytdl {
-    $py  = "$HOME\workstation\projects\ytdl\.venv\Scripts\python.exe"
-    $scr = "$HOME\workstation\projects\ytdl\ytdl.py"
+    $py  = "$HOME\workstation\dotfiles\projects\ytdl\.venv\Scripts\python.exe"
+    $scr = "$HOME\workstation\dotfiles\projects\ytdl\ytdl.py"
     & $py $scr @args
 }
 Set-Alias dl ytdl

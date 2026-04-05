@@ -56,14 +56,17 @@ irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 This will:
 
 1. Clone this repo to `$HOME\workstation\dotfiles` (i.e. `%USERPROFILE%\workstation\dotfiles`)
-2. Clone remaining workspace repo (`hedglen-profile`) and create `projects/` directory. Utility scripts live under `scripts/` in this repo. Personal notes live in this repo under `notes/`.
-3. Install apps: `winget import` from **`apps/winget-packages.json`**; then install **Scoop** via **get.scoop.sh** if needed and **`scoop install`** every name in **`apps/scoop-packages.json`** (see **`apps/winget-packages.md`** / **`apps/scoop-packages.md`**)
-4. Apply Windows tweaks (requires admin)
-5. Symlink all configs to their correct locations
-6. Install all VS Code extensions
-7. Install CaskaydiaCove Nerd Font
-8. Clone the mpv config
-9. Register AutoHotkey on startup
+2. Clone **`hedglen-profile`**. Create **`workstation\tools`** if missing. Ensure **`dotfiles\scripts`** and **`dotfiles\projects`** exist; add **junctions** **`workstation\scripts`** → **`dotfiles\scripts`** and **`workstation\projects`** → **`dotfiles\projects`** when those paths are not already taken (legacy-friendly paths). Personal notes: **`notes/`** in this repo.
+3. Install apps: **`winget import`** from **`apps/winget-packages.json`**; then **Scoop** via **get.scoop.sh** (unless **`-NoScoop`**) and **`scoop install`** from **`apps/scoop-packages.json`** (see **`apps/winget-packages.md`** / **`apps/scoop-packages.md`**).
+4. Create Python **`.venv`**s for **`projects\media-organizer`** and **`projects\ytdl`** and install dependencies (needs **`py`** on PATH; skipped by **`-NoPythonProjects`** or **`-ConfigsOnly`**).
+5. Apply Windows tweaks (requires admin)
+6. Symlink all configs to their correct locations
+7. Install all VS Code extensions
+8. Install CaskaydiaCove Nerd Font
+9. Junction `tools\mpv\portable_config` to `dotfiles\mpv-config` for mpv (when the installer configures mpv)
+10. Register AutoHotkey on startup
+
+**Guides and runbook:** start at **[`docs/README.md`](docs/README.md)** (workstation layout, setup, tools, Opus).
 
 ---
 
@@ -94,11 +97,21 @@ dotfiles/
 │   └── settings.json              ← Neon Dark terminal scheme, Nerd Font, keybindings
 ├── windows/
 │   └── tweaks.ps1                 ← privacy, power, explorer tweaks
+├── docs/
+│   ├── README.md                  ← index to workstation guides
+│   ├── workstation-setup.md       ← rebuild / verification runbook
+│   ├── workstation-layout.md      ← canonical folder layout + junctions
+│   ├── workstation-tools.md       ← app map + PowerShell helpers
+│   └── directory-opus.md          ← Directory Opus setup
 ├── scripts/
 │   ├── workstation-health.ps1      ← quick layout + tooling check
 │   ├── transcribe.py / .ps1       ← media helpers (see scripts/README.md)
 │   ├── python/                     ← cross-platform CLI helpers
 │   └── README.md
+├── projects/
+│   ├── media-organizer/           ← orgmed / orgmedx (venv created by install.ps1)
+│   └── ytdl/                      ← ytdl / dl wrapper (venv + rich); appdata-config → %APPDATA%\yt-dlp\config (install.ps1)
+├── mpv-config/                   → bundled mpv Lua/conf; install.ps1 junction → tools\mpv\portable_config
 ├── notes/
 │   ├── README.md                  ← README + personal/tech/work folders
 │   ├── personal/
@@ -129,6 +142,12 @@ dotfiles/
 
 # Skip app installation
 .\install.ps1 -NoApps
+
+# Skip Scoop only (winget import still runs)
+.\install.ps1 -NoScoop
+
+# Skip Python venv setup for media-organizer / ytdl
+.\install.ps1 -NoPythonProjects
 
 # Preview what would happen without doing anything
 .\install.ps1 -DryRun
@@ -454,7 +473,7 @@ Script: `windows/tweaks.ps1` — run during install (admin required).
 
 **Winget** and **Scoop** lists both live under **`apps/`** and are the only source of truth. **`install.ps1`** runs `winget import` on `winget-packages.json`, then installs **Scoop** from **get.scoop.sh** if it is missing, then **`scoop install`** for every name in `scoop-packages.json`. Use **`-NoScoop`** to skip Scoop entirely while still running winget. **`maintenance/update.ps1`** upgrades winget IDs from the JSON and runs **`scoop update *`**. Notes: **`apps/winget-packages.md`**, **`apps/scoop-packages.md`**.
 
-For **how to use** installed apps and profile helpers (not just the install list), see the companion doc **`docs/guides/workstation-tools.md`** in your [docs](https://github.com/hedglen/docs) clone (`%USERPROFILE%\workstation\docs\guides\workstation-tools.md` on disk).
+For **how to use** installed apps and profile helpers (not just the install list), see **[`docs/workstation-tools.md`](docs/workstation-tools.md)** in this repo ([on GitHub](https://github.com/hedglen/dotfiles/blob/master/docs/workstation-tools.md)).
 
 | Category | Apps (from `apps/winget-packages.json`) |
 | --- | --- |
@@ -581,7 +600,7 @@ oh-my-posh init pwsh --config "$HOME\workstation\dotfiles\oh-my-posh\hedglab.omp
 
 ## 🎨 Terminal Theme — Neon Dark
 
-CaskaydiaCove Nerd Font is installed automatically by `install.ps1` (step 7). No manual download needed.
+CaskaydiaCove Nerd Font is installed automatically by `install.ps1` (step 8). No manual download needed.
 
 The **Neon Dark** scheme (matched to Sudhan’s VS Code [Neon Dark Theme](https://marketplace.visualstudio.com/items?itemName=Sudhan.neondark-theme)) is defined in `windows-terminal/settings.json` and mirrored in `vscode/settings.json` (`terminal.integrated.*` + `workbench.colorCustomizations`) so Windows Terminal and the VS Code integrated terminal stay consistent. **Neon Blaze** remains in `settings.json` if you want the old green-accent look.
 
@@ -589,6 +608,7 @@ The **Neon Dark** scheme (matched to Sudhan’s VS Code [Neon Dark Theme](https:
 
 ## 🖥️ Related
 
-- **[Workstation tools guide](https://github.com/hedglen/docs/blob/main/guides/workstation-tools.md)** — practical map of winget/Scoop apps, PowerShell helpers (`ytdl`, `orgmed`, `trans`, …), and links to upstream docs
+- **[Documentation index](docs/README.md)** — links to runbook, layout, tools guide, Opus notes
+- **[Workstation tools guide](docs/workstation-tools.md)** — practical map of winget/Scoop apps, PowerShell helpers (`ytdl`, `orgmed`, `trans`, …), and links to upstream docs ([GitHub](https://github.com/hedglen/dotfiles/blob/master/docs/workstation-tools.md))
 - **`apps/winget-packages.md`** / **`apps/scoop-packages.md`** — short description + example use for each package ID / Scoop name
-- **[mpv-config](https://github.com/hedglen/mpv-config)** — full mpv media player setup with HDR auto-switching, FSRCNNX/Anime4K shaders, ultrawide optimization, Corsair Scimitar button mapping, chapter editor, clip export, GIF creation, favorites, audio normalize, and more
+- **[mpv-config in dotfiles](https://github.com/hedglen/dotfiles/tree/master/mpv-config)** - bundled mpv setup (HDR auto-switching, FSRCNNX/Anime4K shaders, ultrawide optimization, Corsair Scimitar mapping, chapter editor, clip export, GIF creation, favorites, audio normalize, and more); formerly a standalone repo, now **`mpv-config/`** under dotfiles

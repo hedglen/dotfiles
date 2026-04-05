@@ -85,9 +85,9 @@ $configs = @(
         desc = "Cursor settings"
     },
     @{
-        src  = "yt-dlp\config"
+        src  = "projects\ytdl\appdata-config"
         dst  = "$env:APPDATA\yt-dlp\config"
-        desc = "yt-dlp config"
+        desc = "yt-dlp global config (from projects/ytdl)"
     },
     @{
         src  = "wezterm\wezterm.lua"

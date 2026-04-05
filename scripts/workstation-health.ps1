@@ -37,9 +37,7 @@ $expectedDirs = @(
     "dotfiles",
     "tools",
     "projects",
-    "docs",
-    "hedglen-profile",
-    "mpv-config",
+    "hedglen-profile"
 )
 
 foreach ($d in $expectedDirs) {
@@ -65,6 +63,58 @@ if (Test-Path $dotfilesNotes) {
     Warn "dotfiles/notes missing (optional or not yet created)"
 }
 
+$dotfilesDirForLayout = Join-Path $root "dotfiles"
+$mo = Join-Path $dotfilesDirForLayout "projects\media-organizer"
+$yt = Join-Path $dotfilesDirForLayout "projects\ytdl"
+if (Test-Path $mo) {
+    OK "dotfiles/projects/media-organizer present"
+    $moPy = Join-Path $mo ".venv\Scripts\python.exe"
+    if (Test-Path $moPy) { OK "media-organizer .venv present" } else { Warn "media-organizer .venv missing (run install.ps1 without -NoPythonProjects)" }
+} else {
+    Warn "dotfiles/projects/media-organizer missing"
+}
+if (Test-Path $yt) {
+    OK "dotfiles/projects/ytdl present"
+    $ytPy = Join-Path $yt ".venv\Scripts\python.exe"
+    if (Test-Path $ytPy) { OK "ytdl .venv present" } else { Warn "ytdl .venv missing (run install.ps1 without -NoPythonProjects)" }
+} else {
+    Warn "dotfiles/projects/ytdl missing"
+}
+
+$mpvBundled = Join-Path $dotfilesDirForLayout "mpv-config"
+if (Test-Path $mpvBundled) {
+    OK "dotfiles/mpv-config present"
+} else {
+    Warn "dotfiles/mpv-config missing"
+}
+
+$mpvTools     = Join-Path $root "tools\mpv"
+$portableCfg  = Join-Path $mpvTools "portable_config"
+$mpvCfgFull   = [System.IO.Path]::GetFullPath($mpvBundled)
+if (Test-Path $mpvTools) {
+    if (Test-Path $portableCfg) {
+        try {
+            $pc = Get-Item -LiteralPath $portableCfg -Force -ErrorAction Stop
+            if ($pc.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                $pt = $pc.Target
+                if ($pt -is [array] -and $pt.Count -gt 0) { $pt = $pt[0] }
+                $got = [System.IO.Path]::GetFullPath($pt.TrimEnd('\', '/'))
+                if ($got -ieq $mpvCfgFull) {
+                    OK "tools\mpv\portable_config → dotfiles\mpv-config"
+                } else {
+                    Warn "tools\mpv\portable_config junction target is '$got' (expected $mpvCfgFull)"
+                }
+            } else {
+                Warn "tools\mpv\portable_config exists but is not a junction (expected → dotfiles\mpv-config)"
+            }
+        } catch {
+            Warn "Could not inspect tools\mpv\portable_config: $_"
+        }
+    } else {
+        Warn "tools\mpv\portable_config missing (run dotfiles\install.ps1 after mpv is in tools\mpv)"
+    }
+}
+
 Step "Checking compatibility junctions"
 
 $compatTools = Join-Path $env:USERPROFILE "tools"
@@ -86,6 +136,46 @@ if (Test-Path $compatTools) {
     }
 } else {
     Warn "%USERPROFILE%\tools not present (compat junction optional)"
+}
+
+# workstation\scripts / workstation\projects → dotfiles (when install.ps1 created junctions)
+$dfsRoot = Join-Path $root "dotfiles"
+foreach ($jx in @(
+        @{ Leg = "scripts";  Sub = "scripts";  Label = "workstation\scripts → dotfiles\scripts" },
+        @{ Leg = "projects"; Sub = "projects"; Label = "workstation\projects → dotfiles\projects" }
+    )) {
+    $legPath = Join-Path $root $jx.Leg
+    $wantTgtPath = Join-Path $dfsRoot $jx.Sub
+    if (-not (Test-Path $legPath)) {
+        Warn "$($jx.Label): path missing (optional; install.ps1 creates junction if path is free)"
+        continue
+    }
+    try {
+        $li = Get-Item -LiteralPath $legPath -Force -ErrorAction Stop
+        if (-not ($li.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            Warn "workstation\$($jx.Leg) exists but is not a junction (expected → dotfiles\$($jx.Sub))"
+            continue
+        }
+        $tgt = $li.Target
+        if ($null -eq $tgt) {
+            Warn "workstation\$($jx.Leg): could not read junction target"
+            continue
+        }
+        if ($tgt -is [array]) { $tgt = $tgt[0] }
+        $normTgt = [System.IO.Path]::GetFullPath($tgt.TrimEnd('\', '/'))
+        if (Test-Path $wantTgtPath) {
+            $normWant = [System.IO.Path]::GetFullPath($wantTgtPath.TrimEnd('\', '/'))
+            if ($normTgt -ieq $normWant) {
+                OK $jx.Label
+            } else {
+                Warn "workstation\$($jx.Leg) junction target is '$tgt' (expected '$wantTgtPath')"
+            }
+        } else {
+            OK "workstation\$($jx.Leg) is a junction → $tgt"
+        }
+    } catch {
+        Warn "Could not inspect workstation\$($jx.Leg): $_"
+    }
 }
 
 Step "Checking core tools on PATH"
@@ -126,9 +216,9 @@ if (Test-Path $dotfilesScript) {
     $errors += "DotfilesMissing"
 }
 
-Step "Dry-run: mpv-config/install.ps1"
+Step "Dry-run: dotfiles/mpv-config/install.ps1"
 
-$mpvConfigDir = Join-Path $root "mpv-config"
+$mpvConfigDir = Join-Path $root "dotfiles\mpv-config"
 $mpvConfigScript = Join-Path $mpvConfigDir "install.ps1"
 $mpvInstallDir = "$env:USERPROFILE\workstation\tools\mpv"
 
@@ -140,15 +230,15 @@ if (Test-Path $mpvConfigScript) {
         } else {
             .\install.ps1 -DryRun -InstallDir $mpvInstallDir | Out-Null
         }
-        OK "mpv-config/install.ps1 -DryRun completed"
+        OK "dotfiles/mpv-config/install.ps1 -DryRun completed"
     } catch {
-        Warn "mpv-config/install.ps1 -DryRun failed: $_"
+        Warn "dotfiles/mpv-config/install.ps1 -DryRun failed: $_"
         $errors += "MpvDryRunFailed"
     } finally {
         Pop-Location
     }
 } else {
-    Warn "mpv-config/install.ps1 not found at $mpvConfigScript (mpv stack not yet installed)"
+    Warn "dotfiles/mpv-config/install.ps1 not found at $mpvConfigScript"
 }
 
 Step "Spot-check key configs"
@@ -193,11 +283,7 @@ Step "Checking git repo health"
 
 $gitRepos = @(
     "dotfiles",
-    "docs",
-    "hedglen-profile",
-    "mpv-config",
-    "projects\media-organizer",
-    "projects\ytdl"
+    "hedglen-profile"
 )
 
 foreach ($r in $gitRepos) {

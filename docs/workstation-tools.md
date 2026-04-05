@@ -11,7 +11,7 @@ Practical map of software on this machine: what it is for, how you invoke it, an
 
 ## PowerShell helpers (profile)
 
-Defined in `dotfiles/powershell/profile.ps1`. Some depend on local projects under `$HOME\workstation\projects` or `dotfiles/scripts`.
+Defined in `dotfiles/powershell/profile.ps1`. Some depend on **`dotfiles/projects/`** (or **`workstation\projects`** when it is a junction) and **`dotfiles/scripts/`**.
 
 
 | Command                               | Purpose                                                                                                                                              |
@@ -30,8 +30,8 @@ Defined in `dotfiles/powershell/profile.ps1`. Some depend on local projects unde
 | `save-dots [msg]`                     | Commit and push `dotfiles`                                                                                                                           |
 | `sync-dots`                           | Pull dotfiles and relink (`update.ps1 -SkipApps`)                                                                                                    |
 | `ask "…"`                             | Plain-English helper (`dotfiles/powershell/ask.py`, needs `python`)                                                                                  |
-| `orgmed` / `orgmedx`                  | Media organizer (`projects/media-organizer`) — inbox `R:\Media\x\dl` (same as `ytdl`); library roots `R:\Media\Movies`, `TV Shows`, `Music Videos`, `x` (`config.toml`); `orgmedx` is `--dest x --apply`. See `organize.py --help` |
-| `ytdl` / `dl`                         | yt-dlp wrapper (`projects/ytdl/ytdl.py`); `dl` is an alias. `--audio`, `--quality 1080|720|480|best`, `--playlist`                                   |
+| `orgmed` / `orgmedx`                  | Media organizer (`dotfiles/projects/media-organizer`; venv from `install.ps1`) — inbox `R:\Media\x\dl` (same as `ytdl`); library roots `R:\Media\Movies`, `TV Shows`, `Music Videos`, `x` (`config.toml`); `orgmedx` is `--dest x --apply`. See `organize.py --help` |
+| `ytdl` / `dl`                         | yt-dlp wrapper (`dotfiles/projects/ytdl/ytdl.py`); `dl` is an alias. `--audio`, `--quality 1080|720|480|best`, `--playlist` (`workstation\projects\ytdl` works if junction exists)                                   |
 | `dll`                                 | `yt-dlp --list-extractors`                                                                                                                           |
 | `trans`                               | Transcribe video → `.srt` + `.md` (`dotfiles/scripts/transcribe.py`, venv in `tools/transcribe-env`)                                                          |
 | `vtrans` / `fixsub`                   | Video OCR / translate path (`dotfiles/scripts/video-ocr-translate.py`)                                                                                        |
@@ -91,9 +91,9 @@ Install everything from the JSON (keeps the list in sync): see **`dotfiles/apps/
 
 | Tool                             | Role                                     | Notes                                                                               |
 | -------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------- |
-| **mpv** (portable / config repo; **winget** `shinchiro.mpv` optional) | Primary player                           | [mpv-config](https://github.com/hedglen/mpv-config) — HDR, shaders, scripts         |
+| **mpv** (binary under `tools\mpv\`; config in **`dotfiles\mpv-config`**; **winget** `shinchiro.mpv` optional) | Primary player | [dotfiles/mpv-config](https://github.com/hedglen/dotfiles/tree/master/mpv-config) - HDR, shaders, scripts; legacy [hedglen/mpv-config](https://github.com/hedglen/mpv-config) may be archived |
 | **PotPlayer** (winget)           | Alternate player                         | Broad codecs / UI                                                                 |
-| **yt-dlp** + **FFmpeg** (winget) | Download and remux                       | Also used by `ytdl` / `dl` wrapper; global config may live under `%APPDATA%\yt-dlp` |
+| **yt-dlp** + **FFmpeg** (winget) | Download and remux                       | Also used by `ytdl` / `dl` wrapper; global CLI config is **`dotfiles/projects/ytdl/appdata-config`** → `%APPDATA%\yt-dlp\config` via **`install.ps1`** |
 | **foobar2000** (winget)          | Music library                            | `PeterPawlowski.foobar2000` in `winget-packages.json`                               |
 | **Qobuz**                        | Streaming client                         | Login in app                                                                        |
 | **ShareX**                       | Screenshots, screen recording, workflows | Hotkeys in ShareX settings                                                          |
@@ -216,4 +216,4 @@ See dotfiles README **Manual Installs** (e.g. Macrium Reflect, Battle.net). **JD
 - [winget-packages.md](https://github.com/hedglen/dotfiles/blob/master/apps/winget-packages.md) / [scoop-packages.md](https://github.com/hedglen/dotfiles/blob/master/apps/scoop-packages.md) — manifest blurbs
 - [**workstation-setup.md**](./workstation-setup.md) — rebuild / verification runbook
 - [**workstation-layout.md**](./workstation-layout.md) — folder tree
-- [mpv-config](https://github.com/hedglen/mpv-config) — player configuration
+- [dotfiles/mpv-config](https://github.com/hedglen/dotfiles/tree/master/mpv-config) - bundled mpv configuration (legacy [hedglen/mpv-config](https://github.com/hedglen/mpv-config) may be archived)

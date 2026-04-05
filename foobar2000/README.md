@@ -4,7 +4,8 @@ Visually stunning foobar2000 setup with deep colors, vibrant visualizations, and
 
 ## Current Installation
 
-**Portable installation:** `C:\Users\rjh\workstation\tools\foobar2000`
+**Portable installation (this machine):** `C:\Users\rjh\workstation\tools\foobar2000`  
+**Canonical path:** `$HOME\workstation\tools\foobar2000` (substitute your profile).
 
 Using Georgia-Reborn theme with enhanced components. See [PORTABLE-SETUP.md](PORTABLE-SETUP.md) for detailed configuration.
 

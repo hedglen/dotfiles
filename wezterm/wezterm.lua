@@ -8,8 +8,8 @@ local mux = wezterm.mux
 
 local home = wezterm.home_dir
 local workstation = home .. '\\workstation'
-local projects = workstation .. '\\projects'
 local dotfiles = workstation .. '\\dotfiles'
+local projects = dotfiles .. '\\projects'
 local git_bash = 'C:\\Program Files\\Git\\bin\\bash.exe'
 local wsl_distro = 'Ubuntu'
 local system_helper_cmd = [[
@@ -148,7 +148,7 @@ Clear-Host
   _cliRow 'dots / tools / home' 'cd shortcuts (see profile.ps1)'
   Write-Host ''
 
-  Write-Host 'Docs: docs/guides/workstation-tools.md (full tool map)' -ForegroundColor DarkCyan
+  Write-Host 'Docs: dotfiles/docs/workstation-tools.md (full tool map)' -ForegroundColor DarkCyan
   Write-Host ''
 }
 ]]
@@ -260,7 +260,7 @@ local wsl_helper_cmd = [[
 cd "$HOME" || exit 1
 clear
 _win_ws=$(wslpath "$(powershell.exe -NoProfile -Command '$env:USERPROFILE' 2>/dev/null | tr -d '\r')")/workstation
-_win_projects="${_win_ws}/projects"
+_win_projects="${_win_ws}/dotfiles/projects"
 _win_dotfiles="${_win_ws}/dotfiles"
 _win_scripts="${_win_ws}/dotfiles/scripts"
  printf "\033[35mWSL Helper\033[0m\n\n"

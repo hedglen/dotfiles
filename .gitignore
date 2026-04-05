@@ -16,3 +16,11 @@ $RECYCLE.BIN/
 # Editor
 .vscode/
 *.swp
+
+# Bundled Python projects (local venv + secrets + cache — never commit)
+projects/**/.venv/
+projects/**/__pycache__/
+projects/**/*.pyc
+projects/**/cookies.txt
+
+# mpv-config — see mpv-config/.gitignore for shader cache, watch_later, etc.

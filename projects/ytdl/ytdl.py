@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""ytdl — yt-dlp wrapper. Downloads to R:/Media/x/dl (see config.toml)."""
+
+import subprocess
+import sys
+import tomllib
+from pathlib import Path
+
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+CONFIG_PATH = SCRIPT_DIR / "config.toml"
+IMPLICIT_COOKIES = SCRIPT_DIR / "cookies.txt"
+
+
+def load_config() -> dict:
+    with open(CONFIG_PATH, "rb") as f:
+        return tomllib.load(f)
+
+
+def resolve_cookie_file_path(raw: str) -> Path:
+    p = Path(raw.strip()).expanduser()
+    if not p.is_absolute():
+        p = SCRIPT_DIR / p
+    return p
+
+
+def build_args(url: str, cfg: dict, quality: str | None, audio_only: bool) -> tuple[list[str], bool]:
+    out_dir = cfg["paths"]["download_dir"]
+    fmt = cfg["defaults"]["format"]
+    q = quality or cfg["defaults"]["quality"]
+
+    ccfg = cfg.get("cookies") or {}
+    cookie_file_raw = (ccfg.get("file") or "").strip()
+    cookie_spec = (ccfg.get("from_browser") or "chrome:Default").strip()
+    args = ["yt-dlp", "--no-mtime", "--no-playlist", "-o", f"{out_dir}/%(title)s.%(ext)s"]
+    used_browser_cookies = False
+
+    cookie_path: Path | None = None
+    if cookie_file_raw:
+        cand = resolve_cookie_file_path(cookie_file_raw)
+        if cand.is_file():
+            cookie_path = cand
+    elif IMPLICIT_COOKIES.is_file():
+        cookie_path = IMPLICIT_COOKIES
+
+    if cookie_path is not None:
+        args[3:3] = ["--cookies", str(cookie_path)]
+    elif cookie_spec:
+        args[3:3] = ["--cookies-from-browser", cookie_spec]
+        used_browser_cookies = True
+
+    if not audio_only:
+        args.insert(1, "--no-config")
+
+    if audio_only:
+        args += ["-x", "--audio-format", "mp3"]
+        if cfg["defaults"]["embed_thumbnail"]:
+            args += ["--embed-thumbnail"]
+    else:
+        if q == "best":
+            args += ["-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"]
+        elif q in ("1080", "720", "480"):
+            args += ["-f", f"bestvideo[height<={q}][ext=mp4]+bestaudio[ext=m4a]/best[height<={q}]"]
+        else:
+            args += ["-f", "best"]
+
+        args += ["--merge-output-format", fmt]
+
+        if cfg["defaults"]["subtitles"]:
+            args += ["--write-subs", "--embed-subs"]
+
+    args.append(url)
+    return args, used_browser_cookies
+
+
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
+        console.print(Panel(
+            "[bold]ytdl[/bold] [cyan]<url>[/cyan] [dim][[--audio] [--quality 1080|720|480|best] [--playlist]][/dim]\n\n"
+            "  [cyan]--audio[/cyan]       Download audio only (mp3)\n"
+            "  [cyan]--quality[/cyan]     Video quality: best (default), 1080, 720, 480\n"
+            "  [cyan]--playlist[/cyan]    Download full playlist (single video by default)\n\n"
+            "Downloads go to [yellow]R:/Media/x/dl[/yellow]",
+            title="yt-dlp wrapper",
+            border_style="blue"
+        ))
+        sys.exit(0)
+
+    args = sys.argv[1:]
+    audio_only = "--audio" in args
+    playlist = "--playlist" in args
+    args = [a for a in args if a != "--playlist"]
+    quality = None
+
+    if "--quality" in args:
+        idx = args.index("--quality")
+        quality = args[idx + 1]
+        args = [a for i, a in enumerate(args) if i not in (idx, idx + 1)]
+
+    url = next((a for a in args if a.startswith("http")), None)
+    if not url:
+        console.print("[red]Error:[/red] No URL provided.")
+        sys.exit(1)
+
+    cfg = load_config()
+    cmd, used_browser_cookies = build_args(url, cfg, quality, audio_only)
+    if playlist:
+        cmd = [c for c in cmd if c != "--no-playlist"]
+
+    mode = "audio (mp3)" if audio_only else f"video ({quality or cfg['defaults']['quality']})"
+    console.print(f"[bold blue]↓[/bold blue] Downloading [cyan]{mode}[/cyan]")
+    console.print(f"[dim]{url}[/dim]\n")
+
+    result = subprocess.run(cmd)
+    if result.returncode == 0:
+        console.print(f"\n[bold green]✓[/bold green] Saved to [yellow]{cfg['paths']['download_dir']}[/yellow]")
+    else:
+        console.print("\n[bold red]✗[/bold red] Download failed.")
+        if used_browser_cookies:
+            console.print(
+                "[yellow]Chrome’s cookie database is still locked after unlock was attempted.[/yellow] "
+                "ChromeCookieUnlock often cannot force-release current Chrome builds.\n\n"
+                "[bold]What works:[/bold]\n"
+                f"  [cyan]1[/cyan]  Export Netscape [bold]cookies.txt[/bold] (e.g. “Get cookies.txt LOCALLY” extension), "
+                f"save as [green]{IMPLICIT_COOKIES}[/green] — [dim]ytdl uses it automatically if present[/dim].\n"
+                "  [cyan]2[/cyan]  Or end [bold]every[/bold] [dim]chrome.exe[/dim] in Task Manager (incl. background), then run [bold]dl[/bold] again.\n"
+                "  [cyan]3[/cyan]  Or try [dim][cookies].from_browser = \"edge:Default\"[/dim] if you use Edge for that site.\n\n"
+                "[dim]https://github.com/yt-dlp/yt-dlp/issues/7271[/dim]"
+            )
+        sys.exit(result.returncode)
+
+
+if __name__ == "__main__":
+    main()
