@@ -8,6 +8,7 @@ Long-form workstation guides live in **this `docs/` folder** (same repo as `inst
 | [**workstation-layout.md**](workstation-layout.md) | Canonical folder layout under `%USERPROFILE%\workstation` (including junctions) |
 | [**workstation-tools.md**](workstation-tools.md) | What each installed tool is for; PowerShell helpers; links to app manifests |
 | [**directory-opus.md**](directory-opus.md) | Directory Opus layout, prefs, and shortcuts |
+| [**ollama-guide.md**](ollama-guide.md) | Local Ollama on WSL, WezTerm tab, models, `ollama-files.py` |
 
 **Bundled Python helpers** (venvs from `install.ps1`): **`../projects/media-organizer`**, **`../projects/ytdl`**.
 
