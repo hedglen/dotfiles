@@ -3,17 +3,20 @@
   "packages": [
     "bat",
     "delta",
+    "dust",
     "eza",
     "fastfetch",
     "fd",
     "fzf",
     "gh",
+    "glow",
     "gsudo",
     "jq",
     "lazygit",
     "pandoc",
     "rclone",
     "ripgrep",
+    "yq",
     "zoxide"
   ]
 }

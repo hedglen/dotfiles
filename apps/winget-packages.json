@@ -20,6 +20,8 @@
         { "PackageIdentifier": "Microsoft.DotNet.DesktopRuntime.9" },
         { "PackageIdentifier": "Microsoft.DotNet.DesktopRuntime.10" },
         { "PackageIdentifier": "Microsoft.DotNet.Runtime.6" },
+        { "PackageIdentifier": "Microsoft.DotNet.Runtime.8" },
+        { "PackageIdentifier": "Microsoft.DotNet.Runtime.9" },
         { "PackageIdentifier": "Microsoft.VCRedist.2015+.x86" },
         { "PackageIdentifier": "Microsoft.VCRedist.2015+.x64" },
         { "PackageIdentifier": "Microsoft.VCLibs.14" },
@@ -29,9 +31,11 @@
         { "PackageIdentifier": "Microsoft.WindowsAppRuntime.1.8" },
 
         { "PackageIdentifier": "Google.Chrome.EXE" },
+        { "PackageIdentifier": "Mozilla.Firefox" },
+        { "PackageIdentifier": "Vivaldi.Vivaldi" },
 
         { "PackageIdentifier": "Daum.PotPlayer" },
-        { "PackageIdentifier": "MPC-BE.MPC-BE" },
+        { "PackageIdentifier": "shinchiro.mpv" },
         { "PackageIdentifier": "ShareX.ShareX" },
         { "PackageIdentifier": "BandicamCompany.Bandicut" },
         { "PackageIdentifier": "yt-dlp.FFmpeg" },
@@ -94,7 +98,6 @@
         { "PackageIdentifier": "Anthropic.Claude" },
 
         { "PackageIdentifier": "Adobe.CreativeCloud" },
-        { "PackageIdentifier": "Adobe.Acrobat.Reader.64-bit" },
         { "PackageIdentifier": "ParadoxInteractive.ParadoxLauncher" },
         { "PackageIdentifier": "Valve.Steam" }
       ],
