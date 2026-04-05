@@ -4,7 +4,7 @@
 #
 #   Usage:
 #     .\maintenance\update.ps1           # full update
-#     .\maintenance\update.ps1 -SkipApps # pull + relink + extensions, no winget upgrade
+#     .\maintenance\update.ps1 -SkipApps # pull + relink + extensions, no winget/scoop upgrades
 #     .\maintenance\update.ps1 -SkipDots # upgrade apps only, skip git pull
 #     .\maintenance\update.ps1 -DryRun   # preview without making changes
 #
@@ -246,6 +246,24 @@ if (-not $SkipApps) {
                     Write-OK "$id"
                 }
             }
+        }
+    }
+
+    Write-Step "Updating Scoop apps (if Scoop is available)"
+
+    $scoopFile = Join-Path $DotfilesDir "apps\scoop-packages.json"
+    if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
+        Write-Warn "Scoop not on PATH — skipping"
+    } elseif (-not (Test-Path $scoopFile)) {
+        Write-Warn "apps\scoop-packages.json not found — skipping Scoop"
+    } elseif ($DryRun) {
+        Write-Skip "Would run: scoop update *"
+    } else {
+        cmd /c "scoop update *"
+        if ($LASTEXITCODE -eq 0) {
+            Write-OK "scoop update *"
+        } else {
+            Write-Warn "scoop update exited $LASTEXITCODE"
         }
     }
 }

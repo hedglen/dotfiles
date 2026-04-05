@@ -262,7 +262,7 @@ clear
 _win_ws=$(wslpath "$(powershell.exe -NoProfile -Command '$env:USERPROFILE' 2>/dev/null | tr -d '\r')")/workstation
 _win_projects="${_win_ws}/projects"
 _win_dotfiles="${_win_ws}/dotfiles"
-_win_scripts="${_win_ws}/scripts"
+_win_scripts="${_win_ws}/dotfiles/scripts"
  printf "\033[35mWSL Helper\033[0m\n\n"
  printf "\033[36mDistro:\033[0m  %s\n" "${WSL_DISTRO_NAME:-Ubuntu}"
  printf "\033[36mKernel:\033[0m  %s\n" "$(uname -r)"
@@ -567,7 +567,7 @@ config.launch_menu = {
   {
     label = 'pwsh — scripts',
     args = { 'pwsh.exe', '-NoLogo' },
-    cwd = workstation .. '\\scripts',
+    cwd = dotfiles .. '\\scripts',
   },
   {
     label = 'wsl — ubuntu zsh',

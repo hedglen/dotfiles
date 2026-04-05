@@ -9,14 +9,18 @@
 #   Flags:
 #     -AppsOnly     Only install winget apps
 #     -ConfigsOnly  Only symlink config files
-#     -NoApps       Skip app installation
-#     -DryRun       Preview what would happen without doing anything
+#     -NoApps    Skip winget import and Scoop installs
+#     -NoScoop   Skip Scoop only (winget import still runs)
+#     -DryRun    Preview what would happen without doing anything
+#
+#   Scoop: if missing, get.scoop.sh is run automatically, then packages from apps\scoop-packages.json.
 # =============================================================================
 
 param(
     [switch]$AppsOnly,
     [switch]$ConfigsOnly,
     [switch]$NoApps,
+    [switch]$NoScoop,
     [switch]$DryRun
 )
 
@@ -69,10 +73,7 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
     Write-Step "Cloning workspace repos"
 
     $workspaceRepos = @(
-        @{ url = "https://github.com/hedglen/scripts.git";  dst = "$HOME\workstation\scripts"         },
-        @{ url = "https://github.com/hedglen/docs.git";     dst = "$HOME\workstation\docs"            },
-        @{ url = "https://github.com/hedglen/hedglen.git";  dst = "$HOME\workstation\hedglen-profile" },
-        @{ url = "https://github.com/hedglen/notes.git";    dst = "$HOME\workstation\notes"           }
+        @{ url = "https://github.com/hedglen/hedglen.git";  dst = "$HOME\workstation\hedglen-profile" }
     )
 
     foreach ($r in $workspaceRepos) {
@@ -113,7 +114,7 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
 }
 
 # =============================================================================
-#   3. Install apps via winget
+#   3. Install apps (single source: this repo only — no %USERPROFILE%\Documents copies)
 # =============================================================================
 if (-not $ConfigsOnly -and -not $NoApps) {
     Write-Step "Installing apps from winget"
@@ -125,13 +126,70 @@ if (-not $ConfigsOnly -and -not $NoApps) {
         } else {
             try {
                 winget import -i $pkgFile --accept-package-agreements --accept-source-agreements --ignore-versions
-                Write-OK "Apps installed"
+                Write-OK "winget import finished"
             } catch {
                 Write-Warn "winget import finished with errors (some packages may have failed) — $_"
             }
         }
     } else {
         Write-Warn "apps\winget-packages.json not found — skipping"
+    }
+
+    Write-Step "Installing Scoop CLI packages"
+
+    $scoopFile = Join-Path $DotfilesDir "apps\scoop-packages.json"
+    if ($NoScoop) {
+        Write-Skip "Skipping Scoop (-NoScoop)"
+    } elseif (-not (Test-Path $scoopFile)) {
+        Write-Warn "apps\scoop-packages.json not found — skipping Scoop"
+    } else {
+        $haveScoop = [bool](Get-Command scoop -ErrorAction SilentlyContinue)
+        if (-not $haveScoop) {
+            if ($DryRun) {
+                Write-Skip "Would install Scoop (get.scoop.sh) then scoop install …"
+            } else {
+                Write-Step "Bootstrapping Scoop (not on PATH)"
+                try {
+                    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force -ErrorAction SilentlyContinue
+                    $prevEA = $ErrorActionPreference
+                    $ErrorActionPreference = 'Continue'
+                    Invoke-Expression (Invoke-RestMethod -Uri https://get.scoop.sh -UseBasicParsing)
+                    $ErrorActionPreference = $prevEA
+                    $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
+                        [System.Environment]::GetEnvironmentVariable('Path', 'User')
+                    $haveScoop = [bool](Get-Command scoop -ErrorAction SilentlyContinue)
+                    if ($haveScoop) {
+                        Write-OK "Scoop installed"
+                    } else {
+                        Write-Warn "Scoop bootstrap finished but scoop is still not on PATH — open a new terminal or add shims to PATH"
+                    }
+                } catch {
+                    Write-Warn "Scoop bootstrap failed — $_"
+                }
+            }
+        }
+
+        if (-not $haveScoop -and -not $DryRun) {
+            Write-Warn "Scoop not on PATH — skipping apps\scoop-packages.json"
+        } elseif ($DryRun -and $haveScoop) {
+            Write-Skip "Would run: scoop install <names from apps\scoop-packages.json>"
+        } elseif (-not $DryRun -and $haveScoop) {
+            $names = @((Get-Content $scoopFile -Raw | ConvertFrom-Json).packages | Where-Object { $_ })
+            if ($names.Count -eq 0) {
+                Write-Skip "No package names in scoop-packages.json"
+            } else {
+                $prevEA = $ErrorActionPreference
+                $ErrorActionPreference = 'Continue'
+                & scoop install @names
+                $exit = $LASTEXITCODE
+                $ErrorActionPreference = $prevEA
+                if ($exit -eq 0) {
+                    Write-OK "Scoop install ($($names.Count) packages)"
+                } else {
+                    Write-Warn "scoop install exited $exit (some apps may already be installed)"
+                }
+            }
+        }
     }
 }
 

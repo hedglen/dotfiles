@@ -1,5 +1,5 @@
 {
-  "comment": "Scoop packages (main bucket). Install Scoop: irm get.scoop.sh | iex. Not run by install.ps1 — install after Scoop exists.",
+  "comment": "Scoop packages (main bucket). install.ps1 runs get.scoop.sh if needed, then scoop install for these. maintenance/update.ps1 runs scoop update *. Use install.ps1 -NoScoop to skip.",
   "packages": [
     "bat",
     "delta",
@@ -9,13 +9,19 @@
     "fd",
     "fzf",
     "gh",
+    "git-lfs",
     "glow",
     "gsudo",
+    "hyperfine",
     "jq",
+    "just",
     "lazygit",
     "pandoc",
     "rclone",
     "ripgrep",
+    "sd",
+    "tealdeer",
+    "wget",
     "yq",
     "zoxide"
   ]

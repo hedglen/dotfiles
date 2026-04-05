@@ -18,19 +18,27 @@
 ; Win+T → Windows Terminal
 #t:: Run "wt"
 
-; Win+E → File Pilot (falls back to Explorer)
+; Win+E → Directory Opus (winget), else File Pilot, else Explorer
 #e:: {
-    if FileExist(A_ProgramFiles "\File Pilot\FilePilot.exe")
+    if FileExist(A_ProgramFiles "\GPSoftware\Directory Opus\dopus.exe")
+        Run A_ProgramFiles "\GPSoftware\Directory Opus\dopus.exe"
+    else if FileExist(A_ProgramFiles "\File Pilot\FilePilot.exe")
         Run A_ProgramFiles "\File Pilot\FilePilot.exe"
     else
         Run "explorer.exe"
 }
 
-; Win+B → Brave
-#b:: Run "brave.exe"
+; Win+B → Brave if installed, else Chrome (primary browser in winget manifest)
+#b:: {
+    brave := A_LocalAppData "\BraveSoftware\Brave-Browser\Application\brave.exe"
+    if FileExist(brave)
+        Run brave
+    else
+        Run "chrome.exe"
+}
 
-; Win+N → Notion
-#n:: Run "notion.exe"
+; Win+N → Firefox (winget manifest)
+#n:: Run "firefox.exe"
 
 ; Win+O → Obsidian
 #o:: Run "obsidian.exe"

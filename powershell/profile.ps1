@@ -249,13 +249,13 @@ function scimitar { & "$HOME\workstation\dotfiles\corsair\scimitar.ps1" @args }
 
 function trans {
     $py  = "$HOME\workstation\tools\transcribe-env\Scripts\python.exe"
-    $scr = "$HOME\workstation\scripts\transcribe.py"
+    $scr = "$HOME\workstation\dotfiles\scripts\transcribe.py"
     & $py $scr @args
 }
 
 function vtrans {
     $py  = "$HOME\workstation\tools\transcribe-env\Scripts\python.exe"
-    $scr = "$HOME\workstation\scripts\video-ocr-translate.py"
+    $scr = "$HOME\workstation\dotfiles\scripts\video-ocr-translate.py"
     & $py $scr @args
 }
 function fixsub { vtrans @args }

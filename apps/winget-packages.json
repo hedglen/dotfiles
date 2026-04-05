@@ -7,6 +7,7 @@
         { "PackageIdentifier": "Git.Git" },
         { "PackageIdentifier": "Microsoft.PowerShell" },
         { "PackageIdentifier": "Microsoft.VisualStudioCode" },
+        { "PackageIdentifier": "Notepad++.Notepad++" },
         { "PackageIdentifier": "Codeium.Windsurf" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
         { "PackageIdentifier": "OpenJS.NodeJS.LTS" },
@@ -29,6 +30,9 @@
         { "PackageIdentifier": "Microsoft.AppInstaller" },
         { "PackageIdentifier": "Microsoft.UI.Xaml.2.8" },
         { "PackageIdentifier": "Microsoft.WindowsAppRuntime.1.8" },
+
+        { "PackageIdentifier": "Microsoft.WSL" },
+        { "PackageIdentifier": "Canonical.Ubuntu.2404" },
 
         { "PackageIdentifier": "Google.Chrome.EXE" },
         { "PackageIdentifier": "Mozilla.Firefox" },
@@ -68,8 +72,8 @@
         { "PackageIdentifier": "DupeGuru.DupeGuru" },
         { "PackageIdentifier": "PFOJEnterprisesLLC.ModernCSV" },
         { "PackageIdentifier": "Qobuz.Qobuz" },
+        { "PackageIdentifier": "PeterPawlowski.foobar2000" },
         { "PackageIdentifier": "Zoom.Zoom" },
-        { "PackageIdentifier": "Ditto.Ditto" },
         { "PackageIdentifier": "namazso.PawnIO" },
 
         { "PackageIdentifier": "Proton.ProtonVPN" },
@@ -77,6 +81,7 @@
         { "PackageIdentifier": "Proton.ProtonPass" },
         { "PackageIdentifier": "Proton.ProtonAuthenticator" },
         { "PackageIdentifier": "OpenWhisperSystems.Signal" },
+        { "PackageIdentifier": "Discord.Discord" },
 
         { "PackageIdentifier": "REALiX.HWiNFO" },
         { "PackageIdentifier": "CrystalDewWorld.CrystalDiskInfo" },

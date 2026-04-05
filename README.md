@@ -56,8 +56,8 @@ irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 This will:
 
 1. Clone this repo to `$HOME\workstation\dotfiles` (i.e. `%USERPROFILE%\workstation\dotfiles`)
-2. Clone remaining workspace repos (`scripts`, `docs`, `hedglen-profile`) and create `projects/` directory
-3. Install all apps via `winget import` (see `apps/winget-packages.json`; Scoop CLI list in `apps/scoop-packages.json` is separate)
+2. Clone remaining workspace repo (`hedglen-profile`) and create `projects/` directory. Utility scripts live under `scripts/` in this repo. Personal notes live in this repo under `notes/`.
+3. Install apps: `winget import` from **`apps/winget-packages.json`**; then install **Scoop** via **get.scoop.sh** if needed and **`scoop install`** every name in **`apps/scoop-packages.json`** (see **`apps/winget-packages.md`** / **`apps/scoop-packages.md`**)
 4. Apply Windows tweaks (requires admin)
 5. Symlink all configs to their correct locations
 6. Install all VS Code extensions
@@ -94,11 +94,23 @@ dotfiles/
 │   └── settings.json              ← Neon Dark terminal scheme, Nerd Font, keybindings
 ├── windows/
 │   └── tweaks.ps1                 ← privacy, power, explorer tweaks
+├── scripts/
+│   ├── workstation-health.ps1      ← quick layout + tooling check
+│   ├── transcribe.py / .ps1       ← media helpers (see scripts/README.md)
+│   ├── python/                     ← cross-platform CLI helpers
+│   └── README.md
+├── notes/
+│   ├── README.md                  ← README + personal/tech/work folders
+│   ├── personal/
+│   ├── tech/
+│   └── work/
 ├── git/
 │   └── .gitconfig                 ← aliases, colors, sensible defaults
 └── apps/
     ├── winget-packages.json       ← full app list for winget import
-    └── scoop-packages.json        ← CLI apps installed via Scoop (manual after Scoop setup)
+    ├── winget-packages.md         ← what each winget package is for
+    ├── scoop-packages.json        ← CLI apps installed via Scoop (manual after Scoop setup)
+    └── scoop-packages.md          ← what each Scoop package is for
 ```
 
 ---
@@ -233,11 +245,11 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 | Hotkey | Action |
 | --- | --- |
 | `Win+T` | Windows Terminal (PowerShell) — suppressed when mpv is focused |
-| `Win+E` | Directory Opus (file manager) |
-| `Win+B` | Brave Browser |
-| `Win+N` | Notion |
+| `Win+E` | Directory Opus → File Pilot → Explorer (first found) |
+| `Win+B` | Brave if installed, else **Chrome** (matches `winget-packages.json` default) |
+| `Win+N` | **Firefox** (winget) |
 | `Win+O` | Obsidian |
-| `Win+C` | VS Code (dotfiles workspace) |
+| `Win+C` | VS Code (`code`) |
 
 ### Window Management
 
@@ -440,36 +452,37 @@ Script: `windows/tweaks.ps1` — run during install (admin required).
 
 ## 📦 Apps (winget + Scoop)
 
-**Winget** is used for most desktop apps and is imported by `install.ps1`. **Scoop** (optional) covers small CLIs with clean per-user shims; install Scoop yourself, then install the list in `apps/scoop-packages.json`.
+**Winget** and **Scoop** lists both live under **`apps/`** and are the only source of truth. **`install.ps1`** runs `winget import` on `winget-packages.json`, then installs **Scoop** from **get.scoop.sh** if it is missing, then **`scoop install`** for every name in `scoop-packages.json`. Use **`-NoScoop`** to skip Scoop entirely while still running winget. **`maintenance/update.ps1`** upgrades winget IDs from the JSON and runs **`scoop update *`**. Notes: **`apps/winget-packages.md`**, **`apps/scoop-packages.md`**.
 
 For **how to use** installed apps and profile helpers (not just the install list), see the companion doc **`docs/guides/workstation-tools.md`** in your [docs](https://github.com/hedglen/docs) clone (`%USERPROFILE%\workstation\docs\guides\workstation-tools.md` on disk).
 
-| Category | Apps |
+| Category | Apps (from `apps/winget-packages.json`) |
 | --- | --- |
-| **Dev** | Git, VS Code, Windsurf, PowerShell 7, Python Launcher, AutoHotkey, Node.js LTS, Deno, JetBrainsMono Nerd Font |
-| **CLI (Scoop)** | ripgrep, fzf, fd, bat, gh, lazygit, zoxide, jq, delta, fastfetch, rclone, gsudo, eza, pandoc (`apps/scoop-packages.json`) |
-| **Terminal** | Windows Terminal, Oh My Posh (winget) |
-| **Browsers** | Brave, Floorp, Chrome |
-| **Media** | MPC-BE, PotPlayer, ShareX, Bandicut, yt-dlp, XnViewMP, HandBrake, OBS Studio, MediaInfo, ImageGlass, ScreenToGif |
-| **File Management** | Everything, TeraCopy, WizTree, Bulk Rename, TreeSize, Ditto; **Directory Opus** (manual); NanaZip / 7-Zip as needed |
-| **Productivity** | Notion, Obsidian, LibreOffice, Calibre, Thorium Reader, Flow Launcher, Zoom, LocalSend, EarTrumpet, SumatraPDF |
-| **Creative** | Adobe Creative Cloud, Adobe Acrobat Reader |
-| **Privacy** | Proton VPN, Proton Drive, Proton Pass, Proton Authenticator, Bitwarden, Signal |
-| **Cloud** | Google Drive, pCloud Drive |
-| **System** | MSI Afterburner, HWiNFO, CrystalDiskInfo, FanControl, AOMEI Partition Assistant |
-| **Entertainment** | Steam |
-| **Package Mgmt** | UniGetUI |
-| **Other** | StartAllBack, Internet Download Manager, Corsair iCUE 5, Logitech G HUB |
+| **Dev / runtimes** | Git, VS Code, **Notepad++**, Windsurf, Cursor, Claude (desktop), Ollama, PowerShell 7, Python Launcher, AutoHotkey, Node.js LTS, Deno, JetBrainsMono Nerd Font; .NET Desktop + .NET runtimes, VC++ redists, VCLibs, App Installer, UI XAML, Windows App Runtime; **WSL** + **Ubuntu 24.04** |
+| **CLI (Scoop)** | Full list in `apps/scoop-packages.json` — see **`apps/scoop-packages.md`** |
+| **Terminal / shell** | Windows Terminal, WezTerm, Oh My Posh (winget) |
+| **Browsers** | Chrome, Firefox, Vivaldi |
+| **Media** | PotPlayer, mpv (shinchiro build), ShareX, Bandicut, yt-dlp + FFmpeg, XnViewMP, HandBrake, OBS Studio, MediaInfo, ImageGlass, ScreenToGif, SumatraPDF |
+| **File management** | Everything, Directory Opus, NanaZip, Bulk Rename Utility, WizTree |
+| **Productivity** | Obsidian, LibreOffice, Calibre, Thorium, Zoom, LocalSend, EarTrumpet, ModernCSV, DupeGuru, Tesseract OCR, Qobuz, **foobar2000**, PawnIO |
+| **Creative** | Adobe Creative Cloud |
+| **Privacy / chat** | Proton VPN, Drive, Pass, Authenticator; Signal; **Discord** |
+| **Cloud / downloads** | Google Drive, pCloud Drive; Internet Download Manager, JDownloader |
+| **System / hardware** | HWiNFO, CrystalDiskInfo, MSI Afterburner, FanControl, AOMEI Partition Assistant, Sysinternals, UniGetUI, Corsair iCUE 5, Logitech G HUB |
+| **Desktop shell** | StartAllBack, PowerToys, TranslucentTB |
+| **Games** | Steam, Paradox launcher |
 
 ### Scoop (CLI packages)
 
-Not run by `install.ps1`. Install [Scoop](https://github.com/ScoopInstaller/Install) (`irm get.scoop.sh | iex`), then install everything listed in `apps/scoop-packages.json`:
+**`install.ps1`** installs [Scoop](https://github.com/ScoopInstaller/Install) from **get.scoop.sh** when needed, then `scoop install` for every entry in `apps/scoop-packages.json`. To install or refresh manually:
 
 ```powershell
-scoop install bat delta eza fastfetch fd fzf gh gsudo jq lazygit pandoc rclone ripgrep zoxide
+Set-Location "$HOME\workstation\dotfiles\apps"
+$pkgs = (Get-Content .\scoop-packages.json -Raw | ConvertFrom-Json).packages
+scoop install @pkgs
 ```
 
-`zoxide` is the usual **z**-style directory jumper (`z`, `zi` after you hook it in your shell).
+`zoxide` is the usual **z**-style directory jumper (`z`, `zi` after you hook it in your shell). Per-tool notes: **`apps/scoop-packages.md`**.
 
 Many GUI apps and heavy runtimes stay on **winget** (see `apps/winget-packages.json`). Add `scoop bucket add extras` if you later install Scoop-only GUI apps.
 
@@ -511,13 +524,7 @@ If the browser handoff still misbehaves, open [github.com/login/device](https://
 
 ## 🔧 Manual Installs
 
-These apps are **not available in winget** and must be installed manually.
-
-### 🔵 JDownloader 2
-
-- **Download:** [jdownloader.org/download/index](https://jdownloader.org/download/index)
-- **Install:** Run installer, sign into My JDownloader account
-- **Account:** [hedglen@pm.me](mailto:hedglen@pm.me)
+These apps are **not** listed in `apps/winget-packages.json` and must be installed manually. (**JDownloader** is available via winget as `AppWork.JDownloader` in this repo; use a manual install only if you prefer the website build or a portable layout.)
 
 ### 🟢 Macrium Reflect Home
 
@@ -583,4 +590,5 @@ The **Neon Dark** scheme (matched to Sudhan’s VS Code [Neon Dark Theme](https:
 ## 🖥️ Related
 
 - **[Workstation tools guide](https://github.com/hedglen/docs/blob/main/guides/workstation-tools.md)** — practical map of winget/Scoop apps, PowerShell helpers (`ytdl`, `orgmed`, `trans`, …), and links to upstream docs
+- **`apps/winget-packages.md`** / **`apps/scoop-packages.md`** — short description + example use for each package ID / Scoop name
 - **[mpv-config](https://github.com/hedglen/mpv-config)** — full mpv media player setup with HDR auto-switching, FSRCNNX/Anime4K shaders, ultrawide optimization, Corsair Scimitar button mapping, chapter editor, clip export, GIF creation, favorites, audio normalize, and more
