@@ -401,10 +401,54 @@ local function wsl_helper_spawn()
 end
 
 local function ollama_helper_spawn()
-  local helper_script = wsl_path(dotfiles .. '\\wezterm\\ollama-helper.sh')
+  local helper_win = dotfiles .. '\\wezterm\\ollama-helper.sh'
+  local fh = io.open(helper_win, 'r')
+  if fh then
+    fh:close()
+    local helper_script = wsl_path(helper_win)
+    return {
+      args = { 'wsl.exe', '-d', wsl_distro, 'bash', helper_script },
+    }
+  end
   return {
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', helper_script },
+    args = {
+      'wsl.exe',
+      '-d',
+      wsl_distro,
+      'bash',
+      '-lc',
+      'echo "ollama-helper.sh not in dotfiles/wezterm (optional)."; exec zsh -il',
+    },
   }
+end
+
+--- If spawn_tab errors (WSL missing, bad distro, etc.), WezTerm aborts gui-startup and only earlier tabs appear.
+--- Third return is true when the pwsh fallback tab was used (skip WSL-only splits).
+local function spawn_tab_or_fallback(window, spawn_tbl, title, fallback_note)
+  local ok, tab, pane = pcall(function()
+    return window:spawn_tab(spawn_tbl)
+  end)
+  if ok and tab then
+    tab:set_title(title)
+    return tab, pane, false
+  end
+  wezterm.log_error('WezTerm spawn_tab failed (' .. title .. '): ' .. tostring(tab))
+  local ok2, tab2, pane2 = pcall(function()
+    return window:spawn_tab(pwsh_spawn(workstation))
+  end)
+  if ok2 and tab2 then
+    tab2:set_title(title .. ' (no WSL)')
+    if pane2 and fallback_note then
+      pane2:send_text(
+        "Write-Host "
+          .. "'"
+          .. fallback_note
+          .. "' -ForegroundColor Yellow; Write-Host 'Install WSL: wsl --install -d Ubuntu-24.04' -ForegroundColor DarkGray\r\n"
+      )
+    end
+    return tab2, pane2, true
+  end
+  return nil, nil, false
 end
 
 wezterm.on('gui-startup', function(cmd)
@@ -452,33 +496,59 @@ wezterm.on('gui-startup', function(cmd)
   }
   git_live_pane:send_text(git_live_view_cmd .. '\n')
 
-  local wsl_tab, wsl_pane = window:spawn_tab(wsl_spawn(workstation))
-  wsl_tab:set_title 'wsl'
-  wsl_pane:split {
-    direction = 'Right',
-    size = 0.30,
-    args = wsl_helper_spawn().args,
-  }
+  local wsl_tab, wsl_pane, wsl_fb = spawn_tab_or_fallback(
+    window,
+    wsl_spawn(workstation),
+    'wsl',
+    'WSL is not available or the distro failed to start.'
+  )
+  if wsl_tab and wsl_pane and not wsl_fb then
+    wsl_pane:split {
+      direction = 'Right',
+      size = 0.30,
+      args = wsl_helper_spawn().args,
+    }
+  end
 
-  local claude_tab = window:spawn_tab(wsl_command_spawn(workstation, 'claude'))
-  claude_tab:set_title 'claude'
+  spawn_tab_or_fallback(
+    window,
+    wsl_command_spawn(workstation, 'claude'),
+    'claude',
+    'Install WSL to use Claude CLI in this tab.'
+  )
 
-  local codex_tab = window:spawn_tab(wsl_command_spawn(workstation, 'codex'))
-  codex_tab:set_title 'codex'
+  spawn_tab_or_fallback(
+    window,
+    wsl_command_spawn(workstation, 'codex'),
+    'codex',
+    'Install WSL to use Codex CLI in this tab.'
+  )
 
-  local ollama_tab, ollama_pane = window:spawn_tab(wsl_spawn(workstation))
-  ollama_tab:set_title 'ollama'
-  ollama_pane:send_text('qc\n')
-  local ollama_helper_pane = ollama_pane:split {
-    direction = 'Right',
-    size = 0.32,
-    args = ollama_helper_spawn().args,
-  }
-  ollama_helper_pane:split {
-    direction = 'Bottom',
-    size = 0.33,
-    args = wsl_spawn(workstation).args,
-  }
+  local ollama_tab, ollama_pane, ollama_fb = spawn_tab_or_fallback(
+    window,
+    wsl_spawn(workstation),
+    'ollama',
+    'Install WSL to use Ollama helpers in this tab.'
+  )
+  if ollama_tab and ollama_pane and not ollama_fb then
+    ollama_pane:send_text('qc\n')
+    local ok_ollama_split, ollama_helper_pane = pcall(function()
+      return ollama_pane:split {
+        direction = 'Right',
+        size = 0.32,
+        args = ollama_helper_spawn().args,
+      }
+    end)
+    if ok_ollama_split and ollama_helper_pane then
+      pcall(function()
+        ollama_helper_pane:split {
+          direction = 'Bottom',
+          size = 0.33,
+          args = wsl_spawn(workstation).args,
+        }
+      end)
+    end
+  end
 
   coding_tab:activate()
   window:gui_window():maximize()
