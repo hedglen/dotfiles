@@ -12,6 +12,7 @@
 #     -NoApps    Skip winget import and Scoop installs
 #     -NoScoop   Skip Scoop only (winget import still runs)
 #     -NoPythonProjects  Skip venv setup for projects\media-organizer and projects\ytdl
+#     -NoElevate Skip auto-elevation (single UAC at start)
 #     -DryRun    Preview what would happen without doing anything
 #
 #   Scoop: if missing, get.scoop.sh is run automatically, then packages from apps\scoop-packages.json.
@@ -29,52 +30,59 @@ param(
 
 $ErrorActionPreference = "Stop"
 $DotfilesDir = $PSScriptRoot
-
-# If running via irm | iex, clone the repo first
-if (-not $DotfilesDir -or $DotfilesDir -eq "") {
+# irm ... | iex has no script path; PSScriptRoot can be empty or whitespace.
+$bootstrapFromIex = [string]::IsNullOrWhiteSpace($DotfilesDir)
+if ($bootstrapFromIex) {
     $DotfilesDir = "$HOME\workstation\dotfiles"
-    if (-not (Test-Path $DotfilesDir)) {
-        Write-Host "Cloning dotfiles repo..." -ForegroundColor Cyan
-        git clone https://github.com/hedglen/dotfiles.git $DotfilesDir
-    }
-    & "$DotfilesDir\install.ps1" @PSBoundParameters
-    exit
 }
-
-# Re-launch elevated once so installers that require admin don't repeatedly prompt.
-function Restart-ElevatedIfNeeded {
-    param(
-        [Parameter(Mandatory)]
-        [string] $ScriptPath,
-        [switch] $NoElevate
-    )
-    if ($NoElevate) { return }
-    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).
-        IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    if ($isAdmin) { return }
-
-    $switches = @()
-    if ($AppsOnly) { $switches += '-AppsOnly' }
-    if ($ConfigsOnly) { $switches += '-ConfigsOnly' }
-    if ($NoApps) { $switches += '-NoApps' }
-    if ($NoScoop) { $switches += '-NoScoop' }
-    if ($NoPythonProjects) { $switches += '-NoPythonProjects' }
-    if ($DryRun) { $switches += '-DryRun' }
-
-    $exePath = (Get-Process -Id $PID).Path
-    $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$ScriptPath`"") + $switches
-    Write-Host "Requesting elevation for full bootstrap..." -ForegroundColor Cyan
-    Start-Process -FilePath $exePath -Verb RunAs -ArgumentList $argList
-    exit
-}
-Restart-ElevatedIfNeeded -ScriptPath (Join-Path $DotfilesDir 'install.ps1') -NoElevate:$NoElevate
-
-# =============================================================================
 
 function Write-Step { param([string]$Msg) Write-Host "`n>> $Msg" -ForegroundColor Cyan }
 function Write-OK   { param([string]$Msg) Write-Host "   OK  $Msg" -ForegroundColor Green }
 function Write-Skip { param([string]$Msg) Write-Host "   --  $Msg" -ForegroundColor DarkGray }
 function Write-Warn { param([string]$Msg) Write-Host "   !!  $Msg" -ForegroundColor Yellow }
+
+function Ensure-PCloudInstalled {
+    param([switch]$DryRun)
+    $pkgId = "pCloudAG.pCloudDrive"
+    if ($DryRun) {
+        Write-Skip "Would verify/install $pkgId with hash-mismatch fallback"
+        return
+    }
+
+    $isInstalled = $false
+    try {
+        $listOut = (& winget list --id $pkgId -e --accept-source-agreements 2>$null) -join "`n"
+        if ($listOut -match [regex]::Escape($pkgId)) { $isInstalled = $true }
+    } catch { }
+    if ($isInstalled) {
+        Write-Skip "$pkgId already installed"
+        return
+    }
+
+    $commonArgs = @('-e', '--id', $pkgId, '--accept-package-agreements', '--accept-source-agreements')
+    $installOut = (& winget install @commonArgs 2>&1)
+    if ($LASTEXITCODE -eq 0) {
+        Write-OK "$pkgId installed"
+        return
+    }
+
+    $text = ($installOut | Out-String)
+    if ($text -match 'Installer hash does not match' -or $text -match 'hash mismatch') {
+        Write-Warn "$pkgId hash mismatch; retrying with override"
+        try { & winget settings --enable InstallerHashOverride | Out-Null } catch { }
+        $retryOut = (& winget install @commonArgs --ignore-security-hash 2>&1)
+        if ($LASTEXITCODE -eq 0) {
+            Write-OK "$pkgId installed (hash override)"
+        } else {
+            Write-Warn "$pkgId install failed even with hash override"
+            $retryOut | ForEach-Object { Write-Warn "  $_" }
+        }
+        return
+    }
+
+    Write-Warn "$pkgId install failed"
+    $installOut | ForEach-Object { Write-Warn "  $_" }
+}
 
 function New-WorkspaceFileIfMissing {
     param(
@@ -108,6 +116,60 @@ function New-WorkspaceFileIfMissing {
     ($wsObject | ConvertTo-Json -Depth 6) | Set-Content -LiteralPath $wsPath -Encoding UTF8
     Write-OK "workspace file created (rjh-workspace.code-workspace)"
 }
+
+function Initialize-WorkstationLayout {
+    param([switch]$DryRun)
+    Write-Step "Workstation layout"
+    $wsRoot = Join-Path $HOME "workstation"
+    if ($DryRun) {
+        Write-Skip "Would create $wsRoot, tools\, and rjh-workspace.code-workspace if missing"
+        return
+    }
+    New-Item -ItemType Directory -Path $wsRoot -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $wsRoot "tools") -Force | Out-Null
+    New-WorkspaceFileIfMissing -WorkspaceRoot $wsRoot -DryRun:$false
+    Write-OK "workstation root, tools, and workspace file ready"
+}
+
+# Re-launch elevated once so installers that require admin don't repeatedly prompt.
+function Restart-ElevatedIfNeeded {
+    param(
+        [Parameter(Mandatory)]
+        [string] $ScriptPath,
+        [switch] $NoElevate
+    )
+    if ($NoElevate) { return }
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).
+        IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if ($isAdmin) { return }
+
+    $switches = @()
+    if ($AppsOnly) { $switches += '-AppsOnly' }
+    if ($ConfigsOnly) { $switches += '-ConfigsOnly' }
+    if ($NoApps) { $switches += '-NoApps' }
+    if ($NoScoop) { $switches += '-NoScoop' }
+    if ($NoPythonProjects) { $switches += '-NoPythonProjects' }
+    if ($DryRun) { $switches += '-DryRun' }
+
+    $exePath = (Get-Process -Id $PID).Path
+    $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$ScriptPath`"") + $switches
+    Write-Host "Requesting elevation for full bootstrap..." -ForegroundColor Cyan
+    Start-Process -FilePath $exePath -Verb RunAs -ArgumentList $argList
+    exit
+}
+
+if ($bootstrapFromIex) {
+    Initialize-WorkstationLayout -DryRun:$DryRun
+    if (-not (Test-Path -LiteralPath $DotfilesDir)) {
+        Write-Host "Cloning dotfiles repo..." -ForegroundColor Cyan
+        git clone https://github.com/hedglen/dotfiles.git $DotfilesDir
+    }
+    & "$DotfilesDir\install.ps1" @PSBoundParameters
+    exit
+}
+
+Initialize-WorkstationLayout -DryRun:$DryRun
+Restart-ElevatedIfNeeded -ScriptPath (Join-Path $DotfilesDir 'install.ps1') -NoElevate:$NoElevate
 
 function Install-DotfilesPythonProject {
     param(
@@ -248,17 +310,7 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
         }
     }
 
-    $toolsDir = "$HOME\workstation\tools"
-    if (Test-Path $toolsDir) {
-        Write-Skip "tools dir already present"
-    } elseif ($DryRun) {
-        Write-Skip "Would create: $toolsDir"
-    } else {
-        New-Item -ItemType Directory -Path $toolsDir -Force | Out-Null
-        Write-OK "tools dir created"
-    }
-
-    New-WorkspaceFileIfMissing -WorkspaceRoot "$HOME\workstation" -DryRun:$DryRun
+    # workstation\, tools\, rjh-workspace.code-workspace are created before elevation (see Initialize-WorkstationLayout).
 
     # Utility scripts ship inside this repo (not a separate clone).
     Write-Step "Utility scripts (dotfiles\scripts)"
@@ -311,8 +363,10 @@ if (-not $ConfigsOnly -and -not $NoApps) {
             try {
                 winget import -i $pkgFile --accept-package-agreements --accept-source-agreements --ignore-versions
                 Write-OK "winget import finished"
+                Ensure-PCloudInstalled
             } catch {
                 Write-Warn "winget import finished with errors (some packages may have failed) — $_"
+                Ensure-PCloudInstalled
             }
         }
     } else {
