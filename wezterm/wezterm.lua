@@ -11,7 +11,33 @@ local workstation = home .. '\\workstation'
 local dotfiles = workstation .. '\\dotfiles'
 local projects = dotfiles .. '\\projects'
 local git_bash = 'C:\\Program Files\\Git\\bin\\bash.exe'
-local wsl_distro = 'Ubuntu'
+local function detect_wsl_distro()
+  local preferred = { 'Ubuntu', 'Ubuntu-24.04', 'Ubuntu-22.04' }
+  local ok, handle = pcall(io.popen, 'wsl.exe -l -q 2>NUL')
+  if not ok or not handle then
+    return 'Ubuntu'
+  end
+  local raw = handle:read('*a') or ''
+  handle:close()
+  local found = {}
+  for line in raw:gmatch('[^\r\n]+') do
+    local name = line:gsub('^%s+', ''):gsub('%s+$', '')
+    if name ~= '' then
+      found[name:lower()] = name
+    end
+  end
+  for _, name in ipairs(preferred) do
+    local match = found[name:lower()]
+    if match then
+      return match
+    end
+  end
+  for _, name in pairs(found) do
+    return name
+  end
+  return 'Ubuntu'
+end
+local wsl_distro = detect_wsl_distro()
 local system_helper_cmd = [[
 $now = Get-Date
 $os = Get-CimInstance Win32_OperatingSystem
@@ -352,7 +378,7 @@ local function wsl_spawn(cwd)
   end
 
   return {
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', shell_cmd .. 'exec zsh -il' },
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', shell_cmd .. 'if command -v zsh >/dev/null 2>&1; then exec zsh -il; else exec bash -il; fi' },
   }
 end
 
@@ -364,7 +390,7 @@ local function wsl_command_spawn(cwd, cmd)
   end
 
   return {
-    args = { 'wsl.exe', '-d', wsl_distro, 'zsh', '-ic', shell_cmd .. cmd },
+    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', shell_cmd .. cmd },
   }
 end
 

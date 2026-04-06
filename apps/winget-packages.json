@@ -103,7 +103,6 @@
         { "PackageIdentifier": "Anthropic.Claude" },
 
         { "PackageIdentifier": "Adobe.CreativeCloud" },
-        { "PackageIdentifier": "ParadoxInteractive.ParadoxLauncher" },
         { "PackageIdentifier": "Valve.Steam" }
       ],
       "SourceDetails": {

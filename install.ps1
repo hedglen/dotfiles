@@ -23,6 +23,7 @@ param(
     [switch]$NoApps,
     [switch]$NoScoop,
     [switch]$NoPythonProjects,
+    [switch]$NoElevate,
     [switch]$DryRun
 )
 
@@ -40,12 +41,73 @@ if (-not $DotfilesDir -or $DotfilesDir -eq "") {
     exit
 }
 
+# Re-launch elevated once so installers that require admin don't repeatedly prompt.
+function Restart-ElevatedIfNeeded {
+    param(
+        [Parameter(Mandatory)]
+        [string] $ScriptPath,
+        [switch] $NoElevate
+    )
+    if ($NoElevate) { return }
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).
+        IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if ($isAdmin) { return }
+
+    $switches = @()
+    if ($AppsOnly) { $switches += '-AppsOnly' }
+    if ($ConfigsOnly) { $switches += '-ConfigsOnly' }
+    if ($NoApps) { $switches += '-NoApps' }
+    if ($NoScoop) { $switches += '-NoScoop' }
+    if ($NoPythonProjects) { $switches += '-NoPythonProjects' }
+    if ($DryRun) { $switches += '-DryRun' }
+
+    $exePath = (Get-Process -Id $PID).Path
+    $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$ScriptPath`"") + $switches
+    Write-Host "Requesting elevation for full bootstrap..." -ForegroundColor Cyan
+    Start-Process -FilePath $exePath -Verb RunAs -ArgumentList $argList
+    exit
+}
+Restart-ElevatedIfNeeded -ScriptPath (Join-Path $DotfilesDir 'install.ps1') -NoElevate:$NoElevate
+
 # =============================================================================
 
 function Write-Step { param([string]$Msg) Write-Host "`n>> $Msg" -ForegroundColor Cyan }
 function Write-OK   { param([string]$Msg) Write-Host "   OK  $Msg" -ForegroundColor Green }
 function Write-Skip { param([string]$Msg) Write-Host "   --  $Msg" -ForegroundColor DarkGray }
 function Write-Warn { param([string]$Msg) Write-Host "   !!  $Msg" -ForegroundColor Yellow }
+
+function New-WorkspaceFileIfMissing {
+    param(
+        [Parameter(Mandatory)]
+        [string] $WorkspaceRoot,
+        [switch] $DryRun
+    )
+    $wsPath = Join-Path $WorkspaceRoot "rjh-workspace.code-workspace"
+    if (Test-Path -LiteralPath $wsPath) {
+        Write-Skip "workspace file already present"
+        return
+    }
+    if ($DryRun) {
+        Write-Skip "Would create workspace file: $wsPath"
+        return
+    }
+    $wsObject = [ordered]@{
+        folders = @(
+            @{ name = "hedglen-profile"; path = "hedglen-profile" },
+            @{ name = "tools"; path = "tools" },
+            @{ name = "dotfiles"; path = "dotfiles" }
+        )
+        settings = @{
+            "files.exclude" = @{
+                "**/.git" = $true
+                "**/.DS_Store" = $true
+                "**/Thumbs.db" = $true
+            }
+        }
+    }
+    ($wsObject | ConvertTo-Json -Depth 6) | Set-Content -LiteralPath $wsPath -Encoding UTF8
+    Write-OK "workspace file created (rjh-workspace.code-workspace)"
+}
 
 function Install-DotfilesPythonProject {
     param(
@@ -196,6 +258,8 @@ if (-not $AppsOnly -and -not $ConfigsOnly) {
         Write-OK "tools dir created"
     }
 
+    New-WorkspaceFileIfMissing -WorkspaceRoot "$HOME\workstation" -DryRun:$DryRun
+
     # Utility scripts ship inside this repo (not a separate clone).
     Write-Step "Utility scripts (dotfiles\scripts)"
     $scriptsDir = Join-Path $DotfilesDir "scripts"
@@ -307,6 +371,66 @@ if (-not $ConfigsOnly -and -not $NoApps) {
                     Write-OK "Scoop install ($($names.Count) packages)"
                 } else {
                     Write-Warn "scoop install exited $exit (some apps may already be installed)"
+                }
+            }
+        }
+    }
+}
+
+# =============================================================================
+#   3b. WezTerm + WSL bootstrap sanity
+# =============================================================================
+if (-not $AppsOnly -and -not $ConfigsOnly) {
+    Write-Step "WezTerm + WSL bootstrap"
+    $weztermExe = "$env:LOCALAPPDATA\Programs\WezTerm\wezterm-gui.exe"
+    if (Test-Path -LiteralPath $weztermExe) {
+        Write-OK "WezTerm installed"
+    } else {
+        Write-Warn "WezTerm executable not found yet ($weztermExe)"
+        Write-Warn "  Winget may still be finalizing. Re-run install.ps1 after app installs complete."
+    }
+
+    $wslCmd = Get-Command wsl.exe -ErrorAction SilentlyContinue
+    if (-not $wslCmd) {
+        Write-Warn "wsl.exe not found — cannot validate distro/bootstrap"
+    } else {
+        $rawDistroList = (& wsl.exe -l -q 2>$null) -join "`n"
+        $distros = $rawDistroList -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+        if ($distros.Count -eq 0) {
+            if ($DryRun) {
+                Write-Skip "Would run: wsl --install -d Ubuntu-24.04 --no-launch"
+            } else {
+                try {
+                    & wsl.exe --install -d Ubuntu-24.04 --no-launch
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-OK "WSL distro bootstrap requested (Ubuntu-24.04)"
+                    } else {
+                        Write-Warn "wsl --install exited $LASTEXITCODE (may require elevation/reboot)"
+                    }
+                } catch {
+                    Write-Warn "WSL distro bootstrap failed — $_"
+                }
+            }
+        } else {
+            $preferred = @('Ubuntu', 'Ubuntu-24.04', 'Ubuntu-22.04')
+            $chosen = $null
+            foreach ($name in $preferred) {
+                if ($distros -contains $name) { $chosen = $name; break }
+            }
+            if (-not $chosen) { $chosen = $distros[0] }
+
+            if ($DryRun) {
+                Write-Skip "Would set default WSL distro: $chosen"
+            } else {
+                try {
+                    & wsl.exe --set-default $chosen
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-OK "WSL default distro set: $chosen"
+                    } else {
+                        Write-Warn "Could not set WSL default distro (exit $LASTEXITCODE)"
+                    }
+                } catch {
+                    Write-Warn "Could not set WSL default distro — $_"
                 }
             }
         }
@@ -560,6 +684,30 @@ if (-not $AppsOnly) {
 
         Remove-Item $tmpZip, $tmpExtract -Recurse -Force -ErrorAction SilentlyContinue
         Write-OK "Installed $count font files to $fontsDir"
+    }
+}
+
+# =============================================================================
+#   8b. mpv runtime bootstrap (download portable mpv if missing)
+# =============================================================================
+if (-not $AppsOnly -and -not $ConfigsOnly) {
+    Write-Step "mpv runtime bootstrap"
+    $mpvDir = Join-Path $HOME "workstation\tools\mpv"
+    $mpvExe = Join-Path $mpvDir "mpv.exe"
+    $mpvBootstrap = Join-Path $DotfilesDir "mpv-config\install.ps1"
+    if (Test-Path -LiteralPath $mpvExe) {
+        Write-Skip "mpv runtime already present"
+    } elseif (-not (Test-Path -LiteralPath $mpvBootstrap)) {
+        Write-Warn "mpv bootstrap script missing: $mpvBootstrap"
+    } elseif ($DryRun) {
+        Write-Skip "Would bootstrap mpv runtime to $mpvDir via mpv-config\\install.ps1"
+    } else {
+        try {
+            & $mpvBootstrap -InstallDir $mpvDir
+            Write-OK "mpv runtime bootstrapped"
+        } catch {
+            Write-Warn "mpv runtime bootstrap failed — $_"
+        }
     }
 }
 
