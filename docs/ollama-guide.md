@@ -1,4 +1,4 @@
-# Ollama Guide
+# Ollama guide
 
 Practical reference for running local models on this workstation from WSL and the custom WezTerm dashboard.
 
@@ -21,7 +21,7 @@ The default recommendation for this workstation is:
 
 ---
 
-## Why WSL First
+## Why WSL first
 
 WSL is the cleanest local AI path for this machine because:
 
@@ -34,7 +34,7 @@ Use the Windows Ollama install only when a Windows-native app specifically needs
 
 ---
 
-## Install In WSL
+## Install in WSL
 
 Open Ubuntu in WSL and install prerequisites:
 
@@ -61,7 +61,7 @@ If `ollama serve` says `address already in use`, that usually means the backgrou
 
 ---
 
-## Current Local State
+## Current local state
 
 Verified on March 30, 2026:
 
@@ -83,7 +83,7 @@ ollama ps
 
 ---
 
-## Shell Shortcuts
+## Shell shortcuts
 
 WSL `zsh` aliases on this workstation:
 
@@ -103,7 +103,7 @@ If the model is not downloaded yet, Ollama will pull it automatically the first 
 
 ---
 
-## WezTerm Ollama Tab
+## WezTerm Ollama tab
 
 The `ollama` tab is designed as a three-pane cockpit:
 
@@ -120,14 +120,14 @@ The helper refreshes every 3 seconds and shows:
 - installed models
 - hot pink highlighting when the active model is also installed
 
-### Important Prompt Rule
+### Important prompt rule
 
 - `>>>` means you are inside a model chat
 - a shell prompt means you can run commands like `oc`, `og`, or `ov`
 
 That matters because typing `oc` at `>>>` asks the current model about the text `oc`; it does not switch models.
 
-### Switching Models In The Left Pane
+### Switching models in the left pane
 
 1. Exit the current chat with `Ctrl+D` or `/bye`
 2. Wait until the left pane is back at a shell prompt
@@ -141,7 +141,7 @@ ov
 
 The left pane now starts in `qwen2.5-coder:7b` automatically, but when you exit the chat it stays open as a shell so the tab layout does not collapse.
 
-### Why The Bottom-Right Shell Exists
+### Why the bottom-right shell exists
 
 The lower-right pane is always a shell. Use it when you want to:
 
@@ -152,7 +152,7 @@ The lower-right pane is always a shell. Use it when you want to:
 
 ---
 
-## Day-To-Day Commands
+## Day-to-day commands
 
 List installed models:
 
@@ -198,7 +198,7 @@ sudo systemctl restart ollama
 
 ---
 
-## Recommended Models For This GPU
+## Recommended models for this GPU
 
 The RTX 3070 Ti with 8 GB VRAM is a strong fit for efficient local models in the 4B to 8B range.
 
@@ -223,7 +223,7 @@ Those may run, but they are not the sweet spot for this GPU if you want responsi
 
 ---
 
-## File-Aware Wrapper
+## File-aware wrapper
 
 If you want Ollama to work on real files without pasting them manually, use the file-aware wrapper in **dotfiles** (from WSL, adjust the mount path if your Windows username differs):
 
@@ -296,7 +296,7 @@ If the helper ever looks stale:
 
 ---
 
-## Quick Start
+## Quick start
 
 If you just want the short version:
 

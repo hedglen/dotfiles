@@ -15,7 +15,7 @@ winget install PeterPawlowski.foobar2000
 From your dotfiles directory:
 
 ```powershell
-cd C:\Users\rjh\workstation\dotfiles\foobar2000
+Set-Location "$HOME\workstation\dotfiles\foobar2000"
 .\install-theme.ps1
 ```
 
@@ -46,7 +46,7 @@ Download and install these components (double-click or drag into foobar2000):
 
 1. `File` → `Preferences` → `Display` → `Columns UI` → `Layout`
 2. Click **Import**
-3. Navigate to: `C:\Users\rjh\AppData\Roaming\foobar2000\astra-theme\astra-layout.fcl`
+3. Navigate to: `$HOME\AppData\Roaming\foobar2000\astra-theme\astra-layout.fcl`
 4. Click **OK**
 
 ## Step 6: Configure Visualizers

@@ -2,8 +2,17 @@
 
 Long-form workstation guides live in **this `docs/` folder** (same repo as `install.ps1`).
 
+## Documentation conventions
+
+- Use **sentence case** for headings.
+- Use `/` for repo-relative paths (example: `dotfiles/docs/workstation-setup.md`).
+- Use `\` only in Windows absolute path or PowerShell examples.
+- Prefer `$HOME`-based examples over hardcoded usernames.
+- For PowerShell commands, prefer `Set-Location` over hardcoded `cd C:\...`.
+- Keep markdown tables in standard delimiter style: `| --- | --- |`.
+
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | [**workstation-setup.md**](workstation-setup.md) | Rebuild, verify, dry-runs, health checks — the main runbook |
 | [**workstation-layout.md**](workstation-layout.md) | Canonical folder layout under `%USERPROFILE%\workstation` (including junctions) |
 | [**workstation-tools.md**](workstation-tools.md) | What each installed tool is for; PowerShell helpers; links to app manifests |
