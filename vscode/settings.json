@@ -162,7 +162,7 @@
   //   Language — Python
   // =============================================================================
   "[python]": {
-    "editor.defaultFormatter": "ms-python.python",
+    "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.tabSize": 4,
     "editor.formatOnSave": true,
   },
@@ -173,7 +173,7 @@
   // =============================================================================
   //   Language — AutoHotkey
   // =============================================================================
-  "AutoHotkey2.InterpreterPath": "${env:LOCALAPPDATA}\\Microsoft\\WindowsApps\\AutoHotkeyV2.exe",
+  "AutoHotkey2.InterpreterPath": "C:\\Program Files\\AutoHotkey\\v2\\AutoHotkey64.exe",
 
   // =============================================================================
   //   Language — Lua

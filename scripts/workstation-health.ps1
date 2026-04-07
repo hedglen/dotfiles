@@ -88,6 +88,21 @@ if (Test-Path $mpvBundled) {
     Warn "dotfiles/mpv-config missing"
 }
 
+$weztermHelpersDir = Join-Path $dotfilesDirForLayout "wezterm"
+foreach ($helperName in @("wsl-helper.sh", "ollama-helper.sh")) {
+    $helperPath = Join-Path $weztermHelpersDir $helperName
+    if (Test-Path $helperPath) {
+        OK "wezterm/$helperName present"
+    } else {
+        if ($helperName -eq "wsl-helper.sh") {
+            Warn "wezterm/$helperName missing (required for WSL right pane)"
+            $errors += "WezTermHelperMissing:$helperName"
+        } else {
+            Warn "wezterm/$helperName missing (optional helper for ollama tab)"
+        }
+    }
+}
+
 $mpvTools     = Join-Path $root "tools\mpv"
 $portableCfg  = Join-Path $mpvTools "portable_config"
 $mpvCfgFull   = [System.IO.Path]::GetFullPath($mpvBundled)
@@ -271,6 +286,25 @@ foreach ($c in $checks) {
         $item = Get-Item $c.path
         if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
             OK "$($c.desc): present (symlink)"
+            if ($c.desc -eq "WezTerm config") {
+                $expected = [System.IO.Path]::GetFullPath((Join-Path $root "dotfiles\wezterm\wezterm.lua"))
+                $target = $item.Target
+                if ($target -is [array] -and $target.Count -gt 0) { $target = $target[0] }
+                if ($target) {
+                    try {
+                        $resolved = [System.IO.Path]::GetFullPath($target.TrimEnd('\', '/'))
+                        if ($resolved -ieq $expected) {
+                            OK "WezTerm config symlink target matches dotfiles"
+                        } else {
+                            Warn "WezTerm config points to '$resolved' (expected '$expected')"
+                        }
+                    } catch {
+                        Warn "Could not resolve WezTerm config symlink target: $_"
+                    }
+                } else {
+                    Warn "WezTerm config symlink target unavailable"
+                }
+            }
         } else {
             OK "$($c.desc): present"
         }

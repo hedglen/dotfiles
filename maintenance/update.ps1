@@ -63,6 +63,20 @@ if (-not $SkipDots) {
     Pop-Location
 }
 
+Write-Step "WezTerm helper scripts"
+$wslHelper = Join-Path $DotfilesDir "wezterm\wsl-helper.sh"
+$ollamaHelper = Join-Path $DotfilesDir "wezterm\ollama-helper.sh"
+if (Test-Path -LiteralPath $wslHelper) {
+    Write-OK "wezterm\wsl-helper.sh present"
+} else {
+    Write-Warn "Missing wezterm\wsl-helper.sh (WSL right pane will degrade to shell fallback)"
+}
+if (Test-Path -LiteralPath $ollamaHelper) {
+    Write-OK "wezterm\ollama-helper.sh present"
+} else {
+    Write-Warn "Missing wezterm\ollama-helper.sh (optional; ollama helper pane will degrade)"
+}
+
 # =============================================================================
 #   2. Re-link configs (non-destructive -- skips valid existing symlinks)
 # =============================================================================

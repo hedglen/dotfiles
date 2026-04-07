@@ -10,30 +10,149 @@ local home = wezterm.home_dir
 local workstation = home .. '\\workstation'
 local dotfiles = workstation .. '\\dotfiles'
 local projects = dotfiles .. '\\projects'
-local git_bash = 'C:\\Program Files\\Git\\bin\\bash.exe'
-local function detect_wsl_distro()
-  local preferred = { 'Ubuntu', 'Ubuntu-24.04', 'Ubuntu-22.04' }
-  local ok, handle = pcall(io.popen, 'wsl.exe -l -q 2>NUL')
-  if not ok or not handle then
-    return 'Ubuntu'
+local function file_exists(path)
+  local fh = io.open(path, 'r')
+  if fh then
+    fh:close()
+    return true
   end
-  local raw = handle:read('*a') or ''
-  handle:close()
-  local found = {}
-  for line in raw:gmatch('[^\r\n]+') do
+  return false
+end
+
+local function resolve_git_bash()
+  local from_env = (os.getenv 'WEZTERM_GIT_BASH' or ''):gsub('^%s+', ''):gsub('%s+$', '')
+  if from_env ~= '' and file_exists(from_env) then
+    return from_env
+  end
+  local candidates = {
+    'C:\\Program Files\\Git\\bin\\bash.exe',
+    home .. '\\scoop\\apps\\git\\current\\bin\\bash.exe',
+    home .. '\\AppData\\Local\\Programs\\Git\\bin\\bash.exe',
+  }
+  for _, candidate in ipairs(candidates) do
+    if file_exists(candidate) then
+      return candidate
+    end
+  end
+  wezterm.log_error('Git Bash not found in known paths; falling back to Program Files default.')
+  return 'C:\\Program Files\\Git\\bin\\bash.exe'
+end
+
+local git_bash = resolve_git_bash()
+
+-- wsl.exe -l -q can be UTF-16 LE. Decode full Unicode (not only ASCII) so non-English distro names survive.
+local function utf8_from_codepoint(cp)
+  if cp <= 0x7F then
+    return string.char(cp)
+  elseif cp <= 0x7FF then
+    return string.char(0xC0 + math.floor(cp / 0x40), 0x80 + (cp % 0x40))
+  elseif cp <= 0xFFFF then
+    return string.char(0xE0 + math.floor(cp / 0x1000), 0x80 + (math.floor(cp / 0x40) % 0x40), 0x80 + (cp % 0x40))
+  end
+  return string.char(
+    0xF0 + math.floor(cp / 0x40000),
+    0x80 + (math.floor(cp / 0x1000) % 0x40),
+    0x80 + (math.floor(cp / 0x40) % 0x40),
+    0x80 + (cp % 0x40)
+  )
+end
+
+local function utf16le_to_utf8_lines(raw)
+  if type(raw) ~= 'string' or #raw < 2 then
+    return {}
+  end
+  local i = 1
+  if raw:byte(1) == 0xFF and raw:byte(2) == 0xFE then
+    i = 3
+  end
+  local lines = {}
+  local cur = {}
+  local pending_high_surrogate = nil
+  while i <= #raw - 1 do
+    local lo, hi = raw:byte(i, i + 1)
+    i = i + 2
+    local unit = lo + hi * 0x100
+    if unit == 0 then
+      break
+    end
+    if unit == 0x000A then
+      lines[#lines + 1] = table.concat(cur)
+      cur = {}
+      pending_high_surrogate = nil
+    elseif unit == 0x000D then
+      -- ignore CR
+    else
+      if unit >= 0xD800 and unit <= 0xDBFF then
+        pending_high_surrogate = unit
+      elseif unit >= 0xDC00 and unit <= 0xDFFF and pending_high_surrogate then
+        local codepoint = 0x10000 + ((pending_high_surrogate - 0xD800) * 0x400) + (unit - 0xDC00)
+        cur[#cur + 1] = utf8_from_codepoint(codepoint)
+        pending_high_surrogate = nil
+      else
+        pending_high_surrogate = nil
+        cur[#cur + 1] = utf8_from_codepoint(unit)
+      end
+    end
+  end
+  if #cur > 0 then
+    lines[#lines + 1] = table.concat(cur)
+  end
+  local trimmed = {}
+  for _, line in ipairs(lines) do
     local name = line:gsub('^%s+', ''):gsub('%s+$', '')
     if name ~= '' then
+      trimmed[#trimmed + 1] = name
+    end
+  end
+  return trimmed
+end
+
+local function wsl_distro_responds(name)
+  if type(name) ~= 'string' or name == '' then
+    return false
+  end
+  local ok, _stdout, _stderr = wezterm.run_child_process { 'wsl.exe', '-d', name, '-e', 'true' }
+  return ok == true
+end
+
+--- Optional: set WEZTERM_WSL_DISTRO to pin a name (e.g. Ubuntu-24.04). Otherwise auto-detect from wsl -l -q.
+local function detect_wsl_distro()
+  local preferred = { 'Ubuntu', 'Ubuntu-24.04', 'Ubuntu-22.04' }
+  local from_env = (os.getenv('WEZTERM_WSL_DISTRO') or ''):gsub('^%s+', ''):gsub('%s+$', '')
+  if from_env ~= '' and wsl_distro_responds(from_env) then
+    return from_env
+  end
+  local ok, raw, _err = wezterm.run_child_process { 'wsl.exe', '-l', '-q' }
+  local found = {}
+  if ok and raw and raw ~= '' then
+    local names = utf16le_to_utf8_lines(raw)
+    if #names == 0 and not raw:find('\0', 1, true) then
+      for line in raw:gmatch('[^\r\n]+') do
+        local name = line:gsub('^%s+', ''):gsub('%s+$', '')
+        if name ~= '' then
+          names[#names + 1] = name
+        end
+      end
+    end
+    for _, name in ipairs(names) do
       found[name:lower()] = name
     end
   end
   for _, name in ipairs(preferred) do
-    local match = found[name:lower()]
-    if match then
-      return match
+    local exact = found[name:lower()]
+    if exact and wsl_distro_responds(exact) then
+      return exact
     end
   end
   for _, name in pairs(found) do
-    return name
+    if wsl_distro_responds(name) then
+      return name
+    end
+  end
+  for _, name in ipairs(preferred) do
+    if wsl_distro_responds(name) then
+      return name
+    end
   end
   return 'Ubuntu'
 end
@@ -144,7 +263,7 @@ Clear-Host
     Write-Host ('  ' + $desc) -ForegroundColor DarkGray
   }
   Write-Host 'Coding - CLI quick reference' -ForegroundColor Magenta
-  Write-Host 'Most tools from Scoop. Git tab for repo status; System tab for drives and pwsh helpers.' -ForegroundColor DarkGray
+  Write-Host 'Most tools from Scoop. Git tab for repo status; WSL right pane for gh cheat sheet.' -ForegroundColor DarkGray
   Write-Host ''
 
   Write-Host 'Listing' -ForegroundColor Cyan
@@ -281,45 +400,6 @@ while ($true) {
   Start-Sleep -Seconds 10
 }
 ]]
-local wsl_helper_cmd = [[
-cd "$HOME" || exit 1
-clear
-_win_ws=$(wslpath "$(powershell.exe -NoProfile -Command '$env:USERPROFILE' 2>/dev/null | tr -d '\r')")/workstation
-_win_projects="${_win_ws}/dotfiles/projects"
-_win_dotfiles="${_win_ws}/dotfiles"
-_win_scripts="${_win_ws}/dotfiles/scripts"
- printf "\033[35mWSL Helper\033[0m\n\n"
- printf "\033[36mDistro:\033[0m  %s\n" "${WSL_DISTRO_NAME:-Ubuntu}"
- printf "\033[36mKernel:\033[0m  %s\n" "$(uname -r)"
- printf "\033[36mShell:\033[0m   %s\n" "$(command -v zsh)"
- printf "\033[36mHome:\033[0m    %s\n" "$HOME"
- printf "\033[36mMount:\033[0m   %s\n" "$_win_ws"
- printf "\n\033[36mQuick jump:\033[0m\n"
- printf "  cd ~\n"
- printf "  cd %s\n" "$_win_ws"
- printf "  cd %s\n" "$_win_projects"
- printf "  cd %s\n" "$_win_dotfiles"
- printf "  cd %s\n" "$_win_scripts"
- printf "\n\033[36mLabels:\033[0m\n"
- printf "  workstation -> %s\n" "$_win_ws"
- printf "  projects    -> %s\n" "$_win_projects"
- printf "  dotfiles    -> %s\n" "$_win_dotfiles"
- printf "  scripts     -> %s\n" "$_win_scripts"
- printf "\n\033[36mTooling:\033[0m\n"
- if command -v git >/dev/null 2>&1; then printf "  git:     %s\n" "$(git --version | sed 's/git version //')"; else printf "  git:     missing\n"; fi
- if command -v node >/dev/null 2>&1; then printf "  node:    %s\n" "$(node -v)"; else printf "  node:    missing\n"; fi
- if command -v python3 >/dev/null 2>&1; then printf "  python3: %s\n" "$(python3 --version 2>&1 | sed 's/Python //')"; else printf "  python3: missing\n"; fi
- printf "\n\033[36mGitHub CLI:\033[0m\n"
- if command -v wslview >/dev/null 2>&1; then
-   printf "  browser bridge: wslview ready\n"
- else
-   printf "  browser bridge: install wslu for gh auth login browser flow\n"
- fi
- printf "  login: gh auth login\n"
- printf "  status: gh auth status\n"
- printf "\n"
- exec zsh -il
-]]
 local config = {}
 
 local function pwsh_spawn(cwd, cmd)
@@ -436,9 +516,27 @@ local function wsl_command_spawn(cwd, cmd)
   }
 end
 
+--- Inline bash -lc broke Windows arg passing; helper lives in repo as wsl-helper.sh (same pattern as ollama-helper.sh).
 local function wsl_helper_spawn()
+  local helper_win = dotfiles .. '\\wezterm\\wsl-helper.sh'
+  local fh = io.open(helper_win, 'r')
+  if fh then
+    fh:close()
+    local helper_script = wsl_path(helper_win)
+    return {
+      args = { 'wsl.exe', '-d', wsl_distro, 'bash', helper_script },
+    }
+  end
+  wezterm.log_error('wsl-helper.sh missing at ' .. helper_win)
   return {
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', wsl_helper_cmd },
+    args = {
+      'wsl.exe',
+      '-d',
+      wsl_distro,
+      'bash',
+      '-lc',
+      'echo "wsl-helper.sh missing in dotfiles/wezterm"; exec zsh -il',
+    },
   }
 end
 
@@ -464,32 +562,54 @@ local function ollama_helper_spawn()
   }
 end
 
+--- When spawn_tab returns only the tab (older builds) or pane is omitted, use first mux pane.
+local function mux_tab_primary_pane(tab, pane)
+  if pane then
+    return pane
+  end
+  if not tab then
+    return nil
+  end
+  local pok, panes = pcall(function()
+    return tab:panes()
+  end)
+  if pok and type(panes) == 'table' and #panes >= 1 then
+    return panes[1]
+  end
+  return nil
+end
+
 --- If spawn_tab errors (WSL missing, bad distro, etc.), WezTerm aborts gui-startup and only earlier tabs appear.
 --- Third return is true when the pwsh fallback tab was used (skip WSL-only splits).
 local function spawn_tab_or_fallback(window, spawn_tbl, title, fallback_note)
-  local ok, tab, pane = pcall(function()
+  local ok, tab, pane, _muxw = pcall(function()
     return window:spawn_tab(spawn_tbl)
   end)
   if ok and tab then
+    pane = mux_tab_primary_pane(tab, pane)
     tab:set_title(title)
     return tab, pane, false
   end
   wezterm.log_error('WezTerm spawn_tab failed (' .. title .. '): ' .. tostring(tab))
-  local ok2, tab2, pane2 = pcall(function()
+  local ok2, tab2, pane2, _w2 = pcall(function()
     return window:spawn_tab(pwsh_spawn(workstation))
   end)
   if ok2 and tab2 then
+    pane2 = mux_tab_primary_pane(tab2, pane2)
     tab2:set_title(title .. ' (no WSL)')
     if pane2 and fallback_note then
-      pane2:send_text(
-        "Write-Host "
-          .. "'"
-          .. fallback_note
-          .. "' -ForegroundColor Yellow; Write-Host 'Install WSL: wsl --install -d Ubuntu-24.04' -ForegroundColor DarkGray\r\n"
-      )
+      pcall(function()
+        pane2:send_text(
+          "Write-Host "
+            .. "'"
+            .. fallback_note
+            .. "' -ForegroundColor Yellow; Write-Host 'Install WSL: wsl --install -d Ubuntu-24.04' -ForegroundColor DarkGray\r\n"
+        )
+      end)
     end
     return tab2, pane2, true
   end
+  wezterm.log_error('WezTerm fallback spawn failed (' .. title .. ')')
   return nil, nil, false
 end
 
@@ -511,32 +631,42 @@ wezterm.on('gui-startup', function(cmd)
   }
 
   local coding_tab, coding_pane = window:spawn_tab(pwsh_spawn(workstation))
+  coding_pane = mux_tab_primary_pane(coding_tab, coding_pane)
   coding_tab:set_title 'coding'
-  coding_pane:split {
-    direction = 'Right',
-    size = 0.34,
-    cwd = workstation,
-    args = pwsh_spawn(workstation, coding_helper_cmd).args,
-  }
+  if coding_pane then
+    coding_pane:split {
+      direction = 'Right',
+      size = 0.34,
+      cwd = workstation,
+      args = pwsh_spawn(workstation, coding_helper_cmd).args,
+    }
+  end
 
   -- Git tab: left column status (top) + live watch (bottom). Right: workspace clean/dirty + git cheat (pwsh, 10s).
   -- Coding tab right: static CLI reference (no refresh).
   -- Order matters: split Right first, then Bottom on the left pane only.
   local git_tab, git_pane = window:spawn_tab(git_bash_spawn(dotfiles, git_top_helper_cmd))
+  git_pane = mux_tab_primary_pane(git_tab, git_pane)
   git_tab:set_title 'git'
-  git_pane:split {
-    direction = 'Right',
-    size = 0.37,
-    cwd = dotfiles,
-    args = pwsh_spawn(dotfiles, git_right_panel_cmd).args,
-  }
-  local git_live_pane = git_pane:split {
-    direction = 'Bottom',
-    size = 0.35,
-    cwd = dotfiles,
-    args = git_bash_spawn(dotfiles).args,
-  }
-  git_live_pane:send_text(git_live_view_cmd .. '\n')
+  if git_pane then
+    git_pane:split {
+      direction = 'Right',
+      size = 0.37,
+      cwd = dotfiles,
+      args = pwsh_spawn(dotfiles, git_right_panel_cmd).args,
+    }
+    local git_live_pane = git_pane:split {
+      direction = 'Bottom',
+      size = 0.35,
+      cwd = dotfiles,
+      args = git_bash_spawn(dotfiles).args,
+    }
+    if git_live_pane then
+      pcall(function()
+        git_live_pane:send_text(git_live_view_cmd .. '\n')
+      end)
+    end
+  end
 
   local wsl_tab, wsl_pane, wsl_fb = spawn_tab_or_fallback(
     window,
@@ -545,11 +675,16 @@ wezterm.on('gui-startup', function(cmd)
     'WSL is not available or the distro failed to start.'
   )
   if wsl_tab and wsl_pane and not wsl_fb then
-    wsl_pane:split {
-      direction = 'Right',
-      size = 0.30,
-      args = wsl_helper_spawn().args,
-    }
+    local ok_wsl_split, split_err = pcall(function()
+      wsl_pane:split {
+        direction = 'Right',
+        size = 0.30,
+        args = wsl_helper_spawn().args,
+      }
+    end)
+    if not ok_wsl_split then
+      wezterm.log_error('WSL helper pane split failed: ' .. tostring(split_err))
+    end
   end
 
   spawn_tab_or_fallback(
@@ -573,7 +708,12 @@ wezterm.on('gui-startup', function(cmd)
     'Install WSL to use Ollama helpers in this tab.'
   )
   if ollama_tab and ollama_pane and not ollama_fb then
-    ollama_pane:send_text('qc\n')
+    local ollama_main_pane = ollama_pane
+    wezterm.time.call_after(450, function()
+      pcall(function()
+        ollama_main_pane:send_text('qc\n')
+      end)
+    end)
     local ok_ollama_split, ollama_helper_pane = pcall(function()
       return ollama_pane:split {
         direction = 'Right',
@@ -582,13 +722,16 @@ wezterm.on('gui-startup', function(cmd)
       }
     end)
     if ok_ollama_split and ollama_helper_pane then
-      pcall(function()
+      local ok_ollama_bottom, ollama_bottom_err = pcall(function()
         ollama_helper_pane:split {
           direction = 'Bottom',
           size = 0.33,
           args = wsl_spawn(workstation).args,
         }
       end)
+      if not ok_ollama_bottom then
+        wezterm.log_error('Ollama bottom pane split failed: ' .. tostring(ollama_bottom_err))
+      end
     end
   end
 
@@ -709,7 +852,14 @@ config.launch_menu = {
   },
   {
     label = 'wsl — ubuntu zsh',
-    args = { 'wsl.exe', '-d', wsl_distro, 'bash', '-lc', 'exec zsh -il' },
+    args = {
+      'wsl.exe',
+      '-d',
+      wsl_distro,
+      'bash',
+      '-lc',
+      'cd ' .. bash_quote(wsl_path(workstation)) .. ' && if command -v zsh >/dev/null 2>&1; then exec zsh -il; else exec bash -il; fi',
+    },
   },
 }
 

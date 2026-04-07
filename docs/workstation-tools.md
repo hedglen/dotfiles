@@ -137,7 +137,7 @@ Install everything from the JSON (keeps the list in sync): see **`dotfiles/apps/
 | **GitHub CLI** (`gh`)                   | PRs, clones, API — `gh auth login`                           |
 | **VS Code** / **Cursor** / **Windsurf** | Editors; extensions from `dotfiles/vscode/extensions.txt`; **Claude** desktop (winget) for Anthropic chat |
 | **PowerShell 7**                        | Default shell in Windows Terminal / WezTerm                  |
-| **Windows Terminal** / **WezTerm**      | **WezTerm** (`dotfiles/wezterm/wezterm.lua`): system tab (drives, IP, pwsh helper names); **coding** tab (CLI quick reference in the right pane); **git** tab (workspace-folder clean/dirty + commit checklist, refreshes); WSL and Ollama tabs. **Windows Terminal**: linked `dotfiles/windows-terminal/settings.json`. |
+| **Windows Terminal** / **WezTerm**      | **WezTerm** (`dotfiles/wezterm/wezterm.lua`): system tab (drives, IP, pwsh helper names); **coding** tab (CLI quick reference in the right pane); **git** tab (workspace-folder clean/dirty + commit checklist, refreshes); **wsl** tab with right-pane helper (`wezterm/wsl-helper.sh`); dedicated **claude** and **codex** tabs; and the **ollama** tab. **Windows Terminal**: linked `dotfiles/windows-terminal/settings.json`. |
 | **Node.js LTS**                         | `node`, `npm`                                                |
 | **Deno**                                | TS/JS runtime                                                |
 | **Python Launcher** (`py`)              | Picks installed Python                                       |

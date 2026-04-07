@@ -21,6 +21,7 @@ ms-vscode.powershell
 #   Languages — Python
 # =============================================================================
 ms-python.python
+ms-python.black-formatter
 
 # =============================================================================
 #   Languages — Lua (mpv scripts)

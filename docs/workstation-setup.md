@@ -102,7 +102,7 @@ If a doc or script mentions **`%USERPROFILE%\tools`** only, treat it as **compat
 ### Fast health check (recommended)
 
 ```powershell
-Set-Location "C:\Users\rjh\workstation"
+Set-Location "$HOME\workstation"
 .\dotfiles\scripts\workstation-health.ps1
 ```
 
@@ -120,10 +120,10 @@ Verbose:
 ### Dry-run installers
 
 ```powershell
-Set-Location "C:\Users\rjh\workstation\dotfiles"
+Set-Location "$HOME\workstation\dotfiles"
 .\install.ps1 -DryRun
 
-Set-Location "C:\Users\rjh\workstation\dotfiles\mpv-config"
+Set-Location "$HOME\workstation\dotfiles\mpv-config"
 .\install.ps1 -DryRun
 ```
 

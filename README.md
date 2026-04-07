@@ -84,7 +84,8 @@ dotfiles/
 ├── oh-my-posh/
 │   └── hedglab.omp.json           ← custom OMP theme (Neon Dark–style segments)
 ├── wezterm/
-│   ├── wezterm.lua                ← gui-startup tabs: system (dashboard + helper names), coding (CLI cheat sheet in right split), git (workspace status + commit steps), wsl, ollama
+│   ├── wezterm.lua                ← gui-startup tabs: system, coding, git, wsl, claude, codex, ollama
+│   ├── wsl-helper.sh              ← right pane helper for the WezTerm wsl tab (quick jumps + gh notes)
 │   └── ollama-helper.sh           ← live Ollama status pane used by the WezTerm ollama tab
 ├── wsl/
 │   ├── .zshrc                     ← WSL shell aliases, workstation helpers, ollama shortcuts

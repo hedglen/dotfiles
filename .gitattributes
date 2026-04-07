@@ -1,0 +1,4 @@
+# Keep shell scripts LF for WSL/Git Bash execution.
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf

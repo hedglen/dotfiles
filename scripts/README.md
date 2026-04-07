@@ -25,6 +25,7 @@ What it checks:
 - key Windows tools on `PATH`
 - dry-run safety for `dotfiles/install.ps1`
 - dry-run safety for `dotfiles/mpv-config/install.ps1` when present
+- WezTerm helper scripts (`wezterm/wsl-helper.sh`, `wezterm/ollama-helper.sh`)
 - presence of important linked config files
 - dirty git repos across the main workstation repos
 

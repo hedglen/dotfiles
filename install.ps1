@@ -41,7 +41,7 @@ function Write-OK   { param([string]$Msg) Write-Host "   OK  $Msg" -ForegroundCo
 function Write-Skip { param([string]$Msg) Write-Host "   --  $Msg" -ForegroundColor DarkGray }
 function Write-Warn { param([string]$Msg) Write-Host "   !!  $Msg" -ForegroundColor Yellow }
 
-function Ensure-PCloudInstalled {
+function Install-PCloudIfMissing {
     param([switch]$DryRun)
     $pkgId = "pCloudAG.pCloudDrive"
     if ($DryRun) {
@@ -363,10 +363,10 @@ if (-not $ConfigsOnly -and -not $NoApps) {
             try {
                 winget import -i $pkgFile --accept-package-agreements --accept-source-agreements --ignore-versions
                 Write-OK "winget import finished"
-                Ensure-PCloudInstalled
+                Install-PCloudIfMissing
             } catch {
                 Write-Warn "winget import finished with errors (some packages may have failed) — $_"
-                Ensure-PCloudInstalled
+                Install-PCloudIfMissing
             }
         }
     } else {
@@ -437,11 +437,23 @@ if (-not $ConfigsOnly -and -not $NoApps) {
 if (-not $AppsOnly -and -not $ConfigsOnly) {
     Write-Step "WezTerm + WSL bootstrap"
     $weztermExe = "$env:LOCALAPPDATA\Programs\WezTerm\wezterm-gui.exe"
+    $wslHelper = Join-Path $DotfilesDir "wezterm\wsl-helper.sh"
+    $ollamaHelper = Join-Path $DotfilesDir "wezterm\ollama-helper.sh"
     if (Test-Path -LiteralPath $weztermExe) {
         Write-OK "WezTerm installed"
     } else {
         Write-Warn "WezTerm executable not found yet ($weztermExe)"
         Write-Warn "  Winget may still be finalizing. Re-run install.ps1 after app installs complete."
+    }
+    if (Test-Path -LiteralPath $wslHelper) {
+        Write-OK "WezTerm helper present: wezterm\wsl-helper.sh"
+    } else {
+        Write-Warn "Missing wezterm\wsl-helper.sh (WSL right pane will degrade to shell fallback)"
+    }
+    if (Test-Path -LiteralPath $ollamaHelper) {
+        Write-OK "WezTerm helper present: wezterm\ollama-helper.sh"
+    } else {
+        Write-Warn "Missing wezterm\ollama-helper.sh (optional; ollama helper pane will degrade)"
     }
 
     $wslCmd = Get-Command wsl.exe -ErrorAction SilentlyContinue
