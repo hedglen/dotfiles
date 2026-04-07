@@ -35,6 +35,36 @@ function Test-WingetPackageInstalled {
     }
 }
 
+function Invoke-WingetSafe {
+    param(
+        [Parameter(Mandatory)][string]$PackageId,
+        [Parameter(Mandatory)][string[]]$Arguments,
+        [string]$Verb = "winget"
+    )
+    try {
+        $output = (& winget @Arguments 2>&1)
+        return [PSCustomObject]@{
+            Success  = ($LASTEXITCODE -eq 0)
+            ExitCode = $LASTEXITCODE
+            Output   = @($output)
+            Threw    = $false
+            Error    = $null
+            Verb     = $Verb
+            Id       = $PackageId
+        }
+    } catch {
+        return [PSCustomObject]@{
+            Success  = $false
+            ExitCode = $LASTEXITCODE
+            Output   = @()
+            Threw    = $true
+            Error    = $_
+            Verb     = $Verb
+            Id       = $PackageId
+        }
+    }
+}
+
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Magenta
 Write-Host "   dotfiles updater -- hedglen" -ForegroundColor Magenta
@@ -268,6 +298,7 @@ if (-not $SkipApps) {
         Write-Warn "apps\winget-packages.json not found -- skipping"
     } else {
         $packages = (Get-Content $pkgFile | ConvertFrom-Json).Sources.Packages.PackageIdentifier
+        $wingetFailures = New-Object System.Collections.Generic.List[string]
 
         foreach ($id in $packages) {
             if ($DryRun) {
@@ -275,23 +306,46 @@ if (-not $SkipApps) {
             } else {
                 $isInstalled = Test-WingetPackageInstalled -Id $id
                 if (-not $isInstalled) {
-                    $installOut = winget install --id $id -e --accept-package-agreements --accept-source-agreements 2>&1
-                    if ($LASTEXITCODE -eq 0) {
+                    $installResult = Invoke-WingetSafe -PackageId $id -Verb "install" -Arguments @(
+                        "install", "--id", $id, "-e", "--accept-package-agreements", "--accept-source-agreements"
+                    )
+                    if ($installResult.Success) {
                         Write-OK "$id (installed)"
                     } else {
-                        Write-Warn "$id install failed"
-                        $installOut | ForEach-Object { Write-Warn "  $_" }
+                        Write-Warn "$id install failed (exit $($installResult.ExitCode))"
+                        if ($installResult.Threw) {
+                            Write-Warn "  $($installResult.Error)"
+                        } else {
+                            $installResult.Output | ForEach-Object { Write-Warn "  $_" }
+                        }
+                        $wingetFailures.Add("$id (install)")
                         continue
                     }
                 }
 
-                $result = winget upgrade --id $id --accept-package-agreements --accept-source-agreements 2>&1
-                if (($result -match 'No applicable upgrade') -or ($result -match 'No installed package found')) {
+                $upgradeResult = Invoke-WingetSafe -PackageId $id -Verb "upgrade" -Arguments @(
+                    "upgrade", "--id", $id, "--accept-package-agreements", "--accept-source-agreements"
+                )
+                $upgradeText = ($upgradeResult.Output -join "`n")
+                if ($upgradeResult.Success -and (($upgradeText -match 'No applicable upgrade') -or ($upgradeText -match 'No installed package found'))) {
                     Write-Skip "$id (up to date)"
-                } else {
+                } elseif ($upgradeResult.Success) {
                     Write-OK "$id"
+                } else {
+                    Write-Warn "$id upgrade failed (exit $($upgradeResult.ExitCode))"
+                    if ($upgradeResult.Threw) {
+                        Write-Warn "  $($upgradeResult.Error)"
+                    } else {
+                        $upgradeResult.Output | Select-Object -First 3 | ForEach-Object { Write-Warn "  $_" }
+                    }
+                    $wingetFailures.Add("$id (upgrade)")
                 }
             }
+        }
+
+        if (-not $DryRun -and $wingetFailures.Count -gt 0) {
+            Write-Warn ("Winget had {0} package failure(s): {1}" -f $wingetFailures.Count, ($wingetFailures -join ', '))
+            Write-Warn "Updater continued; re-run a failed package manually with: winget upgrade --id <PackageId>"
         }
     }
 
