@@ -544,19 +544,18 @@ If the browser handoff still misbehaves, open [github.com/login/device](https://
 
 ## 🔧 Manual Installs
 
-These apps are **not** listed in `apps/winget-packages.json` and must be installed manually. (**JDownloader** is available via winget as `AppWork.JDownloader` in this repo; use a manual install only if you prefer the website build or a portable layout.)
-
-### 🟢 Macrium Reflect Home
-
-- **Download:** [macrium.com/reflectfree](https://www.macrium.com/reflectfree)
-- **Install:** Run installer, select "Home" edition (free)
-- **Note:** Re-register email after install to unlock scheduling
+Manual-only app:
 
 ### 🟠 Battle.net
 
 - **Download:** [battle.net installer](https://us.battle.net/download/getBnetInstaller)
 - **Install:** Run Battle.net installer, log in with Blizzard account
 - **Account:** stored in Bitwarden
+
+Optional alternate installer:
+
+- **JDownloader** is already in `apps/winget-packages.json` as `AppWork.JDownloader`.
+- Use manual install only if you prefer the website build or a portable layout.
 
 ---
 

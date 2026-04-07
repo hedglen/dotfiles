@@ -207,7 +207,7 @@ DotNet desktop runtimes, VC++ redistributables, Windows App Runtime, App Install
 
 ## Manual installs (not in winget list)
 
-See dotfiles README **Manual Installs** (e.g. Macrium Reflect, Battle.net). **JDownloader** is in `winget-packages.json` (`AppWork.JDownloader`); manual steps there are only for alternate installers. **Directory Opus** is licensed separately; setup notes are in [directory-opus.md](./directory-opus.md).
+See dotfiles README **Manual Installs** (currently Battle.net). **JDownloader** is in `winget-packages.json` (`AppWork.JDownloader`); manual steps there are only for alternate installers. **Directory Opus** is licensed separately; setup notes are in [directory-opus.md](./directory-opus.md).
 
 ---
 
