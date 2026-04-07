@@ -198,6 +198,14 @@ function sync-dots {
     & "$HOME\workstation\dotfiles\maintenance\update.ps1" -SkipApps
 }
 
+function Update-Dotfiles {
+    & "$HOME\workstation\dotfiles\maintenance\update.ps1" @args
+}
+
+function Test-WorkstationHealth {
+    & "$HOME\workstation\dotfiles\scripts\workstation-health.ps1" @args
+}
+
 # ask — plain-English terminal helper powered by Anthropic
 function ask {
     param(
@@ -245,6 +253,26 @@ function ytdl {
 Set-Alias dl ytdl
 function dll { yt-dlp --list-extractors @args }
 
+function Update-MediaOrganizerPip {
+    & "$HOME\workstation\dotfiles\projects\media-organizer\.venv\Scripts\python.exe" -m pip install --upgrade pip
+}
+
+function Update-MediaOrganizerDeps {
+    & "$HOME\workstation\dotfiles\projects\media-organizer\.venv\Scripts\pip.exe" install -r "$HOME\workstation\dotfiles\projects\media-organizer\requirements.txt"
+}
+
+function Update-YtdlDeps {
+    & "$HOME\workstation\dotfiles\projects\ytdl\.venv\Scripts\pip.exe" install rich
+}
+
+function Update-TranscribeDeps {
+    & "$HOME\workstation\tools\transcribe-env\Scripts\pip.exe" install -U openai-whisper
+}
+
+function Update-ProjectVenvs {
+    & "$HOME\workstation\dotfiles\install.ps1" -NoApps
+}
+
 function scimitar { & "$HOME\workstation\dotfiles\corsair\scimitar.ps1" @args }
 
 function trans {
@@ -271,6 +299,13 @@ Set-Alias startup-list Get-StartupList
 Set-Alias tasks-user   Get-UserTasks
 Set-Alias startup-find Search-Startup
 Set-Alias uptime       Get-Uptime
+Set-Alias dots-update  Update-Dotfiles
+Set-Alias dots-health  Test-WorkstationHealth
+Set-Alias pip-upgrade  Update-MediaOrganizerPip
+Set-Alias py-media-deps Update-MediaOrganizerDeps
+Set-Alias py-ytdl-deps Update-YtdlDeps
+Set-Alias py-transcribe-deps Update-TranscribeDeps
+Set-Alias py-refresh-venvs Update-ProjectVenvs
 
 # =============================================================================
 #   PSReadLine
