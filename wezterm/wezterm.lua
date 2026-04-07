@@ -131,6 +131,13 @@ Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop status' -N
 Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop update *' -NoNewline -ForegroundColor Yellow; Write-Host '  update all scoop apps' -ForegroundColor DarkGray
 Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop cleanup *' -NoNewline -ForegroundColor Yellow; Write-Host '  remove old versions' -ForegroundColor DarkGray
 Write-Host ''
+Write-Host ' Python (venv):' -ForegroundColor Cyan
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'py -m pip install --upgrade pip' -NoNewline -ForegroundColor Yellow; Write-Host '  refresh launcher pip' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\install.ps1" -NoApps' -NoNewline -ForegroundColor Yellow; Write-Host '  refresh project venv helpers' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\projects\media-organizer\.venv\Scripts\pip.exe" install -r "$HOME\workstation\dotfiles\projects\media-organizer\requirements.txt"' -NoNewline -ForegroundColor Yellow; Write-Host '  media-organizer deps' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\projects\ytdl\.venv\Scripts\pip.exe" install rich' -NoNewline -ForegroundColor Yellow; Write-Host '  ytdl helper deps' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\tools\transcribe-env\Scripts\pip.exe" install -U openai-whisper' -NoNewline -ForegroundColor Yellow; Write-Host '  transcribe env package' -ForegroundColor DarkGray
+Write-Host ''
 Write-Host ' Windows Update:' -ForegroundColor Cyan
 Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'Start ms-settings:windowsupdate' -NoNewline -ForegroundColor Yellow; Write-Host '  open Windows Update settings' -ForegroundColor DarkGray
 Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'usoclient StartScan' -NoNewline -ForegroundColor Yellow; Write-Host '  trigger scan (may be policy-limited)' -ForegroundColor DarkGray
