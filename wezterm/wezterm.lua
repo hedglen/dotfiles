@@ -113,11 +113,11 @@ Write-Host ''
 Write-Host 'Updates & upgrades' -ForegroundColor Magenta
 Write-Host ' Dotfiles:' -ForegroundColor Cyan
 Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'sync-dots' -NoNewline -ForegroundColor Yellow; Write-Host '  pull + relink (update.ps1 -SkipApps)' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1' -NoNewline -ForegroundColor Yellow; Write-Host '  full dotfiles + apps update' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1 -SkipApps' -NoNewline -ForegroundColor Yellow; Write-Host '  pull/relink/extensions/fonts only' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1 -SkipDots' -NoNewline -ForegroundColor Yellow; Write-Host '  apps only (winget + scoop)' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1 -DryRun' -NoNewline -ForegroundColor Yellow; Write-Host '  preview updater actions' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\scripts\workstation-health.ps1' -NoNewline -ForegroundColor Yellow; Write-Host '  quick setup health check' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\maintenance\update.ps1"' -NoNewline -ForegroundColor Yellow; Write-Host '  full dotfiles + apps update' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\maintenance\update.ps1" -SkipApps' -NoNewline -ForegroundColor Yellow; Write-Host '  pull/relink/extensions/fonts only' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\maintenance\update.ps1" -SkipDots' -NoNewline -ForegroundColor Yellow; Write-Host '  apps only (winget + scoop)' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\maintenance\update.ps1" -DryRun' -NoNewline -ForegroundColor Yellow; Write-Host '  preview updater actions' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '& "$HOME\workstation\dotfiles\scripts\workstation-health.ps1"' -NoNewline -ForegroundColor Yellow; Write-Host '  quick setup health check' -ForegroundColor DarkGray
 Write-Host ''
 Write-Host ' WinGet:' -ForegroundColor Cyan
 Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget source update' -NoNewline -ForegroundColor Yellow; Write-Host '  refresh package sources' -ForegroundColor DarkGray
