@@ -10,8 +10,12 @@
     "keybindings": 
     [
         {
-            "id": "Terminal.NewTab",
-            "keys": "ctrl+t"
+            "id": "Terminal.CopyToClipboard",
+            "keys": "ctrl+c"
+        },
+        {
+            "id": "Terminal.PrevTab",
+            "keys": "ctrl+shift+tab"
         },
         {
             "id": "Terminal.SplitDown",
@@ -22,12 +26,8 @@
             "keys": "ctrl+tab"
         },
         {
-            "id": "Terminal.CopyToClipboard",
-            "keys": "ctrl+c"
-        },
-        {
-            "id": "Terminal.PrevTab",
-            "keys": "ctrl+shift+tab"
+            "id": "Terminal.NewTab",
+            "keys": "ctrl+t"
         },
         {
             "id": "Terminal.PasteFromClipboard",
@@ -111,6 +111,12 @@
                 "guid": "{acbafd15-cbbb-5bb3-8a61-bed446ff4b83}",
                 "hidden": false,
                 "name": "Ubuntu 24.04 LTS",
+                "source": "CanonicalGroupLimited.Ubuntu24.04LTS_79rhkp1fndgsc"
+            },
+            {
+                "guid": "{d8e96812-b789-5068-a5ae-10b2fb53e95f}",
+                "hidden": false,
+                "name": "Ubuntu 24.04.1 LTS",
                 "source": "CanonicalGroupLimited.Ubuntu24.04LTS_79rhkp1fndgsc"
             }
         ]

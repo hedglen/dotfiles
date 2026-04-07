@@ -19,6 +19,7 @@
     "pandoc",
     "rclone",
     "ripgrep",
+    "scoop-search",
     "sd",
     "tealdeer",
     "wget",
