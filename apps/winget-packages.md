@@ -66,7 +66,6 @@ The JSON groups packages roughly as: **dev toolchain → .NET / Windows platform
 | ID | What it does | Example use |
 |----|----------------|-------------|
 | **Daum.PotPlayer** | Full-featured video/audio player. | Broad codecs and filters without extra plugins |
-| **shinchiro.mpv** | Minimal, scriptable media player (community build). | `mpv` with custom config, HDR, keyboard-driven playback |
 | **ShareX.ShareX** | Screenshots, recording, uploads, workflows. | Region capture → clipboard or host in one shortcut |
 | **BandicamCompany.Bandicut** | Video cutter/joiner. | Trim clips without a full editor |
 | **yt-dlp.FFmpeg** | FFmpeg packaged for yt-dlp workflows. | Encoding/decoding for downloads and tools that call ffmpeg |

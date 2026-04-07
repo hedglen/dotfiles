@@ -39,7 +39,6 @@
         { "PackageIdentifier": "Vivaldi.Vivaldi" },
 
         { "PackageIdentifier": "Daum.PotPlayer" },
-        { "PackageIdentifier": "shinchiro.mpv" },
         { "PackageIdentifier": "ShareX.ShareX" },
         { "PackageIdentifier": "BandicamCompany.Bandicut" },
         { "PackageIdentifier": "yt-dlp.FFmpeg" },

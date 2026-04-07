@@ -16,6 +16,7 @@ Long-form workstation guides live in **this `docs/` folder** (same repo as `inst
 | [**workstation-setup.md**](workstation-setup.md) | Rebuild, verify, dry-runs, health checks — the main runbook |
 | [**workstation-layout.md**](workstation-layout.md) | Canonical folder layout under `%USERPROFILE%\workstation` (including junctions) |
 | [**workstation-tools.md**](workstation-tools.md) | What each installed tool is for; PowerShell helpers; links to app manifests |
+| [**clean-reinstall-runbook.md**](clean-reinstall-runbook.md) | Pre-wipe and post-wipe checklist for fast rebuild with `install.ps1` |
 | [**directory-opus.md**](directory-opus.md) | Directory Opus layout, prefs, and shortcuts |
 | [**ollama-guide.md**](ollama-guide.md) | Local Ollama on WSL, WezTerm tab, models, `ollama-files.py` |
 
