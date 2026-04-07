@@ -65,6 +65,8 @@ function Invoke-WingetSafe {
     }
 }
 
+$WingetUpdateNotApplicableExitCode = -1978335189
+
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Magenta
 Write-Host "   dotfiles updater -- hedglen" -ForegroundColor Magenta
@@ -327,7 +329,12 @@ if (-not $SkipApps) {
                     "upgrade", "--id", $id, "--accept-package-agreements", "--accept-source-agreements"
                 )
                 $upgradeText = ($upgradeResult.Output -join "`n")
-                if ($upgradeResult.Success -and (($upgradeText -match 'No applicable upgrade') -or ($upgradeText -match 'No installed package found'))) {
+                if (
+                    ($upgradeResult.ExitCode -eq $WingetUpdateNotApplicableExitCode) -or
+                    ($upgradeText -match 'No applicable upgrade') -or
+                    ($upgradeText -match 'No available upgrade found') -or
+                    ($upgradeText -match 'No newer package versions are available')
+                ) {
                     Write-Skip "$id (up to date)"
                 } elseif ($upgradeResult.Success) {
                     Write-OK "$id"
