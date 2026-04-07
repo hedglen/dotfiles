@@ -198,12 +198,21 @@ local git_right_panel_cmd = [[
 while ($true) {
   Clear-Host
   Set-Location "$env:USERPROFILE\workstation"
-  $wsFile = Get-ChildItem -LiteralPath "$env:USERPROFILE\workstation" -Filter "*.code-workspace" -ErrorAction SilentlyContinue | Select-Object -First 1
+  $wsRoot = "$env:USERPROFILE\workstation"
+  $preferredWs = Join-Path $wsRoot "rjh-workspace.code-workspace"
+  $wsFile = if (Test-Path -LiteralPath $preferredWs) {
+    Get-Item -LiteralPath $preferredWs
+  } else {
+    Get-ChildItem -LiteralPath $wsRoot -Filter "*.code-workspace" -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -First 1
+  }
+  $wsBase = if ($wsFile) { Split-Path -Parent $wsFile.FullName } else { $wsRoot }
   $workspace = if ($wsFile) { Get-Content -LiteralPath $wsFile.FullName -Raw | ConvertFrom-Json } else { $null }
   $workspaceFolders = if ($workspace) { $workspace.folders | ForEach-Object {
+    $name = if ($_.name) { $_.name } else { [System.IO.Path]::GetFileName($_.path) }
+    $fullPath = if ([IO.Path]::IsPathRooted($_.path)) { $_.path } else { Join-Path $wsBase $_.path }
     [PSCustomObject]@{
-      Name = $_.name
-      FullName = Join-Path "$env:USERPROFILE\workstation" $_.path
+      Name = $name
+      FullName = $fullPath
     }
   } } else { @() }
 
@@ -233,33 +242,40 @@ while ($true) {
   }
 
   Write-Host ''
-  Write-Host 'Git — Commit & Push' -ForegroundColor Magenta
+  Write-Host 'Git — helper-first runbook' -ForegroundColor Magenta
   Write-Host ''
   Write-Host '  1.  git status --short --branch' -ForegroundColor Yellow
-  Write-Host '      see what changed and what branch you are on' -ForegroundColor DarkGray
+  Write-Host '      check branch + pending changes' -ForegroundColor DarkGray
   Write-Host ''
-  Write-Host '  2.  git diff' -ForegroundColor Yellow
+  Write-Host '  2.  sync-dots   (dotfiles only, when clean)' -ForegroundColor Yellow
+  Write-Host '      pull/relink before local edits' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host '  3.  git diff' -ForegroundColor Yellow
   Write-Host '      review unstaged changes' -ForegroundColor DarkGray
   Write-Host ''
-  Write-Host '  3.  git add <file>' -ForegroundColor Yellow
-  Write-Host '      or: git add -A  to stage everything' -ForegroundColor DarkGray
+  Write-Host '  4.  git add <file>   (or git add -A)' -ForegroundColor Yellow
+  Write-Host '      stage intended changes only' -ForegroundColor DarkGray
   Write-Host ''
-  Write-Host '  4.  git diff --staged' -ForegroundColor Yellow
-  Write-Host '      confirm what is about to be committed' -ForegroundColor DarkGray
+  Write-Host '  5.  git diff --staged' -ForegroundColor Yellow
+  Write-Host '      confirm staged commit content' -ForegroundColor DarkGray
   Write-Host ''
-  Write-Host '  5.  git commit -m "type: description"' -ForegroundColor Yellow
-  Write-Host '      feat  fix  docs  chore  refactor  style' -ForegroundColor DarkGray
+  Write-Host '  6.  git commit -m "type(scope): summary"' -ForegroundColor Yellow
+  Write-Host '      feat/fix/docs/chore/refactor/style/test' -ForegroundColor DarkGray
   Write-Host ''
-  Write-Host '  6.  git push' -ForegroundColor Yellow
-  Write-Host '      new branch: git push -u origin HEAD' -ForegroundColor DarkGray
+  Write-Host '  7.  git push' -ForegroundColor Yellow
+  Write-Host '      fallback: git push -u origin HEAD' -ForegroundColor DarkGray
+  Write-Host ''
+  Write-Host 'Dotfiles shortcut:' -ForegroundColor Cyan
+  Write-Host '  save-dots "chore(dotfiles): summary"' -ForegroundColor Yellow
+  Write-Host '  stages all, commits, pushes dotfiles' -ForegroundColor DarkGray
   Write-Host ''
   Write-Host 'Undo:' -ForegroundColor Cyan
   Write-Host '  unstage   git restore --staged <file>'
   Write-Host '  discard   git restore <file>'
   Write-Host '  park      git stash push -m "note"'
-  Write-Host '  unpause   git stash pop'
+  Write-Host '  unpause   git stash apply  (then drop)'
   Write-Host ''
-  Write-Host 'Workspace + cheat refresh every 10s. Ctrl+C to stop.' -ForegroundColor DarkGray
+  Write-Host 'Refreshes every 10s. Ctrl+C to stop.' -ForegroundColor DarkGray
   Start-Sleep -Seconds 10
 }
 ]]
