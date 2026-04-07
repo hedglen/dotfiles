@@ -7,7 +7,7 @@
 #     irm https://raw.githubusercontent.com/hedglen/dotfiles/master/install.ps1 | iex
 #
 #   Flags:
-#     -AppsOnly     Only install winget apps
+#     -AppsOnly     Skip most setup/config steps; still installs apps
 #     -ConfigsOnly  Only symlink config files
 #     -NoApps    Skip winget import and Scoop installs
 #     -NoScoop   Skip Scoop only (winget import still runs)
@@ -531,7 +531,7 @@ if (-not $AppsOnly) {
     $configs = @(
         @{
             src  = "powershell\profile.ps1"
-            dst  = $PROFILE.CurrentUserCurrentHost
+            dst  = "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
             desc = "PowerShell profile"
         },
         @{

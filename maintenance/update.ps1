@@ -25,6 +25,16 @@ function Write-OK   { param([string]$Msg) Write-Host "   OK  $Msg" -ForegroundCo
 function Write-Skip { param([string]$Msg) Write-Host "   --  $Msg" -ForegroundColor DarkGray }
 function Write-Warn { param([string]$Msg) Write-Host "   !!  $Msg" -ForegroundColor Yellow }
 
+function Test-WingetPackageInstalled {
+    param([Parameter(Mandatory)][string]$Id)
+    try {
+        $out = (& winget list --id $Id -e --accept-source-agreements 2>$null) -join "`n"
+        return ($out -match [regex]::Escape($Id))
+    } catch {
+        return $false
+    }
+}
+
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Magenta
 Write-Host "   dotfiles updater -- hedglen" -ForegroundColor Magenta
@@ -247,10 +257,22 @@ if (-not $SkipApps) {
 
         foreach ($id in $packages) {
             if ($DryRun) {
-                Write-Skip "Would upgrade: $id"
+                Write-Skip "Would ensure installed + upgrade: $id"
             } else {
+                $isInstalled = Test-WingetPackageInstalled -Id $id
+                if (-not $isInstalled) {
+                    $installOut = winget install --id $id -e --accept-package-agreements --accept-source-agreements 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-OK "$id (installed)"
+                    } else {
+                        Write-Warn "$id install failed"
+                        $installOut | ForEach-Object { Write-Warn "  $_" }
+                        continue
+                    }
+                }
+
                 $result = winget upgrade --id $id --accept-package-agreements --accept-source-agreements 2>&1
-                if ($result -match 'No applicable upgrade') {
+                if (($result -match 'No applicable upgrade') -or ($result -match 'No installed package found')) {
                     Write-Skip "$id (up to date)"
                 } else {
                     Write-OK "$id"
@@ -267,8 +289,37 @@ if (-not $SkipApps) {
     } elseif (-not (Test-Path $scoopFile)) {
         Write-Warn "apps\scoop-packages.json not found — skipping Scoop"
     } elseif ($DryRun) {
+        Write-Skip "Would install missing packages from apps\\scoop-packages.json"
         Write-Skip "Would run: scoop update *"
     } else {
+        $names = @((Get-Content $scoopFile -Raw | ConvertFrom-Json).packages | Where-Object { $_ })
+        if ($names.Count -eq 0) {
+            Write-Skip "No package names in scoop-packages.json"
+        } else {
+            $installedSet = @{}
+            try {
+                & scoop list 2>$null | ForEach-Object {
+                    $line = $_.ToString().Trim()
+                    if ($line -and $line -notmatch '^Name\s+Version\s+Source' -and $line -notmatch '^----') {
+                        $pkg = ($line -split '\s+')[0]
+                        if ($pkg) { $installedSet[$pkg.ToLower()] = $true }
+                    }
+                }
+            } catch { }
+
+            $missing = @($names | Where-Object { -not $installedSet.ContainsKey($_.ToLower()) })
+            if ($missing.Count -gt 0) {
+                & scoop install @missing
+                if ($LASTEXITCODE -eq 0) {
+                    Write-OK "scoop install ($($missing.Count) missing)"
+                } else {
+                    Write-Warn "scoop install exited $LASTEXITCODE"
+                }
+            } else {
+                Write-Skip "All Scoop manifest packages already installed"
+            }
+        }
+
         cmd /c "scoop update *"
         if ($LASTEXITCODE -eq 0) {
             Write-OK "scoop update *"

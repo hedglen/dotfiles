@@ -14,8 +14,13 @@ param(
     [switch]$DryRun
 )
 
-$python = "C:\Users\rjh\workstation\tools\transcribe-env\Scripts\python.exe"
+$python = "$HOME\workstation\tools\transcribe-env\Scripts\python.exe"
 $script = "$PSScriptRoot\video-ocr-translate.py"
+
+if (-not (Test-Path -LiteralPath $python)) {
+    Write-Error "Python venv not found at $python. Create it first (tools\\transcribe-env)."
+    exit 1
+}
 
 $cmdArgs = @($script, $Video)
 if ($Output)               { $cmdArgs += @("--output", $Output) }

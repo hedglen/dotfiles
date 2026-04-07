@@ -125,8 +125,30 @@
 ;   Helpers
 ; =============================================================================
 
+GetHdrSwitcherPath() {
+    userProfile := EnvGet("USERPROFILE")
+    candidates := [
+        userProfile "\workstation\tools\mpv\portable_config\hdrswitch.exe",
+        userProfile "\workstation\tools\HdrSwitcher\HdrSwitcher.exe"
+    ]
+    for exePath in candidates {
+        if FileExist(exePath)
+            return exePath
+    }
+    return ""
+}
+
+InvokeHdrSwitcher(mode) {
+    exePath := GetHdrSwitcherPath()
+    if (exePath = "") {
+        TrayTip "HDR switcher missing", "Install via dotfiles mpv-config installer", 2500
+        return
+    }
+    Run A_ComSpec ' /c ""' exePath '" ' mode '"',, "Hide"
+}
+
 ; Win+Alt+H → Toggle HDR on/off
-#!h:: Run A_ComSpec ' /c "C:\Users\rjh\workstation\tools\HdrSwitcher\HdrSwitcher.exe toggle"',, "Hide"
+#!h:: InvokeHdrSwitcher("toggle")
 
 ; =============================================================================
 ;   HDR Auto-Toggle for Games
@@ -149,10 +171,10 @@ GameHDRWatch() {
     }
     if (gameRunning && !g_hdrEnabledByGame) {
         g_hdrEnabledByGame := true
-        Run A_ComSpec ' /c "C:\Users\rjh\workstation\tools\HdrSwitcher\HdrSwitcher.exe enable"',, "Hide"
+        InvokeHdrSwitcher("enable")
     } else if (!gameRunning && g_hdrEnabledByGame) {
         g_hdrEnabledByGame := false
-        Run A_ComSpec ' /c "C:\Users\rjh\workstation\tools\HdrSwitcher\HdrSwitcher.exe disable"',, "Hide"
+        InvokeHdrSwitcher("disable")
     }
 }
 

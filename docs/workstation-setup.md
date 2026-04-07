@@ -4,10 +4,10 @@ Command center for **rebuild, verify, and maintain** the workstation environment
 
 ## Canonical rules (do not drift)
 
-- **Canonical root**: `C:\Users\rjh\workstation\`
+- **Canonical root**: `$HOME\workstation\` (author example: `C:\Users\rjh\workstation\`)
 - **Dotfiles is the source of truth** for installed apps and hotkey targets: `dotfiles/apps/winget-packages.json`, `dotfiles/apps/scoop-packages.json`, plus `apps/winget-packages.md` / `apps/scoop-packages.md`. This runbook, **`dotfiles/docs/`**, and AutoHotkey should agree with those lists; anything not in a manifest is **optional / manual** — say so in prose.
 - **Prefer relative paths** in docs (e.g. `dotfiles/`, `tools/`). For Python helpers, source of truth is **`dotfiles/projects/`**; **`workstation\projects`** is usually a **junction** to that folder.
-- **Absolute paths** only when clarity needs it; they must use the canonical root.
+- **Absolute paths** only when clarity needs it; prefer `$HOME`-based examples for portability.
 - **Compatibility only**: `%USERPROFILE%\tools` may be a **junction** → `C:\Users\rjh\workstation\tools`. Do not use it in new work except when explaining compatibility.
 
 ## Workspace layout (canonical)
@@ -72,15 +72,15 @@ If **`workstation\projects`** is a junction, `Set-Location "$HOME\workstation\pr
 ### Open the workspace
 
 ```powershell
-code "C:\Users\rjh\workstation\rjh-workspace.code-workspace"
+code "$HOME\workstation\rjh-workspace.code-workspace"
 ```
 
 ### Typical working directories
 
 ```powershell
-Set-Location "C:\Users\rjh\workstation"
-Set-Location "C:\Users\rjh\workstation\dotfiles"
-Set-Location "C:\Users\rjh\workstation\projects"   # junction → dotfiles\projects when installer set it up
+Set-Location "$HOME\workstation"
+Set-Location "$HOME\workstation\dotfiles"
+Set-Location "$HOME\workstation\projects"   # junction → dotfiles\projects when installer set it up
 ```
 
 ## Compatibility junctions

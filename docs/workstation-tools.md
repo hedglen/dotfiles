@@ -33,7 +33,7 @@ Defined in `dotfiles/powershell/profile.ps1`. Some depend on **`dotfiles/project
 | `orgmed` / `orgmedx`                  | Media organizer (`dotfiles/projects/media-organizer`; venv from `install.ps1`) — inbox `R:\Media\x\dl` (same as `ytdl`); library roots `R:\Media\Movies`, `TV Shows`, `Music Videos`, `x` (`config.toml`); `orgmedx` is `--dest x --apply`. See `organize.py --help` |
 | `ytdl` / `dl`                         | yt-dlp wrapper (`dotfiles/projects/ytdl/ytdl.py`); `dl` is an alias. `--audio`, `--quality 1080|720|480|best`, `--playlist` (`workstation\projects\ytdl` works if junction exists)                                   |
 | `dll`                                 | `yt-dlp --list-extractors`                                                                                                                           |
-| `trans`                               | Transcribe video → `.srt` + `.md` (`dotfiles/scripts/transcribe.py`, venv in `tools/transcribe-env`)                                                          |
+| `trans`                               | Transcribe video → `.srt` + `.md` (`dotfiles/scripts/transcribe.py`, venv in `tools/transcribe-env`; create manually)                                         |
 | `vtrans` / `fixsub`                   | Video OCR / translate path (`dotfiles/scripts/video-ocr-translate.py`)                                                                                        |
 | `scimitar`                            | Corsair Scimitar helper (`dotfiles/corsair/scimitar.ps1`)                                                                                            |
 
@@ -73,6 +73,7 @@ Install everything from the JSON (keeps the list in sync): see **`dotfiles/apps/
 | `lazygit`      | Terminal UI for Git                                  | `lazygit --help`                                            |
 | `zoxide`       | `z` / `zi` directory jumper (initialized in profile) | [ajeetdsouza/zoxide](https://github.com/ajeetdsouza/zoxide) |
 | `rclone`       | Sync and mount cloud/NAS (`rclone config`)           | [rclone.org](https://rclone.org/docs/)                      |
+| `scoop-search` | Search Scoop manifests from the terminal              | `scoop-search --help`                                       |
 | `gsudo`        | Run a single elevated command                        | `gsudo --help`                                              |
 | `fastfetch`    | Neofetch-style system info                           | `fastfetch --help`                                          |
 | `dust`         | Disk usage tree                                      | `dust --help`                                               |

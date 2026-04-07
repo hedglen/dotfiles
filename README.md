@@ -122,7 +122,7 @@ dotfiles/
 └── apps/
     ├── winget-packages.json       ← full app list for winget import
     ├── winget-packages.md         ← what each winget package is for
-    ├── scoop-packages.json        ← CLI apps installed via Scoop (manual after Scoop setup)
+    ├── scoop-packages.json        ← CLI apps installed via Scoop (auto-installed by install.ps1)
     └── scoop-packages.md          ← what each Scoop package is for
 ```
 
@@ -263,7 +263,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 
 | Hotkey | Action |
 | --- | --- |
-| `Win+T` | Windows Terminal (PowerShell) — suppressed when mpv is focused |
+| `Win+T` | Windows Terminal (`wt`) |
 | `Win+E` | Directory Opus → File Pilot → Explorer (first found) |
 | `Win+B` | Brave if installed, else **Chrome** (matches `winget-packages.json` default) |
 | `Win+N` | **Firefox** (winget) |
@@ -276,7 +276,7 @@ Script: `autohotkey/main.ahk` — loads on startup via registry Run key.
 | --- | --- |
 | `Win+Alt+Left` | Move window to left monitor |
 | `Win+Alt+Right` | Move window to right monitor |
-| `Win+Alt+F` | Toggle true fullscreen (borderless, any window) |
+| `Win+Alt+F` | Toggle maximize / restore |
 
 ### Clipboard
 
@@ -489,7 +489,7 @@ For **how to use** installed apps and profile helpers (not just the install list
 | **Cloud / downloads** | Google Drive, pCloud Drive; Internet Download Manager, JDownloader |
 | **System / hardware** | HWiNFO, CrystalDiskInfo, MSI Afterburner, FanControl, AOMEI Partition Assistant, Sysinternals, UniGetUI, Corsair iCUE 5, Logitech G HUB |
 | **Desktop shell** | StartAllBack, PowerToys, TranslucentTB |
-| **Games** | Steam, Paradox launcher |
+| **Games** | Steam |
 
 ### Scoop (CLI packages)
 

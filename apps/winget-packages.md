@@ -166,7 +166,6 @@ The JSON groups packages roughly as: **dev toolchain → .NET / Windows platform
 | ID | What it does | Example use |
 |----|----------------|-------------|
 | **Adobe.CreativeCloud** | Adobe installer hub (subscription). | Photoshop, Premiere, etc. |
-| **ParadoxInteractive.ParadoxLauncher** | Launcher for Paradox games. | CK, EU, Stellaris, … |
 | **Valve.Steam** | Store, library, updates, multiplayer. | PC gaming catalog |
 
 ---

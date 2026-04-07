@@ -33,6 +33,7 @@ Or install packages individually. These complement GUI and runtime apps in **`wi
 | **pandoc** | Converts between Markdown, Word, PDF, HTML, LaTeX, and more. | `pandoc report.md -o report.pdf` |
 | **rclone** | Syncs and mounts cloud storage (S3, Drive, Dropbox, etc.). | `rclone sync remote:bucket D:\backup` |
 | **ripgrep** (`rg`) | Extremely fast recursive text search with regex and filtering. | `rg 'TODO' --type rust` across a codebase |
+| **scoop-search** | Search Scoop manifests from the terminal. | `scoop-search ffmpeg` or `scoop-search git` |
 | **sd** | Intuitive find-and-replace (often easier than `sed` for simple jobs). | `sd 'old' 'new' **/*.txt` |
 | **tealdeer** | Local **tldr** client: short practical examples for CLI tools. | `tldr tar` then `tldr --update` occasionally to refresh pages |
 | **wget** | Downloads files and mirrors sites from the command line. | `wget URL -O file.zip` in scripts or recovery environments |

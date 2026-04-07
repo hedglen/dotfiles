@@ -58,6 +58,7 @@
         {
             "antialiasingMode": "cleartype",
             "colorScheme": "Neon Dark",
+            "cursorBlinking": true,
             "cursorShape": "bar",
             "font": 
             {
