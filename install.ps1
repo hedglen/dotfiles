@@ -934,6 +934,34 @@ if (-not $AppsOnly) {
 }
 
 # =============================================================================
+#   WSL cron jobs
+# =============================================================================
+if (-not $ConfigsOnly) {
+    Write-Step "WSL cron jobs"
+    $wslCmd = Get-Command wsl.exe -ErrorAction SilentlyContinue
+    $cronSetup = Join-Path $DotfilesDir "wsl\setup-crons.sh"
+    if (-not $wslCmd) {
+        Write-Warn "wsl.exe not found — skipping WSL cron setup"
+    } elseif (-not (Test-Path -LiteralPath $cronSetup)) {
+        Write-Warn "wsl\setup-crons.sh not found — skipping"
+    } elseif ($DryRun) {
+        Write-Skip "Would run: wsl.exe bash wsl/setup-crons.sh (requires sudo inside WSL)"
+    } else {
+        try {
+            $wslPath = (& wsl.exe wslpath -u $cronSetup).Trim()
+            & wsl.exe bash $wslPath
+            if ($LASTEXITCODE -eq 0) {
+                Write-OK "WSL cron jobs installed"
+            } else {
+                Write-Warn "WSL cron setup exited $LASTEXITCODE"
+            }
+        } catch {
+            Write-Warn "WSL cron setup failed — $_"
+        }
+    }
+}
+
+# =============================================================================
 #   Done
 # =============================================================================
 Write-Host ""
