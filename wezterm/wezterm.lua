@@ -39,6 +39,7 @@ local function detect_wsl_distro()
 end
 local wsl_distro = detect_wsl_distro()
 local system_helper_cmd = [[
+Clear-Host
 $now = Get-Date
 $os = Get-CimInstance Win32_OperatingSystem
 $uptime = $now - $os.LastBootUpTime
@@ -58,8 +59,6 @@ function Format-Bytes([double]$bytes) {
   return ('{0:N0} MB' -f ($bytes / 1MB))
 }
 
-Write-Host 'System Dashboard' -ForegroundColor Magenta
-Write-Host ''
 Write-Host (' Time:   ' + $now.ToString('yyyy-MM-dd hh:mm tt')) -ForegroundColor Cyan
 Write-Host (' Uptime: ' + ('{0}d {1}h {2}m' -f $uptime.Days, $uptime.Hours, $uptime.Minutes)) -ForegroundColor Cyan
 Write-Host (' Host:   ' + $env:COMPUTERNAME) -ForegroundColor Cyan
@@ -112,13 +111,29 @@ Write-Host ' startup-list tasks-user   pkillf       reload       sync-dots' -For
 Write-Host ' orgmed       ytdl         trans        save-dots' -ForegroundColor DarkGray
 Write-Host ''
 Write-Host 'Updates & upgrades' -ForegroundColor Magenta
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget upgrade --all' -NoNewline -ForegroundColor Yellow; Write-Host '  upgrade WinGet-managed apps' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget list --upgrade-available' -NoNewline -ForegroundColor Yellow; Write-Host '  see what would upgrade first' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget source update' -NoNewline -ForegroundColor Yellow; Write-Host '  refresh WinGet index' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop update scoop; scoop update *' -NoNewline -ForegroundColor Yellow; Write-Host '  Scoop CLI tools' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'sync-dots' -NoNewline -ForegroundColor Yellow; Write-Host '  pull dotfiles + relink (update.ps1 -SkipApps)' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'Start ms-settings:windowsupdate' -NoNewline -ForegroundColor Yellow; Write-Host '  Windows Update (Settings)' -ForegroundColor DarkGray
-Write-Host '  ' -NoNewline -ForegroundColor DarkGray; Write-Host 'WinGet hash mismatch: enable InstallerHashOverride once (admin), then install with --ignore-security-hash in non-admin pwsh' -ForegroundColor DarkGray
+Write-Host ' Dotfiles:' -ForegroundColor Cyan
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'sync-dots' -NoNewline -ForegroundColor Yellow; Write-Host '  pull + relink (update.ps1 -SkipApps)' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1' -NoNewline -ForegroundColor Yellow; Write-Host '  full dotfiles + apps update' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1 -SkipApps' -NoNewline -ForegroundColor Yellow; Write-Host '  pull/relink/extensions/fonts only' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1 -SkipDots' -NoNewline -ForegroundColor Yellow; Write-Host '  apps only (winget + scoop)' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\maintenance\update.ps1 -DryRun' -NoNewline -ForegroundColor Yellow; Write-Host '  preview updater actions' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host '.\scripts\workstation-health.ps1' -NoNewline -ForegroundColor Yellow; Write-Host '  quick setup health check' -ForegroundColor DarkGray
+Write-Host ''
+Write-Host ' WinGet:' -ForegroundColor Cyan
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget source update' -NoNewline -ForegroundColor Yellow; Write-Host '  refresh package sources' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget list --upgrade-available' -NoNewline -ForegroundColor Yellow; Write-Host '  list pending upgrades' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget upgrade --all' -NoNewline -ForegroundColor Yellow; Write-Host '  upgrade all winget apps' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'winget upgrade --id <PackageId>' -NoNewline -ForegroundColor Yellow; Write-Host '  upgrade one package' -ForegroundColor DarkGray
+Write-Host ''
+Write-Host ' Scoop:' -ForegroundColor Cyan
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop update scoop' -NoNewline -ForegroundColor Yellow; Write-Host '  update scoop itself' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop status' -NoNewline -ForegroundColor Yellow; Write-Host '  list outdated buckets/apps' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop update *' -NoNewline -ForegroundColor Yellow; Write-Host '  update all scoop apps' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'scoop cleanup *' -NoNewline -ForegroundColor Yellow; Write-Host '  remove old versions' -ForegroundColor DarkGray
+Write-Host ''
+Write-Host ' Windows Update:' -ForegroundColor Cyan
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'Start ms-settings:windowsupdate' -NoNewline -ForegroundColor Yellow; Write-Host '  open Windows Update settings' -ForegroundColor DarkGray
+Write-Host '  ' -NoNewline -ForegroundColor Yellow; Write-Host 'usoclient StartScan' -NoNewline -ForegroundColor Yellow; Write-Host '  trigger scan (may be policy-limited)' -ForegroundColor DarkGray
 Write-Host ''
 ]]
 local coding_helper_cmd = [[
