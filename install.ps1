@@ -41,6 +41,54 @@ function Write-OK   { param([string]$Msg) Write-Host "   OK  $Msg" -ForegroundCo
 function Write-Skip { param([string]$Msg) Write-Host "   --  $Msg" -ForegroundColor DarkGray }
 function Write-Warn { param([string]$Msg) Write-Host "   !!  $Msg" -ForegroundColor Yellow }
 
+function Invoke-StartupCleanupPolicy {
+    param([switch]$DryRun)
+
+    $runPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+    $runValues = @(
+        'AdobeBridge',
+        'Adobe Acrobat Synchronizer',
+        'GoogleChromeAutoLaunch_2B79721E5FCF3159A6E77C5981E57BF6',
+        'Discord',
+        'org.whispersystems.signal-desktop',
+        'WingetUI',
+        'IDMan',
+        'LGHUB'
+    )
+    $startupShortcut = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Startup\Send to OneNote.lnk'
+
+    foreach ($name in $runValues) {
+        $exists = [bool](Get-ItemProperty -Path $runPath -Name $name -ErrorAction SilentlyContinue)
+        if (-not $exists) {
+            Write-Skip "Startup cleanup: $name not present"
+            continue
+        }
+        if ($DryRun) {
+            Write-Skip "Startup cleanup: would remove HKCU Run '$name'"
+            continue
+        }
+        try {
+            Remove-ItemProperty -Path $runPath -Name $name -ErrorAction Stop
+            Write-OK "Startup cleanup: removed HKCU Run '$name'"
+        } catch {
+            Write-Warn "Startup cleanup: failed to remove '$name' — $_"
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $startupShortcut)) {
+        Write-Skip "Startup cleanup: Send to OneNote startup shortcut not present"
+    } elseif ($DryRun) {
+        Write-Skip "Startup cleanup: would remove Send to OneNote startup shortcut"
+    } else {
+        try {
+            Remove-Item -LiteralPath $startupShortcut -Force -ErrorAction Stop
+            Write-OK "Startup cleanup: removed Send to OneNote startup shortcut"
+        } catch {
+            Write-Warn "Startup cleanup: failed to remove Send to OneNote startup shortcut — $_"
+        }
+    }
+}
+
 function Install-PCloudIfMissing {
     param([switch]$DryRun)
     $pkgId = "pCloudAG.pCloudDrive"
@@ -959,6 +1007,14 @@ if (-not $ConfigsOnly) {
             Write-Warn "WSL cron setup failed — $_"
         }
     }
+}
+
+# =============================================================================
+#   Startup hygiene
+# =============================================================================
+if (-not $ConfigsOnly) {
+    Write-Step "Startup cleanup policy"
+    Invoke-StartupCleanupPolicy -DryRun:$DryRun
 }
 
 # =============================================================================

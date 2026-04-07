@@ -50,6 +50,9 @@ This clones and configures the workspace:
 6. Config symlinks, VS Code extensions, fonts, mpv config, AutoHotkey
    - **mpv:** junction **`tools\mpv\portable_config`** → **`dotfiles\mpv-config`** (when `install.ps1` sets it up)
    - **yt-dlp global CLI:** `dotfiles/projects/ytdl/appdata-config` → `%APPDATA%\yt-dlp\config` (same as [workstation-tools.md](workstation-tools.md))
+7. Startup cleanup policy (auto-enforced by `install.ps1` and `maintenance/update.ps1`)
+   - HKCU Run entries removed when present: `AdobeBridge`, `Adobe Acrobat Synchronizer`, `GoogleChromeAutoLaunch_2B79721E5FCF3159A6E77C5981E57BF6`, `Discord`, `org.whispersystems.signal-desktop`, `WingetUI`, `IDMan`, `LGHUB`
+   - Startup shortcut removed when present: `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\Send to OneNote.lnk`
 
 **Python helpers:** venvs are created by **`install.ps1`** by default. To **repair** manually (e.g. after a bad upgrade):
 

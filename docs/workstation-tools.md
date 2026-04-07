@@ -40,6 +40,8 @@ Defined in `dotfiles/powershell/profile.ps1`. Some depend on **`dotfiles/project
 
 Navigation shortcuts: `c`, `d`, `home`, `dots`, `tools`, `psh` (see dotfiles README).
 
+Startup hygiene policy: `install.ps1` and `maintenance/update.ps1` automatically remove known unwanted startup entries (`AdobeBridge`, `Adobe Acrobat Synchronizer`, `GoogleChromeAutoLaunch_2B79721E5FCF3159A6E77C5981E57BF6`, `Discord`, `org.whispersystems.signal-desktop`, `WingetUI`, `IDMan`, `LGHUB`) plus `Send to OneNote.lnk` from the user Startup folder when present.
+
 ---
 
 ## Git Bash (optional)
