@@ -1,6 +1,6 @@
 # Workstation layout (overview)
 
-Canonical root for the hedglen setup on this machine: **`C:\Users\rjh\workstation\`**.
+Canonical root pattern: **`$HOME\workstation\`** (author example on this machine: `C:\Users\rjh\workstation\`).
 
 ## Folder layout
 
@@ -26,9 +26,9 @@ workstation/
 
 ## Rules (no drift)
 
-- **Canonical root**: `C:\Users\rjh\workstation\`
+- **Canonical root**: `$HOME\workstation\`
 - **Prefer relative paths** inside docs and scripts where possible.
-- **Portable tools**: `C:\Users\rjh\workstation\tools\`
+- **Portable tools**: `$HOME\workstation\tools\`
 - **mpv**: binary at **`tools\mpv\`**, config in **`dotfiles\mpv-config\`**; **`install.ps1`** creates a junction from **`tools\mpv\portable_config`** to that folder when appropriate.
 - **Python helpers** (`orgmed`, `ytdl`): live under **`dotfiles\projects\`**; profile and installer use that path. **`workstation\projects`** is for convenience when the junction exists.
 
@@ -38,9 +38,9 @@ workstation/
 C:\Users\rjh\tools  →  C:\Users\rjh\workstation\tools
 ```
 
-Treat `C:\Users\rjh\tools` as **compatibility only**. New work should use the canonical workstation paths.
+Treat `%USERPROFILE%\tools` as **compatibility only**. New work should use the canonical workstation paths.
 
 ## Next
 
 - Runbook: [**workstation-setup.md**](workstation-setup.md)
-- Quick health check: `.\dotfiles\scripts\workstation-health.ps1` from `C:\Users\rjh\workstation`
+- Quick health check: `.\dotfiles\scripts\workstation-health.ps1` from `$HOME\workstation`

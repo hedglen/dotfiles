@@ -509,6 +509,7 @@ Many GUI apps and heavy runtimes stay on **winget** (see `apps/winget-packages.j
 #### GitHub CLI (`gh`)
 
 The `gh` binary is **not** logged into GitHub until you authenticate.
+Default workflow in this repo is **HTTPS** with GitHub CLI credentials; SSH is optional if you prefer key-based Git.
 
 1. Open PowerShell (or any terminal where `gh` is on your `PATH`).
 2. Run:

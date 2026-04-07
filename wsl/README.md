@@ -9,8 +9,8 @@ Tracked files:
 
 Live targets inside WSL:
 
-- `/home/rjh/.zshrc`
-- `/home/rjh/.p10k.zsh`
+- `~/.zshrc`
+- `~/.p10k.zsh`
 
 ### What The Tracked `.zshrc` Does
 
@@ -31,20 +31,24 @@ Live targets inside WSL:
 
 Edit the tracked files first, then copy them into WSL.
 
-If your Windows username is not `rjh`, replace `/mnt/c/Users/rjh` with your own Windows home mount.
+Set a reusable Windows home mount variable first:
+
+```bash
+WIN_HOME="/mnt/c/Users/$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')"
+```
 
 From PowerShell:
 
 ```powershell
-wsl -e zsh -lc 'cp /mnt/c/Users/rjh/workstation/dotfiles/wsl/.zshrc ~/.zshrc'
-wsl -e zsh -lc 'cp /mnt/c/Users/rjh/workstation/dotfiles/wsl/.p10k.zsh ~/.p10k.zsh'
+wsl -e zsh -lc 'WIN_HOME="/mnt/c/Users/$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d "\r")"; cp "$WIN_HOME/workstation/dotfiles/wsl/.zshrc" ~/.zshrc'
+wsl -e zsh -lc 'WIN_HOME="/mnt/c/Users/$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d "\r")"; cp "$WIN_HOME/workstation/dotfiles/wsl/.p10k.zsh" ~/.p10k.zsh'
 ```
 
 From WSL:
 
 ```bash
-cp /mnt/c/Users/rjh/workstation/dotfiles/wsl/.zshrc ~/.zshrc
-cp /mnt/c/Users/rjh/workstation/dotfiles/wsl/.p10k.zsh ~/.p10k.zsh
+cp "$WIN_HOME/workstation/dotfiles/wsl/.zshrc" ~/.zshrc
+cp "$WIN_HOME/workstation/dotfiles/wsl/.p10k.zsh" ~/.p10k.zsh
 exec zsh -l
 ```
 
@@ -62,6 +66,7 @@ exec zsh -l
 ### GitHub CLI From WSL
 
 `gh auth login` works best when `wslu` is installed, because that provides `wslview`.
+Default workflow in this repo is **HTTPS** with GitHub CLI credentials; SSH is optional if you prefer key-based Git.
 
 Verify:
 
@@ -150,10 +155,10 @@ ssh -T git@github.com
 
 | What | Path |
 |------|------|
-| WSL home | `/home/rjh` |
-| Windows home | `/mnt/c/Users/rjh` |
-| Workstation folder | `/mnt/c/Users/rjh/workstation` |
-| Dotfiles | `/mnt/c/Users/rjh/workstation/dotfiles` |
+| WSL home | `$HOME` |
+| Windows home | `$WIN_HOME` |
+| Workstation folder | `$WIN_HOME/workstation` |
+| Dotfiles | `$WIN_HOME/workstation/dotfiles` |
 | Music library | `/mnt/r/Media/Music` |
 | Video download inbox | `/mnt/r/Media/x/dl` (same as Windows `R:\Media\x\dl`) |
 | zsh config | `~/.zshrc` |
@@ -186,7 +191,7 @@ alias dl='yt-dlp -o "/mnt/r/Media/x/dl/%(title)s.%(ext)s"'
 | Bulk file rename / find / process | WSL |
 | ffmpeg batch jobs | Either (WSL is slightly easier to chain) |
 | SSH into servers | WSL |
-| Git push/pull | Either (both have SSH keys) |
+| Git push/pull | Either (default HTTPS via `gh`; SSH optional if keys are configured) |
 
 ---
 
