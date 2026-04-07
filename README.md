@@ -4,6 +4,23 @@
 
 ---
 
+## 🖥️ Related
+
+- **[README.md](README.md)** — root bootstrap guide for this repo (you are here)
+- **[docs/README.md](docs/README.md)** — index of workstation setup/layout/tools docs
+- **[docs/clean-reinstall-README.md](docs/clean-reinstall-README.md)** — wipe-and-rebuild checklist for clean Windows reinstalls
+- **[scripts/README.md](scripts/README.md)** — workstation utility scripts and health-check usage
+- **[wsl/README.md](wsl/README.md)** — WSL shell sync, tooling, and GitHub auth notes
+- **[mpv-config/README.md](mpv-config/README.md)** — mpv configuration/features and install behavior
+- **[notes/README.md](notes/README.md)** — notes area structure and organization
+- **[corsair/README.md](corsair/README.md)** — Corsair/Scimitar helper scripts and usage
+- **[foobar2000/README.md](foobar2000/README.md)** — foobar2000 theme/setup overview
+- **[foobar2000/themes/premium-gold/README.md](foobar2000/themes/premium-gold/README.md)** — premium-gold theme details
+- **[projects/media-organizer/README.md](projects/media-organizer/README.md)** — media organizer project docs
+- **[projects/ytdl/README.md](projects/ytdl/README.md)** — ytdl wrapper project docs
+
+---
+
 ## ⚡ Fresh Machine Setup
 
 Use this on a **brand-new Windows PC** before you do anything else. Order matters: Git must exist so the bootstrap can clone repos; `winget` must work so apps can install.
@@ -604,12 +621,3 @@ oh-my-posh init pwsh --config "$HOME\workstation\dotfiles\oh-my-posh\hedglab.omp
 CaskaydiaCove Nerd Font is installed automatically by `install.ps1` (step 8). No manual download needed.
 
 The **Neon Dark** scheme (matched to Sudhan’s VS Code [Neon Dark Theme](https://marketplace.visualstudio.com/items?itemName=Sudhan.neondark-theme)) is defined in `windows-terminal/settings.json` and mirrored in `vscode/settings.json` (`terminal.integrated.*` + `workbench.colorCustomizations`) so Windows Terminal and the VS Code integrated terminal stay consistent. **Neon Blaze** remains in `settings.json` if you want the old green-accent look.
-
----
-
-## 🖥️ Related
-
-- **[Documentation index](docs/README.md)** — links to runbook, layout, tools guide, Opus notes
-- **[Workstation tools guide](docs/workstation-tools.md)** — practical map of winget/Scoop apps, PowerShell helpers (`ytdl`, `orgmed`, `trans`, …), and links to upstream docs ([GitHub](https://github.com/hedglen/dotfiles/blob/master/docs/workstation-tools.md))
-- **`apps/winget-packages.md`** / **`apps/scoop-packages.md`** — short description + example use for each package ID / Scoop name
-- **[mpv-config in dotfiles](https://github.com/hedglen/dotfiles/tree/master/mpv-config)** - bundled mpv setup (HDR auto-switching, FSRCNNX/Anime4K shaders, ultrawide optimization, Corsair Scimitar mapping, chapter editor, clip export, GIF creation, favorites, audio normalize, and more); formerly a standalone repo, now **`mpv-config/`** under dotfiles
