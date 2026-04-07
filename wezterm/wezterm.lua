@@ -192,7 +192,9 @@ Clear-Host
   Write-Host ''
 }
 ]]
-local git_top_helper_cmd = [[__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo; export PROMPT_COMMAND='__wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf "%s\n" "$__wt_repo" > ~/.wezterm-git-current-repo'; git status --short --branch; exec bash -il]]
+-- Track repo root for Git Watch (bottom pane): prepend hook so user PROMPT_COMMAND chains stay intact;
+-- also use export -f so the hook survives exec bash -il (plain PROMPT_COMMAND strings can be dropped).
+local git_top_helper_cmd = [[__wezterm_git_track_root(){ __wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf '%s\n' "$__wt_repo" > ~/.wezterm-git-current-repo; }; export -f __wezterm_git_track_root >/dev/null 2>&1 || true; __wt_repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; printf '%s\n' "$__wt_repo" > ~/.wezterm-git-current-repo; case ":${PROMPT_COMMAND:-}:" in *"__wezterm_git_track_root"*) ;; *) export PROMPT_COMMAND="__wezterm_git_track_root${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;; esac; git status --short --branch; exec bash -il]]
 -- Git tab right pane: workspace clean/dirty + git cheat sheet; refreshes every 10s.
 local git_right_panel_cmd = [[
 while ($true) {
@@ -279,39 +281,6 @@ while ($true) {
   Start-Sleep -Seconds 10
 }
 ]]
-local git_live_view_cmd = [[
-state_file="$HOME/.wezterm-git-current-repo"
-default_repo="$HOME/workstation/dotfiles"
-
-while true; do
-  clear
-  repo="$default_repo"
-  if [ -f "$state_file" ]; then
-    candidate="$(tr -d '\r' < "$state_file" 2>/dev/null)"
-    if [ -n "$candidate" ]; then
-      repo="$candidate"
-    fi
-  fi
-
-  if git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    branch="$(git -C "$repo" rev-parse --abbrev-ref HEAD 2>/dev/null)"
-    repo_name="$(basename "$repo")"
-    printf "\033[38;5;45mGit Watch\033[0m  %s [%s]\n\n" "$repo_name" "$branch"
-    printf "\033[38;5;81mLegend:\033[0m * commit | / \\ branch/merge lines | (...) refs | M modified | A added | ?? untracked\n\n"
-    printf "\033[38;5;81mStatus:\033[0m\n"
-    git -C "$repo" status --short --branch
-    printf "\n\033[38;5;81mRecent history:\033[0m\n"
-    git -C "$repo" -c color.ui=always log --oneline --graph --decorate --all -20
-  else
-    printf "\033[38;5;45mGit Watch\033[0m\n\n"
-    printf "Waiting for a git repo in the top pane.\n"
-    printf "Current path: %s\n" "$repo"
-  fi
-
-  printf "\n\033[38;5;244mRefreshes every 3s. Change repo in the top pane with cd.\033[0m\n"
-  sleep 3
-done
-]]
 local wsl_helper_cmd = [[
 cd "$HOME" || exit 1
 clear
@@ -376,6 +345,49 @@ local function bash_path(path)
 
   return path:gsub('\\', '/')
 end
+
+-- Same dotfiles path WezTerm uses (not $HOME-relative): avoids wrong repo if Git Bash HOME differs.
+-- GIT_PAGER=cat + core.pager=cat: delta/less can block the loop so "new" commits never appear.
+-- Use .. not string.format: the bash script contains printf %s which would confuse Lua format.
+local git_live_view_cmd = [[
+state_file="$HOME/.wezterm-git-current-repo"
+default_repo=]]
+  .. bash_quote(bash_path(dotfiles))
+  .. [[
+
+while true; do
+  clear
+  repo="$default_repo"
+  if [ -f "$state_file" ]; then
+    candidate="$(head -n1 "$state_file" 2>/dev/null | tr -d '\r')"
+    if [ -n "$candidate" ]; then
+      resolved="$(git -C "$candidate" rev-parse --show-toplevel 2>/dev/null)"
+      if [ -n "$resolved" ]; then
+        repo="$resolved"
+      fi
+    fi
+  fi
+
+  export GIT_PAGER=cat
+  if git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    branch="$(git -C "$repo" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+    repo_name="$(basename "$repo")"
+    printf "\033[38;5;45mGit Watch\033[0m  %s [%s]\n\n" "$repo_name" "$branch"
+    printf "\033[38;5;81mLegend:\033[0m * commit | / \\ branch/merge lines | (...) refs | M modified | A added | ?? untracked\n\n"
+    printf "\033[38;5;81mStatus:\033[0m\n"
+    git -c core.pager=cat -C "$repo" status --short --branch
+    printf "\n\033[38;5;81mRecent history:\033[0m\n"
+    git -c core.pager=cat -c color.ui=always -C "$repo" log --oneline --graph --decorate --all -20
+  else
+    printf "\033[38;5;45mGit Watch\033[0m\n\n"
+    printf "Waiting for a git repo in the top pane.\n"
+    printf "Current path: %s\n" "$repo"
+  fi
+
+  printf "\n\033[38;5;244mRefreshes every 3s. Change repo in the top pane with cd.\033[0m\n"
+  sleep 3
+done
+]]
 
 local function wsl_path(path)
   local drive, rest = path:match '^([A-Za-z]):\\(.*)$'
