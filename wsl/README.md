@@ -63,6 +63,21 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 exec zsh -l
 ```
 
+### Node/npm global CLI path policy
+
+This setup pins global npm CLI installs (including Codex) to:
+
+- `NPM_CONFIG_PREFIX=$HOME/.npm-global`
+- `PATH` prepends `$HOME/.npm-global/bin`
+
+This prevents split-path issues where `npm -g` updates one Codex binary while shell resolves another.
+
+Verify in a login shell:
+
+```bash
+command -v codex && codex --version && npm prefix -g
+```
+
 ### GitHub CLI From WSL
 
 `gh auth login` works best when `wslu` is installed, because that provides `wslview`.

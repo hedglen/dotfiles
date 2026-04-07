@@ -4,10 +4,20 @@
 # Run as Administrator.
 #
 # Usage:
-#   .\tweaks.ps1          # apply everything
+#   .\tweaks.ps1          # apply open/fun defaults
+#   .\tweaks.ps1 -Strict  # apply all stricter tweaks
+#   .\tweaks.ps1 -Privacy -Declutter   # mix and match
+#   .\tweaks.ps1 -Services -PowerLock  # mix and match
 #   .\tweaks.ps1 -WhatIf  # preview without changing anything
 # =============================================================================
-param([switch]$WhatIf)
+param(
+    [switch]$WhatIf,
+    [switch]$Strict,
+    [switch]$Privacy,
+    [switch]$Declutter,
+    [switch]$Services,
+    [switch]$PowerLock
+)
 
 # --- Admin check ---
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
@@ -36,8 +46,17 @@ function Disable-Svc {
 
 function Write-Section { param($Title) Write-Host "`n[ $Title ]" -ForegroundColor Cyan }
 function Write-OK      { param($Msg)   Write-Host "  OK $Msg"  -ForegroundColor Green }
+function Write-Skip    { param($Msg)   Write-Host "  -- $Msg"  -ForegroundColor DarkGray }
 
-if ($WhatIf) { Write-Host "`n  DRY RUN — no changes will be made`n" -ForegroundColor Yellow }
+$applyPrivacy   = $Strict -or $Privacy
+$applyDeclutter = $Strict -or $Declutter
+$applyServices  = $Strict -or $Services
+$applyPowerLock = $Strict -or $PowerLock
+
+if ($WhatIf) { Write-Host "`n  DRY RUN - no changes will be made`n" -ForegroundColor Yellow }
+if ($Strict) { Write-Host "  Mode: STRICT (privacy + declutter locks enabled)" -ForegroundColor Yellow }
+else { Write-Host "  Mode: OPEN (fun defaults, access-first)" -ForegroundColor Yellow }
+Write-Host "  Toggles: Privacy=$applyPrivacy Declutter=$applyDeclutter Services=$applyServices PowerLock=$applyPowerLock" -ForegroundColor DarkGray
 
 
 # =============================================================================
@@ -56,53 +75,75 @@ if ($hp) {
     Write-OK "High Performance plan set (fallback)"
 }
 
-# Disable fast startup (causes issues with drives, dual-boot, wake)
-Set-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power' 'HiberbootEnabled' 0
-Write-OK "Fast startup disabled"
+if ($applyPowerLock) {
+    # Disable fast startup (can help with dual-boot/drive wake issues).
+    Set-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power' 'HiberbootEnabled' 0
+    Write-OK "Fast startup disabled"
 
-# Disable sleep on AC
-if (-not $WhatIf) { powercfg /change standby-timeout-ac 0 }
-Write-OK "AC sleep disabled"
+    if (-not $WhatIf) { powercfg /change standby-timeout-ac 0 }
+    Write-OK "AC sleep disabled"
 
-if (-not $WhatIf) { powercfg /change disk-timeout-ac 0 }
-Write-OK "Disk sleep disabled"
-
-
-# =============================================================================
-# Privacy — Telemetry
-# =============================================================================
-Write-Section "Privacy — Telemetry"
-
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection'              'AllowTelemetry'    0
-Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' 'AllowTelemetry'  0
-Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' 'MaxTelemetryAllowed' 0
-Disable-Svc 'DiagTrack'        'Connected User Experiences & Telemetry'
-Disable-Svc 'dmwappushservice' 'WAP Push Message Routing'
-Write-OK "Telemetry minimized"
+    if (-not $WhatIf) { powercfg /change disk-timeout-ac 0 }
+    Write-OK "Disk sleep disabled"
+} else {
+    Write-Skip "Fast startup unchanged (open mode)"
+    Write-Skip "AC sleep timeout unchanged (open mode)"
+    Write-Skip "Disk sleep timeout unchanged (open mode)"
+}
 
 
 # =============================================================================
-# Privacy — Advertising & Activity
+# Privacy - Telemetry
 # =============================================================================
-Write-Section "Privacy — Advertising"
+Write-Section "Privacy - Telemetry"
 
-Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo'    'Enabled'                                  0
-Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy'            'TailoredExperiencesWithDiagnosticDataEnabled' 0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'EnableActivityFeed'     0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'PublishUserActivities'  0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'UploadUserActivities'   0
-Write-OK "Advertising ID disabled"
-Write-OK "Activity history / Timeline disabled"
+if ($applyPrivacy) {
+    Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection'              'AllowTelemetry'    0
+    Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' 'AllowTelemetry'  0
+    Set-Reg 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' 'MaxTelemetryAllowed' 0
+}
+if ($applyServices) {
+    Disable-Svc 'DiagTrack'        'Connected User Experiences & Telemetry'
+    Disable-Svc 'dmwappushservice' 'WAP Push Message Routing'
+}
+if ($applyPrivacy -and $applyServices) {
+    Write-OK "Telemetry minimized (policy + services)"
+} elseif ($applyPrivacy) {
+    Write-OK "Telemetry minimized (policy only)"
+} elseif ($applyServices) {
+    Write-OK "Telemetry services disabled (service-only mode)"
+} else {
+    Write-Skip "Telemetry policy unchanged (open mode)"
+    Write-Skip "Telemetry services unchanged (open mode)"
+}
 
 
 # =============================================================================
-# Privacy — App Permissions
+# Privacy - Advertising & Activity
 # =============================================================================
-Write-Section "Privacy — App Permissions"
+Write-Section "Privacy - Advertising"
+
+if ($applyPrivacy) {
+    Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo'    'Enabled'                                  0
+    Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy'            'TailoredExperiencesWithDiagnosticDataEnabled' 0
+    Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'EnableActivityFeed'     0
+    Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'PublishUserActivities'  0
+    Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'                   'UploadUserActivities'   0
+    Write-OK "Advertising ID disabled"
+    Write-OK "Activity history / Timeline disabled"
+} else {
+    Write-Skip "Advertising and activity policies unchanged (open mode)"
+}
+
+
+# =============================================================================
+# Privacy - App Permissions
+# =============================================================================
+Write-Section "Privacy - App Permissions"
 
 # NOTE: We do NOT globally block camera/mic/location via policy here.
 # Windows' built-in per-app permission prompts (Settings > Privacy) are
-# the right mechanism — they let you grant or revoke access app-by-app
+# the right mechanism - they let you grant or revoke access app-by-app
 # without locking out the Settings UI.
 # If you want to tighten a specific app, do so in Settings > Privacy & security.
 
@@ -114,19 +155,22 @@ Write-OK "App permissions: using Windows built-in per-app controls (no policy ov
 # =============================================================================
 Write-Section "Game DVR / Game Bar"
 
-Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled' 0
-Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR'       'AllowGameDVR'       0
-Set-Reg 'HKCU:\System\GameConfigStore'                             'GameDVR_Enabled'    0
-Set-Reg 'HKCU:\Software\Microsoft\GameBar'                         'AutoGameModeEnabled' 0
+if ($applyDeclutter) {
+    Set-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled' 0
+    Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR'       'AllowGameDVR'       0
+    Set-Reg 'HKCU:\System\GameConfigStore'                             'GameDVR_Enabled'    0
+    Set-Reg 'HKCU:\Software\Microsoft\GameBar'                         'AutoGameModeEnabled' 0
 
-# NOTE: XblAuthManager / XblGameSave / XboxNetApiSvc are left alone.
-# Disabling them breaks Xbox/Game Pass titles even without a Game Bar.
-
-Write-OK "Background recording / Game DVR disabled (Xbox services untouched)"
+    # NOTE: XblAuthManager / XblGameSave / XboxNetApiSvc are left alone.
+    # Disabling them breaks Xbox/Game Pass titles even without a Game Bar.
+    Write-OK "Background recording / Game DVR disabled (Xbox services untouched)"
+} else {
+    Write-Skip "Game DVR / Game Bar settings unchanged (open mode)"
+}
 
 
 # =============================================================================
-# Explorer — Quality of Life
+# Explorer - Quality of Life
 # =============================================================================
 Write-Section "Explorer"
 
@@ -155,23 +199,29 @@ $search = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search'
 $cdm    = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
 $feeds  = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds'
 
-Set-Reg $search 'BingSearchEnabled'  0  # No web results in Start search
-Set-Reg $search 'CortanaConsent'     0  # Disable Cortana
-Set-Reg $feeds  'EnableFeeds'        0  # Disable news/interests widget
-
-Set-Reg $cdm 'ContentDeliveryAllowed'          0
-Set-Reg $cdm 'OemPreInstalledAppsEnabled'      0
-Set-Reg $cdm 'PreInstalledAppsEnabled'         0
-Set-Reg $cdm 'SilentInstalledAppsEnabled'      0
-Set-Reg $cdm 'SoftLandingEnabled'              0
-Set-Reg $cdm 'SubscribedContent-338388Enabled' 0
-Set-Reg $cdm 'SubscribedContent-338389Enabled' 0
-Set-Reg $cdm 'SystemPaneSuggestionsEnabled'    0
-
-Write-OK "Bing / web search in Start: off"
-Write-OK "Cortana: off"
-Write-OK "News / Interests widget: off"
-Write-OK "Suggested / promoted apps: off"
+if ($applyDeclutter) {
+    Set-Reg $feeds  'EnableFeeds'        0  # Disable news/interests widget
+    Set-Reg $cdm 'ContentDeliveryAllowed'          0
+    Set-Reg $cdm 'OemPreInstalledAppsEnabled'      0
+    Set-Reg $cdm 'PreInstalledAppsEnabled'         0
+    Set-Reg $cdm 'SilentInstalledAppsEnabled'      0
+    Set-Reg $cdm 'SoftLandingEnabled'              0
+    Set-Reg $cdm 'SubscribedContent-338388Enabled' 0
+    Set-Reg $cdm 'SubscribedContent-338389Enabled' 0
+    Set-Reg $cdm 'SystemPaneSuggestionsEnabled'    0
+    Write-OK "News / Interests widget: off"
+    Write-OK "Suggested / promoted apps: off"
+} else {
+    Write-Skip "Declutter taskbar/promo policies unchanged (open mode)"
+}
+if ($applyPrivacy) {
+    Set-Reg $search 'BingSearchEnabled'  0  # No web results in Start search
+    Set-Reg $search 'CortanaConsent'     0  # Disable Cortana
+    Write-OK "Bing / web search in Start: off"
+    Write-OK "Cortana: off"
+} else {
+    Write-Skip "Start web search/Cortana settings unchanged (open mode)"
+}
 
 
 # =============================================================================
@@ -179,10 +229,14 @@ Write-OK "Suggested / promoted apps: off"
 # =============================================================================
 Write-Section "Unnecessary Services"
 
-Disable-Svc 'MapsBroker'  'Downloaded Maps Manager'
-Disable-Svc 'RetailDemo'  'Retail Demo Service'
+if ($applyServices) {
+    Disable-Svc 'MapsBroker'  'Downloaded Maps Manager'
+    Disable-Svc 'RetailDemo'  'Retail Demo Service'
+} else {
+    Write-Skip "Optional service disablement skipped (open mode)"
+}
 
-# Windows Search indexing — comment this IN only if you never use Start/file search.
+# Windows Search indexing - comment this IN only if you never use Start/file search.
 # Disabling it silently breaks search across the whole OS.
 # Disable-Svc 'WSearch' 'Windows Search (indexing)'
 
@@ -201,5 +255,9 @@ if (-not $WhatIf) {
 
 Write-Host ""
 Write-Host "  All tweaks applied." -ForegroundColor Magenta
-Write-Host "  Restart your PC for service changes to fully take effect." -ForegroundColor Yellow
+if ($applyServices) {
+    Write-Host "  Restart your PC for service changes to fully take effect." -ForegroundColor Yellow
+} else {
+    Write-Host "  Restart your PC if visual changes do not appear immediately." -ForegroundColor Yellow
+}
 Write-Host ""

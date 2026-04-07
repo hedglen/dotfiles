@@ -620,8 +620,8 @@ if (-not $AppsOnly) {
             desc = "yt-dlp global config (from projects/ytdl)"
         },
         @{
-            src  = "wezterm\wezterm.lua"
-            dst  = "$HOME\.wezterm.lua"
+            src  = "wezterm"
+            dst  = "$HOME\.config\wezterm"
             desc = "WezTerm"
         }
     )
@@ -641,10 +641,18 @@ if (-not $AppsOnly) {
             continue
         }
 
+        if ($c.desc -eq "WezTerm" -and -not $DryRun) {
+            $oldWeztermLink = "$HOME\.wezterm.lua"
+            if (Test-Path -LiteralPath $oldWeztermLink -ErrorAction SilentlyContinue) {
+                Remove-Item -LiteralPath $oldWeztermLink -Force -ErrorAction SilentlyContinue
+                Write-OK "WezTerm legacy ~/.wezterm.lua removed"
+            }
+        }
+
         # Skip if symlink already points to the right place (full paths; Target may be string[])
         if (Test-Path -LiteralPath $dst -ErrorAction SilentlyContinue) {
             $linkItem = Get-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue
-            if ($linkItem -and $linkItem.LinkType -eq 'SymbolicLink') {
+            if ($linkItem -and ($linkItem.LinkType -eq 'SymbolicLink' -or $linkItem.LinkType -eq 'Junction')) {
                 $t = $linkItem.Target
                 if ($t -is [System.Array]) { $t = $t[0] }
                 try {
@@ -662,7 +670,7 @@ if (-not $AppsOnly) {
         # Wrong symlink: remove (Copy-Item on links often fails). Plain file/dir: back up then remove.
         $existing = Get-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue
         if ($existing) {
-            if ($existing.LinkType -eq 'SymbolicLink') {
+            if ($existing.LinkType -eq 'SymbolicLink' -or $existing.LinkType -eq 'Junction') {
                 Remove-Item -LiteralPath $dst -Force
             } elseif ($existing.PSIsContainer) {
                 $backup = "$dst.backup"
@@ -677,12 +685,17 @@ if (-not $AppsOnly) {
             }
         }
 
-        # Try symlink first, fall back to copy
+        # Try junction for WezTerm directory, symlink otherwise; fall back to copy
         try {
-            New-Item -ItemType SymbolicLink -Path $dst -Target $src -Force | Out-Null
+            $linkType = if ($c.desc -eq "WezTerm") { "Junction" } else { "SymbolicLink" }
+            New-Item -ItemType $linkType -Path $dst -Target $src -Force | Out-Null
             Write-OK "$($c.desc) (symlinked)"
         } catch {
-            Copy-Item $src $dst -Force
+            if (Test-Path -LiteralPath $src -PathType Container) {
+                Copy-Item $src $dst -Recurse -Force
+            } else {
+                Copy-Item $src $dst -Force
+            }
             Write-Warn "$($c.desc) (copied — run as admin for symlinks)"
         }
     }

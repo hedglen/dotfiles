@@ -15,7 +15,9 @@ if [ -z "${WINDOWS_HOME_WSL:-}" ]; then
   unset _win_home
 fi
 
-export PATH="$HOME/.local/bin:$PATH"
+export NPM_CONFIG_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
+mkdir -p "$NPM_CONFIG_PREFIX"
+export PATH="$NPM_CONFIG_PREFIX/bin:$HOME/.local/bin:$PATH"
 export WORKSTATION="${WORKSTATION:-$WINDOWS_HOME_WSL/workstation}"
 
 dl() {
