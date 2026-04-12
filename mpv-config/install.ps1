@@ -49,13 +49,29 @@ $mpvZip = "$env:TEMP\mpv-latest.7z"
 Info "Downloading $($mpvAsset.name)..."
 SkipOrRun "Download mpv archive to $mpvZip" { Invoke-WebRequest -Uri $mpvAsset.browser_download_url -OutFile $mpvZip }
 
-# Extract with 7-Zip
-$sevenZip = @("C:\Program Files\7-Zip\7z.exe","C:\Program Files (x86)\7-Zip\7z.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+# Extract with 7-Zip-compatible CLI (7-Zip, NanaZip, Scoop shims, etc.)
+$sevenZip = $null
+foreach ($cmdName in @('7z.exe', '7z')) {
+    $cmd = Get-Command $cmdName -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($cmd -and $cmd.Source -and (Test-Path -LiteralPath $cmd.Source)) {
+        $sevenZip = $cmd.Source
+        break
+    }
+}
+if (-not $sevenZip) {
+    $sevenZip = @(
+        "C:\Program Files\7-Zip\7z.exe",
+        "C:\Program Files (x86)\7-Zip\7z.exe",
+        "C:\Program Files\NanaZip\7z.exe",
+        "C:\Program Files (x86)\NanaZip\7z.exe",
+        "$env:LocalAppData\Programs\NanaZip\7z.exe"
+    ) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+}
 if ($sevenZip) {
-    Info "Extracting mpv..."
+    Info "Extracting mpv (using $sevenZip)..."
     SkipOrRun "Extract mpv into $InstallDir" { & $sevenZip x $mpvZip -o"$InstallDir" -y | Out-Null }
 } else {
-    Fatal "7-Zip not found. Please install 7-Zip from https://7-zip.org, then re-run this script."
+    Fatal "7z.exe not found (7-Zip, NanaZip, or another 7-Zip-compatible build). Install one and ensure 7z is on PATH, or install NanaZip / 7-Zip, then re-run this script."
 }
 OK "mpv extracted to $InstallDir"
 
