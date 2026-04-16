@@ -1,6 +1,6 @@
 # ytdl
 
-yt-dlp wrapper with presets. Downloads go to `R:/Media/x/dl` (see `config.toml`).
+yt-dlp wrapper with presets. Downloads go to `D:/Downloads` (see `config.toml`).
 
 ## Usage
 
